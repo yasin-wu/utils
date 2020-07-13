@@ -93,7 +93,7 @@ func GetFileFromUrl(url, filename string) error {
  * @date: 2020/7/13 10:30
  * @description：analysis file basic info
  */
-func AnalysisFileInfo(file *os.File) *FileInfo {
+func ParseFileInfo(file *os.File) *FileInfo {
 	fileInfo := &FileInfo{
 		Name:     path.Base(file.Name()),
 		Path:     file.Name(),
