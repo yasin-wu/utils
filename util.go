@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
 )
 
 /**
@@ -44,7 +45,7 @@ func PrintJson(to string, data interface{}) error {
  * @date: 2020/5/25 14:41
  * @description：put file to url
  */
-func PutFile(url string, file *os.File) ([]byte, error) {
+func PutFileToUrl(url string, file *os.File) ([]byte, error) {
 	req, err := http.NewRequest("PUT", url, file)
 	if err != nil {
 		return nil, err
@@ -65,9 +66,9 @@ func PutFile(url string, file *os.File) ([]byte, error) {
 /**
  * @author: yasin
  * @date: 2020/5/25 15:55
- * @description：get file to url
+ * @description：get file from url
  */
-func GetFile(url, filename string) error {
+func GetFileFromUrl(url, filename string) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -85,4 +86,18 @@ func GetFile(url, filename string) error {
 	}
 
 	return nil
+}
+
+/**
+ * @author: yasin
+ * @date: 2020/7/13 10:30
+ * @description：analysis file basic info
+ */
+func AnalysisFileInfo(file *os.File) *FileInfo {
+	fileInfo := &FileInfo{
+		Name:     path.Base(file.Name()),
+		Path:     file.Name(),
+		FileType: path.Ext(path.Base(file.Name())),
+	}
+	return fileInfo
 }
