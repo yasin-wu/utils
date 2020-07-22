@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"golang.org/x/net/context/ctxhttp"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"os"
 	"path"
+	"regexp"
+	"strings"
 )
 
 /**
@@ -100,4 +103,78 @@ func ParseFileInfo(file *os.File) *FileInfo {
 		FileType: path.Ext(path.Base(file.Name())),
 	}
 	return fileInfo
+}
+
+/**
+ * @author: yasin
+ * @date: 2020/7/22 09:32
+ * @description：
+ */
+func RemoveHtml(src string) string {
+	re, _ := regexp.Compile(`\\<[\\S\\s]+?\\>`)
+	src = re.ReplaceAllStringFunc(src, strings.ToLower)
+
+	re, _ = regexp.Compile(`\\<style[\\S\\s]+?\\</style\\>`)
+	src = re.ReplaceAllString(src, "")
+
+	re, _ = regexp.Compile(`\\<script[\\S\\s]+?\\</script\\>`)
+	src = re.ReplaceAllString(src, "")
+
+	re, _ = regexp.Compile(`\\<[\\S\\s]+?\\>`)
+	src = re.ReplaceAllString(src, "\n")
+
+	re, _ = regexp.Compile(`\\s{2,}`)
+	src = re.ReplaceAllString(src, "\n")
+
+	return src
+}
+
+/**
+ * @author: yasin
+ * @date: 2020/7/22 13:57
+ * @description：2 to 10
+ */
+func ConvertString2To10(input string) int64 {
+	c := getInput(input)
+	out := sq(c)
+	sum := 0
+	for o := range out {
+		sum += o
+	}
+	return int64(sum)
+}
+
+func getInput(input string) <-chan int {
+	out := make(chan int)
+	go func() {
+		for _, b := range stringToIntArray(input) {
+			out <- b
+		}
+		close(out)
+	}()
+
+	return out
+}
+func sq(in <-chan int) <-chan int {
+	out := make(chan int)
+
+	var base, i float64 = 2, 0
+	go func() {
+		for n := range in {
+			out <- (n - 48) * int(math.Pow(base, i))
+			i++
+		}
+		close(out)
+	}()
+	return out
+}
+func stringToIntArray(input string) []int {
+	output := []int{}
+	for _, v := range input {
+		output = append(output, int(v))
+	}
+	for i, j := 0, len(output)-1; i < j; i, j = i+1, j-1 {
+		output[i], output[j] = output[j], output[i]
+	}
+	return output
 }
