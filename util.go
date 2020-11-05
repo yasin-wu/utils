@@ -8,6 +8,7 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 	"io/ioutil"
 	"math"
+	"math/rand"
 	"net/http"
 	"os"
 	"path"
@@ -177,4 +178,11 @@ func stringToIntArray(input string) []int {
 		output[i], output[j] = output[j], output[i]
 	}
 	return output
+}
+
+func RandInt64(min, max int64) int64 {
+	if min >= max || min == 0 || max == 0 {
+		return max
+	}
+	return rand.Int63n(max-min) + min
 }
