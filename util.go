@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	js "github.com/bitly/go-simplejson"
 	"golang.org/x/net/context/ctxhttp"
 	"io/ioutil"
 	"math"
@@ -13,7 +15,9 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 )
 
 /**
@@ -185,4 +189,36 @@ func RandInt64(min, max int64) int64 {
 		return max
 	}
 	return rand.Int63n(max-min) + min
+}
+
+func CutTimeSectionToDay(startTime, endTime int64) ([]*js.Json, error) {
+	if endTime <= startTime {
+		return nil, errors.New("endTime is before startTime")
+	}
+	durationDays := (endTime - startTime) / DayTimestamp
+	var data []*js.Json
+	var i int64
+	for i = 0; i <= durationDays; i++ {
+		var ett time.Time
+		var stt time.Time
+		st := startTime + DayTimestamp*i
+		stt = time.Unix(st/1000, 0)
+		ett = time.Unix(endTime/1000, 0)
+		jsonObj := js.New()
+		if i == 0 {
+			ett = time.Date(stt.Year(), stt.Month(), stt.Day(), 23, 59, 59, 0, stt.Location())
+		} else if i == durationDays {
+			stt = time.Date(stt.Year(), stt.Month(), stt.Day(), 0, 0, 0, 0, stt.Location())
+		} else {
+			stt = time.Date(stt.Year(), stt.Month(), stt.Day(), 0, 0, 0, 0, stt.Location())
+			ett = time.Date(stt.Year(), stt.Month(), stt.Day(), 23, 59, 59, 0, stt.Location())
+		}
+		jsonObj.Set("desc", fmt.Sprintf("%d-%d-%d", stt.Year(), stt.Month(), stt.Day()))
+		jsonObj.Set("start_time", stt.Unix()*1000)
+		jsonObj.Set("end_time", ett.Unix()*1000)
+		usageTime, _ := strconv.ParseFloat(strconv.FormatFloat(ett.Sub(stt).Hours(), 'f', 1, 64), 64)
+		jsonObj.Set("usage_time", usageTime)
+		data = append(data, jsonObj)
+	}
+	return data, nil
 }
