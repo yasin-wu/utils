@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -191,18 +192,23 @@ func RandInt64(min, max int64) int64 {
 	return rand.Int63n(max-min) + min
 }
 
-func CutTimeSectionToDays(startTime, endTime time.Time) ([]*js.Json, error) {
-	durationDays := int(endTime.Sub(startTime).Hours() / 24)
+func CalendarDays(startTime, endTime time.Time) ([]*js.Json, error) {
+	if endTime.Before(startTime) || endTime.Equal(startTime) {
+		return nil, errors.New("startTime <= endTime")
+	}
+	u1 := time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 0, 0, 0, 0, time.Now().Location())
+	u2 := time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 0, 0, 0, 0, time.Now().Location())
+	durationDays := int(u2.Sub(u1).Hours()/24) + 1
 	var data []*js.Json
-	for i := 0; i <= durationDays; i++ {
+	for i := 0; i < durationDays; i++ {
 		var stt time.Time
 		var ett time.Time
 		stt = startTime.AddDate(0, 0, i)
 		ett = endTime
 		jsonObj := js.New()
-		if i == 0 {
+		if i == 0 && i != durationDays-1 {
 			ett = time.Date(stt.Year(), stt.Month(), stt.Day(), 23, 59, 59, 0, stt.Location())
-		} else if i == durationDays {
+		} else if i == durationDays-1 {
 			stt = time.Date(stt.Year(), stt.Month(), stt.Day(), 0, 0, 0, 0, stt.Location())
 		} else {
 			stt = time.Date(stt.Year(), stt.Month(), stt.Day(), 0, 0, 0, 0, stt.Location())
