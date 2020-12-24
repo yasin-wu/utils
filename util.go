@@ -198,7 +198,10 @@ func CalendarDays(startTime, endTime time.Time) ([]*js.Json, error) {
 	}
 	u1 := time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 0, 0, 0, 0, time.Now().Location())
 	u2 := time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 0, 0, 0, 0, time.Now().Location())
-	durationDays := int(u2.Sub(u1).Hours()/24) + 1
+	durationDays := int(u2.Sub(u1).Hours() / 24)
+	if int(endTime.Sub(startTime).Hours())%24 > 0 {
+		durationDays += 1
+	}
 	var data []*js.Json
 	for i := 0; i < durationDays; i++ {
 		var stt time.Time
@@ -222,4 +225,21 @@ func CalendarDays(startTime, endTime time.Time) ([]*js.Json, error) {
 		data = append(data, jsonObj)
 	}
 	return data, nil
+}
+
+func RemoveRepeatedElement(arr []string) []string {
+	newArr := make([]string, 0)
+	for i := 0; i < len(arr); i++ {
+		repeat := false
+		for j := i + 1; j < len(arr); j++ {
+			if arr[i] == arr[j] {
+				repeat = true
+				break
+			}
+		}
+		if !repeat {
+			newArr = append(newArr, arr[i])
+		}
+	}
+	return newArr
 }
