@@ -1,4 +1,4 @@
-package utils
+package common
 
 type FileInfo struct {
 	Name     string
@@ -8,7 +8,7 @@ type FileInfo struct {
 }
 
 const (
-	Ali_SMS_Scheme  = "https"
+	Ali_SMS_SCHEME  = "https"
 	Ali_SMS_SUCCESS = "OK"
 )
 
@@ -23,4 +23,8 @@ const (
 	GB
 	TB
 	PB
+)
+
+const (
+	WordRatio = 0.05
 )

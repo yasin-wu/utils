@@ -1,4 +1,4 @@
-package utils
+package sms
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
 	js "github.com/bitly/go-simplejson"
+	"github.com/yasin-wu/utils/common"
 )
 
 /**
@@ -23,7 +24,7 @@ type AliSms struct {
 	TemplateParam   *js.Json `json:"template_param"`
 }
 
-func (this *AliSms) AliSMSSend() error {
+func (this *AliSms) Send() error {
 	err := this.verifyRequired()
 	if err != nil {
 		return err
@@ -41,12 +42,22 @@ func (this *AliSms) AliSMSSend() error {
 		return err
 	}
 	request := dysmsapi.CreateSendSmsRequest()
-	request.Scheme = Ali_SMS_Scheme
+	request.Scheme = common.Ali_SMS_SCHEME
 	request.PhoneNumbers = phones
 	request.SignName = this.SignName
 	request.TemplateCode = this.TemplateCode
 	if this.TemplateParam != nil {
-		messageByte, err := json.Marshal(this.TemplateParam)
+		//参数不能超过20字符
+		paramMap, _ := this.TemplateParam.Map()
+		paramJson := js.New()
+		for k, v := range paramMap {
+			sv := fmt.Sprintf("%v", v)
+			if len(sv) > 20 {
+				sv = sv[0:18]
+			}
+			paramJson.Set(k, sv)
+		}
+		messageByte, err := json.Marshal(paramJson)
 		if err != nil {
 			return err
 		}
@@ -57,7 +68,7 @@ func (this *AliSms) AliSMSSend() error {
 	if err != nil {
 		return err
 	}
-	if response.Code != Ali_SMS_SUCCESS {
+	if response.Code != common.Ali_SMS_SUCCESS {
 		return errors.New(response.Message)
 	}
 	return nil

@@ -1,8 +1,7 @@
-package utils
+package email
 
 import (
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"github.com/jordan-wright/email"
 	"net"
@@ -31,7 +30,7 @@ var (
 )
 
 func (this *Email) Send() error {
-	err := sendMail(
+	return this.sendMail(
 		this.SMTPServer.Host,
 		this.SMTPServer.Port,
 		this.SMTPServer.User,
@@ -39,14 +38,10 @@ func (this *Email) Send() error {
 		this.To,
 		this.Subject,
 		this.Content)
-	if err != nil {
-		return errors.New("send mail failed! err:" + err.Error())
-	}
-	return nil
 }
 
 func (this *Email) SendTLS() error {
-	err := sendTLSMail(
+	return this.sendTLSMail(
 		this.SMTPServer.Host,
 		this.SMTPServer.Port,
 		this.SMTPServer.User,
@@ -54,10 +49,6 @@ func (this *Email) SendTLS() error {
 		this.To,
 		this.Subject,
 		this.Content)
-	if err != nil {
-		return errors.New("send tlsmail failed! err:" + err.Error())
-	}
-	return nil
 }
 
 func (this *Email) IsEmail() bool {
@@ -68,7 +59,7 @@ func (this *Email) IsEmail() bool {
 	return emailRegexp.MatchString(this.To)
 }
 
-func sendMail(host, port, user, password, to, subject, content string) error {
+func (this *Email) sendMail(host, port, user, password, to, subject, content string) error {
 	e := email.NewEmail()
 	e.From = user
 	e.To = []string{to}
@@ -81,7 +72,7 @@ func sendMail(host, port, user, password, to, subject, content string) error {
 	return nil
 }
 
-func sendTLSMail(host, port, user, password, to, subject, content string) error {
+func (this *Email) sendTLSMail(host, port, user, password, to, subject, content string) error {
 	header := make(map[string]string)
 	header["From"] = user
 	header["To"] = to
@@ -99,7 +90,7 @@ func sendTLSMail(host, port, user, password, to, subject, content string) error 
 		password,
 		host,
 	)
-	err := sendMailUsingTLS(
+	err := this.sendMailUsingTLS(
 		fmt.Sprintf("%s:%s", host, port),
 		auth,
 		user,
@@ -112,8 +103,8 @@ func sendTLSMail(host, port, user, password, to, subject, content string) error 
 	return nil
 }
 
-func sendMailUsingTLS(addr string, auth smtp.Auth, from string, to []string, msg []byte) (err error) {
-	c, err := dial(addr)
+func (this *Email) sendMailUsingTLS(addr string, auth smtp.Auth, from string, to []string, msg []byte) (err error) {
+	c, err := this.dial(addr)
 	if err != nil {
 		return err
 	}
@@ -148,7 +139,7 @@ func sendMailUsingTLS(addr string, auth smtp.Auth, from string, to []string, msg
 	return c.Quit()
 }
 
-func dial(addr string) (*smtp.Client, error) {
+func (this *Email) dial(addr string) (*smtp.Client, error) {
 	conn, err := tls.Dial("tcp", addr, nil)
 	if err != nil {
 		return nil, err
