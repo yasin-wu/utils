@@ -1,4 +1,12 @@
-1.email
-    go get -u github.com/jordan-wright/email
-2.alisms
-    go get -u github.com/aliyun/alibaba-cloud-sdk-go 
+## 安装
+
+````
+go get -u github.com/yasin-wu/utils
+````
+
+推荐使用go.mod
+<br>
+
+````
+require github.com/yasin-wu/utils v1.0.1
+````
