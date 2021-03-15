@@ -192,35 +192,35 @@ func RandInt64(min, max int64) int64 {
 	return rand.Int63n(max-min) + min
 }
 
-func CalendarDays(startTime, endTime time.Time) ([]*js.Json, error) {
+func CalendarDays(startTime, endTime time.Time, timeFormatTpl string) ([]*js.Json, error) {
 	if endTime.Before(startTime) || endTime.Equal(startTime) {
 		return nil, errors.New("startTime <= endTime")
 	}
-	u1 := time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 0, 0, 0, 0, time.Now().Location())
-	u2 := time.Date(endTime.Year(), endTime.Month(), endTime.Day(), 0, 0, 0, 0, time.Now().Location())
-	durationDays := int(u2.Sub(u1).Hours() / 24)
-	if int(endTime.Sub(startTime).Hours())%24 > 0 {
-		durationDays += 1
+	if timeFormatTpl == "" {
+		timeFormatTpl = "2006-01-02"
 	}
+	days := GetBetweenDates(startTime, endTime, timeFormatTpl)
 	var data []*js.Json
-	for i := 0; i < durationDays; i++ {
-		var stt time.Time
-		var ett time.Time
-		stt = startTime.AddDate(0, 0, i)
-		ett = endTime
-		jsonObj := js.New()
-		if i == 0 && i != durationDays-1 {
-			ett = time.Date(stt.Year(), stt.Month(), stt.Day(), 23, 59, 59, 0, stt.Location())
-		} else if i == durationDays-1 {
-			stt = time.Date(stt.Year(), stt.Month(), stt.Day(), 0, 0, 0, 0, stt.Location())
-		} else {
-			stt = time.Date(stt.Year(), stt.Month(), stt.Day(), 0, 0, 0, 0, stt.Location())
-			ett = time.Date(stt.Year(), stt.Month(), stt.Day(), 23, 59, 59, 0, stt.Location())
+	for i, v := range days {
+		vt, _ := time.ParseInLocation("2006-01-02", v, time.Now().Location())
+		var fromTime time.Time
+		var toTime time.Time
+		switch i {
+		case 0:
+			fromTime = startTime
+			toTime = time.Date(vt.Year(), vt.Month(), vt.Day(), 23, 59, 59, 0, time.Now().Location())
+		case len(days) - 1:
+			fromTime = time.Date(vt.Year(), vt.Month(), vt.Day(), 0, 0, 0, 0, time.Now().Location())
+			toTime = endTime
+		default:
+			fromTime = time.Date(vt.Year(), vt.Month(), vt.Day(), 0, 0, 0, 0, time.Now().Location())
+			toTime = time.Date(vt.Year(), vt.Month(), vt.Day(), 23, 59, 59, 0, time.Now().Location())
 		}
-		jsonObj.Set("calendar", stt)
-		jsonObj.Set("from_time", stt)
-		jsonObj.Set("to_time", ett)
-		usageTime, _ := strconv.ParseFloat(strconv.FormatFloat(ett.Sub(stt).Hours(), 'f', 1, 64), 64)
+		jsonObj := js.New()
+		jsonObj.Set("calendar", vt)
+		jsonObj.Set("from_time", fromTime)
+		jsonObj.Set("to_time", toTime)
+		usageTime, _ := strconv.ParseFloat(strconv.FormatFloat(toTime.Sub(fromTime).Hours(), 'f', 1, 64), 64)
 		jsonObj.Set("usage_time", usageTime)
 		data = append(data, jsonObj)
 	}
@@ -242,4 +242,25 @@ func RemoveRepeatedElement(arr []string) []string {
 		}
 	}
 	return newArr
+}
+
+func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []string {
+	var days []string
+	if endTime.Before(startTime) {
+		return nil
+	}
+	if timeFormatTpl == "" {
+		timeFormatTpl = "2006-01-02"
+	}
+	endTimeStr := endTime.Format(timeFormatTpl)
+	days = append(days, startTime.Format(timeFormatTpl))
+	for {
+		startTime = startTime.AddDate(0, 0, 1)
+		startTimeStr := startTime.Format(timeFormatTpl)
+		days = append(days, startTimeStr)
+		if startTimeStr == endTimeStr {
+			break
+		}
+	}
+	return days
 }
