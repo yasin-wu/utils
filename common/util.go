@@ -264,3 +264,12 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 	}
 	return days
 }
+
+type Section struct {
+	Start int64 `json:"start"`
+	End   int64 `json:"end"`
+}
+
+func SectionMixed(secA, secB *Section) bool {
+	return math.Max(float64(secA.Start), float64(secB.Start)) <= math.Min(float64(secA.End), float64(secB.End))
+}
