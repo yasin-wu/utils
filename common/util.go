@@ -254,6 +254,11 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 	}
 	endTimeStr := endTime.Format(timeFormatTpl)
 	days = append(days, startTime.Format(timeFormatTpl))
+	st := startTime.AddDate(0, 0, 1)
+	stStr := st.Format(timeFormatTpl)
+	if stStr > endTimeStr {
+		return days
+	}
 	for {
 		startTime = startTime.AddDate(0, 0, 1)
 		startTimeStr := startTime.Format(timeFormatTpl)
@@ -262,7 +267,6 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 			break
 		}
 	}
-	return days
 }
 
 type Section struct {
