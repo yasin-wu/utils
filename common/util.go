@@ -267,6 +267,7 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 			break
 		}
 	}
+	return days
 }
 
 type Section struct {
