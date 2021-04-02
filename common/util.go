@@ -270,11 +270,18 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 	return days
 }
 
-type Section struct {
+/**
+ * @author: yasin
+ * @date: 2021/4/2 15:36
+ * @description：判断两个区间是否存在交集,true is mixed
+ */
+type Interval struct {
 	Start int64 `json:"start"`
 	End   int64 `json:"end"`
 }
 
-func SectionMixed(secA, secB *Section) bool {
-	return math.Max(float64(secA.Start), float64(secB.Start)) <= math.Min(float64(secA.End), float64(secB.End))
+func IntervalMixed(intervalA, intervalB *Interval) bool {
+	startMax := math.Max(float64(intervalA.Start), float64(intervalB.Start))
+	endMin := math.Min(float64(intervalA.End), float64(intervalB.End))
+	return startMax <= endMin
 }
