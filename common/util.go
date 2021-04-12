@@ -291,8 +291,8 @@ type Interval struct {
 	End   int64 `json:"end"`
 }
 
-func IntervalMixed(intervalA, intervalB *Interval) bool {
-	startMax := math.Max(float64(intervalA.Start), float64(intervalB.Start))
-	endMin := math.Min(float64(intervalA.End), float64(intervalB.End))
+func (i *Interval) IntervalMixed(interval *Interval) bool {
+	startMax := math.Max(float64(i.Start), float64(interval.Start))
+	endMin := math.Min(float64(i.End), float64(interval.End))
 	return startMax <= endMin
 }
