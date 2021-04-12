@@ -227,21 +227,32 @@ func CalendarDays(startTime, endTime time.Time, timeFormatTpl string) ([]*js.Jso
 	return data, nil
 }
 
-func RemoveRepeatedElement(arr []string) []string {
-	newArr := make([]string, 0)
-	for i := 0; i < len(arr); i++ {
+func RemoveRepeatedElement(arr *[]string) {
+	oldArr := *arr
+	*arr = nil
+	for i := 0; i < len(oldArr); i++ {
 		repeat := false
-		for j := i + 1; j < len(arr); j++ {
-			if arr[i] == arr[j] {
+		for j := i + 1; j < len(oldArr); j++ {
+			if (oldArr)[i] == (oldArr)[j] {
 				repeat = true
 				break
 			}
 		}
 		if !repeat {
-			newArr = append(newArr, arr[i])
+			*arr = append(*arr, oldArr[i])
 		}
 	}
-	return newArr
+}
+
+func DelEmptyStrings(arr *[]string) {
+	oldArr := *arr
+	*arr = nil
+	for _, v := range oldArr {
+		if v == "" {
+			continue
+		}
+		*arr = append(*arr, v)
+	}
 }
 
 func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []string {
