@@ -21,6 +21,7 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 )
 
+// PrintJson
 /**
  * @author: yasin
  * @date: 2020/2/25 14:02
@@ -49,6 +50,7 @@ func PrintJson(to string, data interface{}) error {
 	return nil
 }
 
+// PutFileToUrl
 /**
  * @author: yasin
  * @date: 2020/5/25 14:41
@@ -72,6 +74,7 @@ func PutFileToUrl(url string, file *os.File) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
+// GetFileFromUrl
 /**
  * @author: yasin
  * @date: 2020/5/25 15:55
@@ -97,6 +100,7 @@ func GetFileFromUrl(url, filename string) error {
 	return nil
 }
 
+// ParseFileInfo
 /**
  * @author: yasin
  * @date: 2020/7/13 10:30
@@ -111,6 +115,7 @@ func ParseFileInfo(file *os.File) *FileInfo {
 	return fileInfo
 }
 
+// RemoveHtml
 /**
  * @author: yasin
  * @date: 2020/7/22 09:32
@@ -135,6 +140,7 @@ func RemoveHtml(src string) string {
 	return src
 }
 
+// ConvertString2To10
 /**
  * @author: yasin
  * @date: 2020/7/22 13:57
@@ -279,20 +285,4 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 		}
 	}
 	return days
-}
-
-/**
- * @author: yasin
- * @date: 2021/4/2 15:36
- * @description：判断两个区间是否存在交集,true is mixed
- */
-type Interval struct {
-	Start int64 `json:"start"`
-	End   int64 `json:"end"`
-}
-
-func (i *Interval) IntervalMixed(interval *Interval) bool {
-	startMax := math.Max(float64(i.Start), float64(interval.Start))
-	endMin := math.Min(float64(i.End), float64(interval.End))
-	return startMax <= endMin
 }
