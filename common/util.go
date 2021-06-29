@@ -328,3 +328,32 @@ func ImgToBase64(file string) (string, error) {
 	baseImage := dist[0:index]
 	return *(*string)(unsafe.Pointer(&baseImage)), nil
 }
+
+// RandFile
+/**
+ * @author: yasin
+ * @date: 2021/6/29 16:51
+ * @description：get random file from dir
+ */
+func RandFile(path string) (string, error) {
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		return "", err
+	}
+	var fileNames []string
+	for _, v := range files {
+		if strings.HasPrefix(v.Name(), ".") {
+			continue
+		}
+		fileNames = append(fileNames, v.Name())
+	}
+	if len(fileNames) == 0 {
+		return "", errors.New("dir is nil")
+	}
+	rand.Seed(time.Now().UnixNano())
+	index := rand.Intn(len(fileNames))
+	if index >= len(fileNames) {
+		index = len(fileNames) - 1
+	}
+	return fileNames[index], err
+}
