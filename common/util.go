@@ -3,9 +3,13 @@ package common
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io/ioutil"
 	"math"
 	"math/rand"
@@ -16,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 
 	js "github.com/bitly/go-simplejson"
 	"golang.org/x/net/context/ctxhttp"
@@ -285,4 +290,41 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 		}
 	}
 	return days
+}
+
+// ImgToBase64
+/**
+ * @author: yasin
+ * @date: 2021/6/29 16:51
+ * @description：image to base64
+ */
+func ImgToBase64(file string) (string, error) {
+	imgFile, err := os.Open(file)
+	if err != nil {
+		return "", err
+	}
+	defer imgFile.Close()
+	fileType := strings.Replace(path.Ext(path.Base(imgFile.Name())), ".", "", -1)
+	var staticImg image.Image
+	switch fileType {
+	case "png":
+		staticImg, err = png.Decode(imgFile)
+	default:
+		staticImg, err = jpeg.Decode(imgFile)
+	}
+	if err != nil {
+		return "", err
+	}
+	emptyBuff := bytes.NewBuffer(nil)
+	switch fileType {
+	case "png":
+		err = png.Encode(emptyBuff, staticImg)
+	default:
+		err = jpeg.Encode(emptyBuff, staticImg, nil)
+	}
+	dist := make([]byte, 20*MB)
+	base64.StdEncoding.Encode(dist, emptyBuff.Bytes())
+	index := bytes.IndexByte(dist, 0)
+	baseImage := dist[0:index]
+	return *(*string)(unsafe.Pointer(&baseImage)), nil
 }

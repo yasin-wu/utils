@@ -28,3 +28,12 @@ const (
 const (
 	WordRatio = 0.05
 )
+
+//水印位置
+const (
+	TopLeft int = iota
+	TopRight
+	BottomLeft
+	BottomRight
+	Center
+)
