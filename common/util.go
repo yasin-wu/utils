@@ -292,13 +292,13 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 	return days
 }
 
-// ImgToBase64
+// ImageFileToBase64
 /**
  * @author: yasin
  * @date: 2021/6/29 16:51
- * @description：image to base64
+ * @description：image file to base64
  */
-func ImgToBase64(file string) (string, error) {
+func ImageFileToBase64(file string) (string, error) {
 	imgFile, err := os.Open(file)
 	if err != nil {
 		return "", err
@@ -356,4 +356,29 @@ func RandFile(path string) (string, error) {
 		index = len(fileNames) - 1
 	}
 	return fileNames[index], err
+}
+
+// ImgToBase64
+/**
+ * @author: yasin
+ * @date: 2021/6/29 16:51
+ * @description：image to base64
+ */
+func ImgToBase64(img image.Image, fileType string) (string, error) {
+	var err error
+	emptyBuff := bytes.NewBuffer(nil)
+	switch fileType {
+	case "png":
+		err = png.Encode(emptyBuff, img)
+	default:
+		err = jpeg.Encode(emptyBuff, img, nil)
+	}
+	if err != nil {
+		return "", err
+	}
+	dist := make([]byte, 20*1024*1024)
+	base64.StdEncoding.Encode(dist, emptyBuff.Bytes())
+	index := bytes.IndexByte(dist, 0)
+	baseImage := dist[0:index]
+	return *(*string)(unsafe.Pointer(&baseImage)), nil
 }
