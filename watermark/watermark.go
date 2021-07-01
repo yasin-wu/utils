@@ -43,13 +43,12 @@ func (this *WaterMark) New(srcFile, dstFile, fontFile string, fontInfo []FontInf
 	case "gif":
 		err = this.gifWaterMark(imgFile, dstFile, fontFile, fontInfo)
 	default:
-		err = this.staticWaterMark(imgFile, dstFile, fontFile, fontInfo)
+		err = this.staticWaterMark(imgFile, dstFile, fontFile, fontInfo, fileType)
 	}
 	return nil
 }
 
-func (this *WaterMark) staticWaterMark(srcFile *os.File, dstFile, fontFile string, fontInfo []FontInfo) error {
-	fileType := strings.Replace(path.Ext(path.Base(srcFile.Name())), ".", "", -1)
+func (this *WaterMark) staticWaterMark(srcFile *os.File, dstFile, fontFile string, fontInfo []FontInfo, fileType string) error {
 	var staticImg image.Image
 	var err error
 	switch fileType {
