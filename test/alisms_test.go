@@ -1,14 +1,16 @@
-package sms
+package test
 
 import (
-	js "github.com/bitly/go-simplejson"
 	"testing"
+
+	js "github.com/bitly/go-simplejson"
+	sms2 "github.com/yasin-wu/utils/sms"
 )
 
 func TestAliSms_Send(t *testing.T) {
 	j := js.New()
 	j.Set("orderno", "123456")
-	sms := &AliSms{
+	sms := &sms2.AliSms{
 		RegionId:        "cn-hangzhou",
 		AccessKeyId:     "xxxx",
 		AccessKeySecret: "xxxx",

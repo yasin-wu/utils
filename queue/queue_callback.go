@@ -2,13 +2,14 @@ package queue
 
 import (
 	"context"
+	"time"
+
 	js "github.com/bitly/go-simplejson"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/segmentio/kafka-go"
-	"time"
 )
 
-func cb(ctx context.Context, msg *kafka.Message) {
+func Cb(ctx context.Context, msg *kafka.Message) {
 	docallback(ctx, msg, 0, nil)
 }
 
