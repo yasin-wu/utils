@@ -8,5 +8,5 @@ go get -u github.com/yasin-wu/utils
 <br>
 
 ````
-require github.com/yasin-wu/utils v1.0.1
+require github.com/yasin-wu/utils v1.2.0
 ````
