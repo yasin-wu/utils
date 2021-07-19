@@ -57,6 +57,9 @@ func (this *WaterMark) staticWaterMark(srcFile *os.File, dstFile, fontFile strin
 	default:
 		staticImg, err = jpeg.Decode(srcFile)
 	}
+	if err != nil {
+		return errors.New("image decode error: " + err.Error())
+	}
 	img := image.NewNRGBA(staticImg.Bounds())
 	for y := 0; y < img.Bounds().Dy(); y++ {
 		for x := 0; x < img.Bounds().Dx(); x++ {
