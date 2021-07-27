@@ -40,7 +40,9 @@ type Config struct {
 	ExpireTime     int    //key过期时间,单位秒
 }
 
-type Client struct{}
+type Client struct {
+	ExpireTime int
+}
 
 func New(conf *Config) (*Client, error) {
 	if conf == nil {
@@ -94,7 +96,7 @@ func New(conf *Config) (*Client, error) {
 		TestOnBorrow: redisTestOnBorrow,
 		Wait:         true,
 	}
-	return &Client{}, nil
+	return &Client{ExpireTime: conf.ExpireTime}, nil
 }
 
 func checkConfig(conf *Config) {
