@@ -8,11 +8,6 @@ type FileInfo struct {
 }
 
 const (
-	Ali_SMS_SCHEME  = "https"
-	Ali_SMS_SUCCESS = "OK"
-)
-
-const (
 	DayTimestamp int64 = 24 * 60 * 60 * 1000
 )
 
@@ -29,7 +24,6 @@ const (
 	WordRatio = 0.05
 )
 
-//水印位置
 const (
 	TopLeft int = iota
 	TopRight

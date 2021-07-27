@@ -3,23 +3,20 @@ package test
 import (
 	"testing"
 
-	js "github.com/bitly/go-simplejson"
 	sms2 "github.com/yasin-wu/utils/sms"
 )
 
-func TestAliSms_Send(t *testing.T) {
-	j := js.New()
-	j.Set("orderno", "123456")
-	sms := &sms2.AliSms{
-		RegionId:        "cn-hangzhou",
-		AccessKeyId:     "xxxx",
-		AccessKeySecret: "xxxx",
-		PhoneNumbers:    []string{"181xxxx9331"},
-		SignName:        "xxxx",
-		TemplateCode:    "SMS_xxxxx",
-		TemplateParam:   j,
+func TestAliSmsSend(t *testing.T) {
+	sms, err := sms2.New("", "",
+		"xxxx", "xxxx")
+	if err != nil {
+		t.Error(err)
+		return
 	}
-	err := sms.Send()
+	phones := []string{"xxxx"}
+	param := make(map[string]string)
+	param["xxxx"] = "123456"
+	err = sms.Send("xxxx", "SMS_xxxx", phones, param)
 	if err != nil {
 		t.Error(err)
 		return

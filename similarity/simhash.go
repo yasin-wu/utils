@@ -2,11 +2,12 @@ package similarity
 
 import (
 	"fmt"
-	"github.com/yanyiwu/gojieba"
-	"github.com/yasin-wu/utils/common"
 	"hash/fnv"
 	"strconv"
 	"strings"
+
+	"github.com/yanyiwu/gojieba"
+	"github.com/yasin-wu/utils/common"
 )
 
 type WordWeight struct {
@@ -15,11 +16,6 @@ type WordWeight struct {
 	Print  int64
 }
 
-/**
- * @author: yasin
- * @date: 2020/7/22 15:14
- * @description：use jieba, get all WordWeight, return WordWeight and FingerPrint
- */
 func ExtractWithWeight(input string, topKey int, addWords []string) ([]WordWeight, []string) {
 	if topKey == 0 {
 		_, num := GetAllWords(input, false, addWords)
@@ -61,11 +57,6 @@ func ExtractWithWeight(input string, topKey int, addWords []string) ([]WordWeigh
 	return wordWeightList, fingerPrint
 }
 
-/**
- * @author: yasin
- * @date: 2020/7/22 15:15
- * @description：compute HammingDistance, distance >>>>>>> 0
- */
 func HammingDistance(arr1, arr2 []string) int {
 	count := 0
 	for i, v1 := range arr1 {
@@ -76,11 +67,6 @@ func HammingDistance(arr1, arr2 []string) int {
 	return count
 }
 
-/**
- * @author: yasin
- * @date: 2020/7/23 09:06
- * @description：get all words
- */
 func GetAllWords(input string, hmm bool, addWords []string) ([]string, int) {
 	g := gojieba.NewJieba()
 	for _, addWord := range addWords {

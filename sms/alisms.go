@@ -3,111 +3,94 @@ package sms
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
 	js "github.com/bitly/go-simplejson"
-	"github.com/yasin-wu/utils/common"
 )
 
-/**
- * @author: yasin
- * @date: 2020/10/23 09:11
- * @description：TemplateParam's key is template set
- */
 type AliSms struct {
-	RegionId        string   `json:"region_id"`
-	AccessKeyId     string   `json:"access_key_id"`
-	AccessKeySecret string   `json:"access_key_secret"`
-	PhoneNumbers    []string `json:"phone_numbers"`
-	SignName        string   `json:"sign_name"`
-	TemplateCode    string   `json:"template_code"`
-	TemplateParam   *js.Json `json:"template_param"`
+	Scheme          string
+	RegionId        string
+	AccessKeyId     string
+	AccessKeySecret string
 }
 
-func (this *AliSms) Send() error {
-	err := this.verifyRequired()
-	if err != nil {
-		return err
+func New(scheme, regionId, accessKeyId, accessKeySecret string) (*AliSms, error) {
+	if scheme == "" {
+		scheme = "https"
 	}
-	phones, err := this.verifyPhoneNumbers()
-	if err != nil {
-		return err
+	if regionId == "" {
+		regionId = "cn-hangzhou"
 	}
+	if accessKeyId == "" {
+		return nil, errors.New("AccessKeyId is nil")
+	}
+	if accessKeySecret == "" {
+		return nil, errors.New("AccessKeySecret is nil")
+	}
+	return &AliSms{RegionId: regionId, AccessKeyId: accessKeyId, AccessKeySecret: accessKeySecret}, nil
+}
 
-	client, err := dysmsapi.NewClientWithAccessKey(
-		this.RegionId,
-		this.AccessKeyId,
-		this.AccessKeySecret)
+func (this *AliSms) Send(signName, templateCode string, phones []string, param map[string]string) error {
+	if signName == "" {
+		return errors.New("SignName is nil")
+	}
+	if templateCode == "" {
+		return errors.New("TemplateCode is nil")
+	}
+	if param == nil {
+		return errors.New("param is nil")
+	}
+	phoneStr, err := this.verifyPhones(phones)
+	if err != nil {
+		return err
+	}
+	client, err := dysmsapi.NewClientWithAccessKey(this.RegionId, this.AccessKeyId, this.AccessKeySecret)
 	if err != nil {
 		return err
 	}
 	request := dysmsapi.CreateSendSmsRequest()
-	request.Scheme = common.Ali_SMS_SCHEME
-	request.PhoneNumbers = phones
-	request.SignName = this.SignName
-	request.TemplateCode = this.TemplateCode
-	if this.TemplateParam != nil {
-		//参数不能超过20字符
-		paramMap, _ := this.TemplateParam.Map()
-		paramJson := js.New()
-		for k, v := range paramMap {
-			sv := fmt.Sprintf("%v", v)
-			if len(sv) > 20 {
-				sv = sv[0:18]
-			}
-			paramJson.Set(k, sv)
+	request.Scheme = this.Scheme
+	request.PhoneNumbers = phoneStr
+	request.SignName = signName
+	request.TemplateCode = templateCode
+	j := js.New()
+	for k, v := range param {
+		vr := []rune(v)
+		if len(vr) > 20 {
+			vr = vr[0:20]
 		}
-		messageByte, err := json.Marshal(paramJson)
-		if err != nil {
-			return err
-		}
-		messageStr := string(messageByte)
-		request.TemplateParam = messageStr
+		j.Set(k, string(vr))
 	}
+	messageByte, err := json.Marshal(j)
+	if err != nil {
+		return err
+	}
+	request.TemplateParam = string(messageByte)
 	response, err := client.SendSms(request)
 	if err != nil {
 		return err
 	}
-	if response.Code != common.Ali_SMS_SUCCESS {
+	if response.Code != "OK" {
 		return errors.New(response.Message)
 	}
 	return nil
 }
 
-func (this *AliSms) verifyPhoneNumbers() (string, error) {
-	if this.PhoneNumbers == nil || len(this.PhoneNumbers) == 0 {
-		return "", errors.New("PhoneNumbers is nil")
+func (this *AliSms) verifyPhones(phones []string) (string, error) {
+	if phones == nil || len(phones) == 0 {
+		return "", errors.New("phones is nil")
 	}
-	phones := ""
-	for _, phone := range this.PhoneNumbers {
+	phoneStr := ""
+	for _, phone := range phones {
 		lenPhone := len(phone)
 		if lenPhone != 11 {
-			fmt.Println(phone + "invalid mobile number")
 			continue
 		}
-		phones += "," + phone
+		phoneStr += "," + phone
 	}
-	if phones == "" {
+	if phoneStr == "" {
 		return "", errors.New("invalid mobile number")
 	}
-	return phones, nil
-}
-
-func (this *AliSms) verifyRequired() error {
-	if this.RegionId == "" {
-		return errors.New("RegionId is nil")
-	}
-	if this.AccessKeyId == "" {
-		return errors.New("AccessKeyId is nil")
-	}
-	if this.AccessKeySecret == "" {
-		return errors.New("AccessKeySecret is nil")
-	}
-	if this.SignName == "" {
-		return errors.New("SignName is nil")
-	}
-	if this.TemplateCode == "" {
-		return errors.New("TemplateCode is nil")
-	}
-	return nil
+	return phoneStr, nil
 }

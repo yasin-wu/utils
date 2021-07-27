@@ -2,79 +2,77 @@ package email
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
-	"github.com/jordan-wright/email"
 	"net"
 	"net/smtp"
 	"regexp"
 	"strings"
+
+	"github.com/jordan-wright/email"
 )
 
 type Email struct {
-	From       string
-	To         string
-	Subject    string
-	Content    string
-	SMTPServer *SMTPServer
-}
-
-type SMTPServer struct {
 	Host     string
 	Port     string
 	User     string
-	Password string
+	PassWord string
+	From     string
 }
 
 var (
 	emailRegexpStr = `^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$`
 )
 
-func (this *Email) Send() error {
-	return this.sendMail(
-		this.SMTPServer.Host,
-		this.SMTPServer.Port,
-		this.SMTPServer.User,
-		this.SMTPServer.Password,
-		this.To,
-		this.Subject,
-		this.Content)
-}
-
-func (this *Email) SendTLS() error {
-	return this.sendTLSMail(
-		this.SMTPServer.Host,
-		this.SMTPServer.Port,
-		this.SMTPServer.User,
-		this.SMTPServer.Password,
-		this.To,
-		this.Subject,
-		this.Content)
-}
-
-func (this *Email) IsEmail() bool {
-	if !strings.Contains(this.To, "@") {
-		return false
+func New(host, port, user, password, from string) (*Email, error) {
+	if host == "" {
+		return nil, errors.New("smtp server host is nil")
 	}
-	emailRegexp, _ := regexp.Compile(emailRegexpStr)
-	return emailRegexp.MatchString(this.To)
+	if port == "" {
+		return nil, errors.New("smtp server port is nil")
+	}
+	if user == "" {
+		return nil, errors.New("smtp server user is nil")
+	}
+	if password == "" {
+		return nil, errors.New("smtp server password is nil")
+	}
+	return &Email{Host: host, Port: port, User: user, PassWord: password, From: from}, nil
 }
 
-func (this *Email) sendMail(host, port, user, password, to, subject, content string) error {
+func (this *Email) Send(to, subject, content string) error {
+	err := this.check(to, subject, content)
+	if err != nil {
+		return err
+	}
+	return this.sendMail(to, subject, content)
+}
+
+func (this *Email) SendTLS(to, subject, content string) error {
+	err := this.check(to, subject, content)
+	if err != nil {
+		return err
+	}
+	return this.sendTLSMail(to, subject, content)
+}
+
+func (this *Email) sendMail(to, subject, content string) error {
 	e := email.NewEmail()
-	e.From = user
+	e.From = this.From
 	e.To = []string{to}
 	e.Subject = subject
 	e.Text = []byte(content)
-	err := e.Send(host+":"+port, smtp.PlainAuth("", user, password, host))
+	err := e.Send(fmt.Sprintf("%s:%s", this.Host, this.Port),
+		smtp.PlainAuth("", this.User, this.PassWord, this.Host))
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (this *Email) sendTLSMail(host, port, user, password, to, subject, content string) error {
+func (this *Email) sendTLSMail(to, subject, content string) error {
 	header := make(map[string]string)
-	header["From"] = user
+	header["From"] = this.From
 	header["To"] = to
 	header["Subject"] = subject
 	header["Content-Type"] = "text/html; charset=UTF-8"
@@ -84,16 +82,10 @@ func (this *Email) sendTLSMail(host, port, user, password, to, subject, content 
 		sendMsg += fmt.Sprintf("%s: %s\r\n", k, v)
 	}
 	sendMsg += "\r\n" + body
-	auth := smtp.PlainAuth(
-		"",
-		user,
-		password,
-		host,
-	)
 	err := this.sendMailUsingTLS(
-		fmt.Sprintf("%s:%s", host, port),
-		auth,
-		user,
+		fmt.Sprintf("%s:%s", this.Host, this.Port),
+		smtp.PlainAuth("", this.User, this.PassWord, this.Host),
+		this.User,
 		[]string{to},
 		[]byte(sendMsg),
 	)
@@ -146,4 +138,28 @@ func (this *Email) dial(addr string) (*smtp.Client, error) {
 	}
 	host, _, _ := net.SplitHostPort(addr)
 	return smtp.NewClient(conn, host)
+}
+
+func (this *Email) check(to, subject, content string) error {
+	if to == "" {
+		return errors.New("to email is nil")
+	}
+	if subject == "" {
+		return errors.New("subject of email is nil")
+	}
+	if content == "" {
+		return errors.New("content of email is nil")
+	}
+	if !this.isEmail(to) {
+		return errors.New("to email is error")
+	}
+	return nil
+}
+
+func (this *Email) isEmail(to string) bool {
+	if !strings.Contains(to, "@") {
+		return false
+	}
+	emailRegexp, _ := regexp.Compile(emailRegexpStr)
+	return emailRegexp.MatchString(to)
 }

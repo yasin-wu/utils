@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/segmentio/kafka-go"
 	"math/rand"
 	"time"
+
+	"github.com/segmentio/kafka-go"
 )
 
 type ProcessCallback func(ctx context.Context, msg *kafka.Message)
@@ -94,7 +95,6 @@ func (this *Queue) WriteBulk(key string, value []byte) error {
 	if err != nil {
 		errMsg := fmt.Sprintf("Writer.WriteMessages err:%v", err)
 		return errors.New(errMsg)
-		return err
 	}
 	return nil
 }

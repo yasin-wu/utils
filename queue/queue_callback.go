@@ -2,7 +2,6 @@ package queue
 
 import (
 	"context"
-	"time"
 
 	js "github.com/bitly/go-simplejson"
 	"github.com/davecgh/go-spew/spew"
@@ -10,10 +9,10 @@ import (
 )
 
 func Cb(ctx context.Context, msg *kafka.Message) {
-	docallback(ctx, msg, 0, nil)
+	docallback(ctx, msg)
 }
 
-func docallback(ctx context.Context, msg *kafka.Message, retryInterval time.Duration, nextqueue *Queue) {
+func docallback(ctx context.Context, msg *kafka.Message) {
 	var err error
 	bs := msg.Value
 	j, err := js.NewJson(bs)

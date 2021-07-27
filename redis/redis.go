@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 )
 
 var (
-	RedisPool *redis.Pool
+	redisPool *redis.Pool
 )
 
 const (
@@ -39,9 +40,12 @@ type Config struct {
 	ExpireTime     int    //key过期时间,单位秒
 }
 
-func New(conf *Config) {
+type Client struct {
+}
+
+func New(conf *Config) (*Client, error) {
 	if conf == nil {
-		panic("redis config is nil")
+		return nil, errors.New("redis config is nil")
 	}
 	checkConfig(conf)
 	redisDial := func() (redis.Conn, error) {
@@ -83,7 +87,7 @@ func New(conf *Config) {
 		return err
 	}
 
-	RedisPool = &redis.Pool{
+	redisPool = &redis.Pool{
 		MaxIdle:      conf.MaxIdle,
 		MaxActive:    conf.MaxActive,
 		IdleTimeout:  defaultIdleTimeout,
@@ -91,6 +95,7 @@ func New(conf *Config) {
 		TestOnBorrow: redisTestOnBorrow,
 		Wait:         true,
 	}
+	return &Client{}, nil
 }
 
 func checkConfig(conf *Config) {
@@ -123,8 +128,8 @@ func checkConfig(conf *Config) {
 	}
 }
 
-func ExecCommand(command string, args ...interface{}) (interface{}, error) {
-	conn := RedisPool.Get()
+func (this *Client) Exec(command string, args ...interface{}) (interface{}, error) {
+	conn := redisPool.Get()
 	defer conn.Close()
 	return conn.Do(command, args...)
 }

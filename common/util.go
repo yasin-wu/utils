@@ -26,12 +26,6 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 )
 
-// PrintJson
-/**
- * @author: yasin
- * @date: 2020/2/25 14:02
- * @description：print json to file
- */
 func PrintJson(to string, data interface{}) error {
 	buf, err := json.Marshal(&data)
 	if err != nil {
@@ -55,12 +49,6 @@ func PrintJson(to string, data interface{}) error {
 	return nil
 }
 
-// PutFileToUrl
-/**
- * @author: yasin
- * @date: 2020/5/25 14:41
- * @description：put file to url
- */
 func PutFileToUrl(url string, file *os.File) ([]byte, error) {
 	req, err := http.NewRequest("PUT", url, file)
 	if err != nil {
@@ -79,12 +67,6 @@ func PutFileToUrl(url string, file *os.File) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-// GetFileFromUrl
-/**
- * @author: yasin
- * @date: 2020/5/25 15:55
- * @description：get file from url
- */
 func GetFileFromUrl(url, filename string) error {
 	resp, err := http.Get(url)
 	if err != nil {
@@ -105,12 +87,6 @@ func GetFileFromUrl(url, filename string) error {
 	return nil
 }
 
-// ParseFileInfo
-/**
- * @author: yasin
- * @date: 2020/7/13 10:30
- * @description：analysis file basic info
- */
 func ParseFileInfo(file *os.File) *FileInfo {
 	fileInfo := &FileInfo{
 		Name:     path.Base(file.Name()),
@@ -120,12 +96,6 @@ func ParseFileInfo(file *os.File) *FileInfo {
 	return fileInfo
 }
 
-// RemoveHtml
-/**
- * @author: yasin
- * @date: 2020/7/22 09:32
- * @description：
- */
 func RemoveHtml(src string) string {
 	re, _ := regexp.Compile(`\\<[\\S\\s]+?\\>`)
 	src = re.ReplaceAllStringFunc(src, strings.ToLower)
@@ -145,12 +115,6 @@ func RemoveHtml(src string) string {
 	return src
 }
 
-// ConvertString2To10
-/**
- * @author: yasin
- * @date: 2020/7/22 13:57
- * @description：2 to 10
- */
 func ConvertString2To10(input string) int64 {
 	c := getInput(input)
 	out := sq(c)
@@ -292,12 +256,6 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 	return days
 }
 
-// ImageFileToBase64
-/**
- * @author: yasin
- * @date: 2021/6/29 16:51
- * @description：image file to base64
- */
 func ImageFileToBase64(file string) (string, error) {
 	imgFile, err := os.Open(file)
 	if err != nil {
@@ -329,12 +287,6 @@ func ImageFileToBase64(file string) (string, error) {
 	return *(*string)(unsafe.Pointer(&baseImage)), nil
 }
 
-// RandFile
-/**
- * @author: yasin
- * @date: 2021/6/29 16:51
- * @description：get random file from dir
- */
 func RandFile(path string) (string, error) {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
@@ -358,12 +310,6 @@ func RandFile(path string) (string, error) {
 	return fileNames[index], err
 }
 
-// ImgToBase64
-/**
- * @author: yasin
- * @date: 2021/6/29 16:51
- * @description：image to base64
- */
 func ImgToBase64(img image.Image, fileType string) (string, error) {
 	var err error
 	emptyBuff := bytes.NewBuffer(nil)

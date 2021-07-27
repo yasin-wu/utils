@@ -6,23 +6,14 @@ import (
 	email2 "github.com/yasin-wu/utils/email"
 )
 
-func TestEmail_Send(t *testing.T) {
-	smtpServer := &email2.SMTPServer{
-		Host:     "smtp.qq.com",
-		Port:     "25",
-		User:     "yasin_wu@qq.com",
-		Password: "mjfvvjhqmrjocajd",
+func TestEmailSend(t *testing.T) {
+	email, err := email2.New("smtp.qq.com", "25",
+		"xxxxxxx", "gumrjpxqvnqrbhai", "yasin_wu@qq.com")
+	if err != nil {
+		t.Error(err)
+		return
 	}
-
-	email := &email2.Email{
-		From:       "yasin_wu@qq.com",
-		To:         "yasin_wu@qq.com",
-		Subject:    "test",
-		Content:    "test",
-		SMTPServer: smtpServer,
-	}
-
-	err := email.Send()
+	err = email.Send("xxxxxxx", "test", "test")
 	if err != nil {
 		t.Error(err)
 		return

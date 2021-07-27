@@ -2,11 +2,6 @@ package similarity
 
 import "math"
 
-/**
- * @author: yasin
- * @date: 2020/7/22 15:43
- * @description：score >>>>>>> 1
- */
 func CosineSimilar(srcWords, dstWords []string) float64 {
 	allWordsMap := make(map[string]int, 0)
 	for _, word := range srcWords {
@@ -25,7 +20,7 @@ func CosineSimilar(srcWords, dstWords []string) float64 {
 	}
 
 	allWordsSlice := make([]string, 0)
-	for word, _ := range allWordsMap {
+	for word := range allWordsMap {
 		allWordsSlice = append(allWordsSlice, word)
 	}
 
