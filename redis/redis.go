@@ -40,8 +40,7 @@ type Config struct {
 	ExpireTime     int    //key过期时间,单位秒
 }
 
-type Client struct {
-}
+type Client struct{}
 
 func New(conf *Config) (*Client, error) {
 	if conf == nil {
