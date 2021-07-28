@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	redisPool *redis.Pool
+	pool *redis.Pool
 )
 
 const (
@@ -88,7 +88,7 @@ func New(conf *Config) (*Client, error) {
 		return err
 	}
 
-	redisPool = &redis.Pool{
+	pool = &redis.Pool{
 		MaxIdle:      conf.MaxIdle,
 		MaxActive:    conf.MaxActive,
 		IdleTimeout:  defaultIdleTimeout,
@@ -130,7 +130,7 @@ func checkConfig(conf *Config) {
 }
 
 func (this *Client) Exec(command string, args ...interface{}) (interface{}, error) {
-	conn := redisPool.Get()
+	conn := pool.Get()
 	defer conn.Close()
 	return conn.Do(command, args...)
 }
