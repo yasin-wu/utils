@@ -28,7 +28,7 @@ func New(scheme, regionId, accessKeyId, accessKeySecret string) (*AliSms, error)
 	if accessKeySecret == "" {
 		return nil, errors.New("AccessKeySecret is nil")
 	}
-	return &AliSms{RegionId: regionId, AccessKeyId: accessKeyId, AccessKeySecret: accessKeySecret}, nil
+	return &AliSms{Scheme: scheme, RegionId: regionId, AccessKeyId: accessKeyId, AccessKeySecret: accessKeySecret}, nil
 }
 
 func (this *AliSms) Send(signName, templateCode string, phones []string, param map[string]string) error {
