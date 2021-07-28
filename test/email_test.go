@@ -8,12 +8,12 @@ import (
 
 func TestEmailSend(t *testing.T) {
 	email, err := email2.New("smtp.qq.com", "25",
-		"xxxxxxx", "gumrjpxqvnqrbhai", "yasin_wu@qq.com")
+		"yasin_wu@qq.com", "gumrjpxqvnqrbhai", "yasin_wu@qq.com")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	err = email.Send("xxxxxxx", "test", "test")
+	err = email.Send("yasin_wu@qq.com", "test", "test")
 	if err != nil {
 		t.Error(err)
 		return

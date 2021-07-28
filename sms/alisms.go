@@ -9,10 +9,10 @@ import (
 )
 
 type AliSms struct {
-	Scheme          string
-	RegionId        string
-	AccessKeyId     string
-	AccessKeySecret string
+	scheme          string
+	regionId        string
+	accessKeyId     string
+	accessKeySecret string
 }
 
 func New(scheme, regionId, accessKeyId, accessKeySecret string) (*AliSms, error) {
@@ -28,7 +28,7 @@ func New(scheme, regionId, accessKeyId, accessKeySecret string) (*AliSms, error)
 	if accessKeySecret == "" {
 		return nil, errors.New("AccessKeySecret is nil")
 	}
-	return &AliSms{Scheme: scheme, RegionId: regionId, AccessKeyId: accessKeyId, AccessKeySecret: accessKeySecret}, nil
+	return &AliSms{scheme: scheme, regionId: regionId, accessKeyId: accessKeyId, accessKeySecret: accessKeySecret}, nil
 }
 
 func (this *AliSms) Send(signName, templateCode string, phones []string, param map[string]string) error {
@@ -45,12 +45,12 @@ func (this *AliSms) Send(signName, templateCode string, phones []string, param m
 	if err != nil {
 		return err
 	}
-	client, err := dysmsapi.NewClientWithAccessKey(this.RegionId, this.AccessKeyId, this.AccessKeySecret)
+	client, err := dysmsapi.NewClientWithAccessKey(this.regionId, this.accessKeyId, this.accessKeySecret)
 	if err != nil {
 		return err
 	}
 	request := dysmsapi.CreateSendSmsRequest()
-	request.Scheme = this.Scheme
+	request.Scheme = this.scheme
 	request.PhoneNumbers = phoneStr
 	request.SignName = signName
 	request.TemplateCode = templateCode

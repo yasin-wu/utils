@@ -8,15 +8,15 @@ import (
 
 func TestAliSmsSend(t *testing.T) {
 	sms, err := sms2.New("", "",
-		"xxxx", "xxxx")
+		"", "")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	phones := []string{"xxxx"}
+	phones := []string{"18108279331"}
 	param := make(map[string]string)
-	param["xxxx"] = "123456"
-	err = sms.Send("xxxx", "SMS_xxxx", phones, param)
+	param["orderno"] = "123456"
+	err = sms.Send("", "SMS_185242334", phones, param)
 	if err != nil {
 		t.Error(err)
 		return

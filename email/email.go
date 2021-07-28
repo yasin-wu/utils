@@ -13,11 +13,11 @@ import (
 )
 
 type Email struct {
-	Host     string
-	Port     string
-	User     string
-	PassWord string
-	From     string
+	host     string
+	port     string
+	user     string
+	passWord string
+	from     string
 }
 
 var (
@@ -37,7 +37,7 @@ func New(host, port, user, password, from string) (*Email, error) {
 	if password == "" {
 		return nil, errors.New("smtp server password is nil")
 	}
-	return &Email{Host: host, Port: port, User: user, PassWord: password, From: from}, nil
+	return &Email{host: host, port: port, user: user, passWord: password, from: from}, nil
 }
 
 func (this *Email) Send(to, subject, content string) error {
@@ -58,12 +58,12 @@ func (this *Email) SendTLS(to, subject, content string) error {
 
 func (this *Email) sendMail(to, subject, content string) error {
 	e := email.NewEmail()
-	e.From = this.From
+	e.From = this.from
 	e.To = []string{to}
 	e.Subject = subject
 	e.Text = []byte(content)
-	err := e.Send(fmt.Sprintf("%s:%s", this.Host, this.Port),
-		smtp.PlainAuth("", this.User, this.PassWord, this.Host))
+	err := e.Send(fmt.Sprintf("%s:%s", this.host, this.port),
+		smtp.PlainAuth("", this.user, this.passWord, this.host))
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (this *Email) sendMail(to, subject, content string) error {
 
 func (this *Email) sendTLSMail(to, subject, content string) error {
 	header := make(map[string]string)
-	header["From"] = this.From
+	header["From"] = this.from
 	header["To"] = to
 	header["Subject"] = subject
 	header["Content-Type"] = "text/html; charset=UTF-8"
@@ -83,9 +83,9 @@ func (this *Email) sendTLSMail(to, subject, content string) error {
 	}
 	sendMsg += "\r\n" + body
 	err := this.sendMailUsingTLS(
-		fmt.Sprintf("%s:%s", this.Host, this.Port),
-		smtp.PlainAuth("", this.User, this.PassWord, this.Host),
-		this.User,
+		fmt.Sprintf("%s:%s", this.host, this.port),
+		smtp.PlainAuth("", this.user, this.passWord, this.host),
+		this.user,
 		[]string{to},
 		[]byte(sendMsg),
 	)
