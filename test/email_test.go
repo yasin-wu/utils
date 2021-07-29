@@ -7,13 +7,13 @@ import (
 )
 
 func TestEmailSend(t *testing.T) {
-	email, err := email2.New("smtp.qq.com", "25",
+	email, err := email2.New("smtp.qq.com", "465",
 		"yasin_wu@qq.com", "gumrjpxqvnqrbhai", "yasin_wu@qq.com")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	err = email.Send("yasin_wu@qq.com", "test", "test")
+	err = email.SendTLS([]string{"yasin_wu@qq.com", "RipperF@hotmail.com"}, "test", "test")
 	if err != nil {
 		t.Error(err)
 		return

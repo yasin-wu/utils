@@ -21,7 +21,7 @@ type Email struct {
 }
 
 var (
-	emailRegexpStr = `^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$`
+	emailRegexpStr = `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`
 )
 
 func New(host, port, user, password, from string) (*Email, error) {
@@ -40,7 +40,7 @@ func New(host, port, user, password, from string) (*Email, error) {
 	return &Email{host: host, port: port, user: user, passWord: password, from: from}, nil
 }
 
-func (this *Email) Send(to, subject, content string) error {
+func (this *Email) Send(to []string, subject, content string) error {
 	err := this.check(to, subject, content)
 	if err != nil {
 		return err
@@ -48,7 +48,7 @@ func (this *Email) Send(to, subject, content string) error {
 	return this.sendMail(to, subject, content)
 }
 
-func (this *Email) SendTLS(to, subject, content string) error {
+func (this *Email) SendTLS(to []string, subject, content string) error {
 	err := this.check(to, subject, content)
 	if err != nil {
 		return err
@@ -56,10 +56,10 @@ func (this *Email) SendTLS(to, subject, content string) error {
 	return this.sendTLSMail(to, subject, content)
 }
 
-func (this *Email) sendMail(to, subject, content string) error {
+func (this *Email) sendMail(to []string, subject, content string) error {
 	e := email.NewEmail()
 	e.From = this.from
-	e.To = []string{to}
+	e.To = to
 	e.Subject = subject
 	e.Text = []byte(content)
 	err := e.Send(fmt.Sprintf("%s:%s", this.host, this.port),
@@ -70,10 +70,9 @@ func (this *Email) sendMail(to, subject, content string) error {
 	return nil
 }
 
-func (this *Email) sendTLSMail(to, subject, content string) error {
-	header := make(map[string]string)
+func (this *Email) sendTLSMail(to []string, subject, content string) error {
+	header := make(map[string]interface{})
 	header["From"] = this.from
-	header["To"] = to
 	header["Subject"] = subject
 	header["Content-Type"] = "text/html; charset=UTF-8"
 	body := content
@@ -86,7 +85,7 @@ func (this *Email) sendTLSMail(to, subject, content string) error {
 		fmt.Sprintf("%s:%s", this.host, this.port),
 		smtp.PlainAuth("", this.user, this.passWord, this.host),
 		this.user,
-		[]string{to},
+		to,
 		[]byte(sendMsg),
 	)
 	if err != nil {
@@ -140,8 +139,8 @@ func (this *Email) dial(addr string) (*smtp.Client, error) {
 	return smtp.NewClient(conn, host)
 }
 
-func (this *Email) check(to, subject, content string) error {
-	if to == "" {
+func (this *Email) check(to []string, subject, content string) error {
+	if to == nil {
 		return errors.New("to email is nil")
 	}
 	if subject == "" {
@@ -150,8 +149,10 @@ func (this *Email) check(to, subject, content string) error {
 	if content == "" {
 		return errors.New("content of email is nil")
 	}
-	if !this.isEmail(to) {
-		return errors.New("to email is error")
+	for _, v := range to {
+		if !this.isEmail(v) {
+			return errors.New("to email is error :" + v)
+		}
 	}
 	return nil
 }
