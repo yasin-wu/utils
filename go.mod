@@ -13,6 +13,7 @@ require (
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/segmentio/kafka-go v0.4.8
 	github.com/yanyiwu/gojieba v1.1.2
+	github.com/yasin-wu/go-tika v0.2.0
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
 )

@@ -87,15 +87,6 @@ func GetFileFromUrl(url, filename string) error {
 	return nil
 }
 
-func ParseFileInfo(file *os.File) *FileInfo {
-	fileInfo := &FileInfo{
-		Name:     path.Base(file.Name()),
-		Path:     file.Name(),
-		FileType: path.Ext(path.Base(file.Name())),
-	}
-	return fileInfo
-}
-
 func RemoveHtml(src string) string {
 	re, _ := regexp.Compile(`\\<[\\S\\s]+?\\>`)
 	src = re.ReplaceAllStringFunc(src, strings.ToLower)
