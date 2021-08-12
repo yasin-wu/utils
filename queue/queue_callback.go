@@ -9,10 +9,10 @@ import (
 )
 
 func Cb(ctx context.Context, msg *kafka.Message) {
-	docallback(ctx, msg)
+	doCallback(ctx, msg)
 }
 
-func docallback(ctx context.Context, msg *kafka.Message) {
+func doCallback(ctx context.Context, msg *kafka.Message) {
 	var err error
 	bs := msg.Value
 	j, err := js.NewJson(bs)

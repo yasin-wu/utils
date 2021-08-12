@@ -10,20 +10,20 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-type ProcessCallback func(ctx context.Context, msg *kafka.Message)
+type Callback func(ctx context.Context, msg *kafka.Message)
 
 type Queue struct {
-	Writer          *kafka.Writer
 	Brokers         []string
 	Topic           string
 	Group           string
 	ConsumerNum     int
-	RetryInterval   time.Duration
 	RetryNum        int
 	AlreadyRetryNum int
-	Callback        ProcessCallback
 	MinBytes        int
 	MaxBytes        int
+	RetryInterval   time.Duration
+	Callback        Callback
+	Writer          *kafka.Writer
 }
 
 func NewQueue(brokers []string, topic, group string, consumerNum int) *Queue {
