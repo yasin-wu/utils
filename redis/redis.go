@@ -10,10 +10,6 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-var (
-	pool *redis.Pool
-)
-
 const (
 	defaultHost           = "127.0.0.1:6379"
 	defaultPassWord       = ""
@@ -41,6 +37,7 @@ type Config struct {
 }
 
 type Client struct {
+	pool       *redis.Pool
 	ExpireTime int
 }
 
@@ -88,7 +85,7 @@ func New(conf *Config) (*Client, error) {
 		return err
 	}
 
-	pool = &redis.Pool{
+	pool := &redis.Pool{
 		MaxIdle:      conf.MaxIdle,
 		MaxActive:    conf.MaxActive,
 		IdleTimeout:  defaultIdleTimeout,
@@ -96,7 +93,7 @@ func New(conf *Config) (*Client, error) {
 		TestOnBorrow: redisTestOnBorrow,
 		Wait:         true,
 	}
-	return &Client{ExpireTime: conf.ExpireTime}, nil
+	return &Client{pool: pool, ExpireTime: conf.ExpireTime}, nil
 }
 
 func checkConfig(conf *Config) {
@@ -130,7 +127,7 @@ func checkConfig(conf *Config) {
 }
 
 func (this *Client) Exec(command string, args ...interface{}) (interface{}, error) {
-	conn := pool.Get()
+	conn := this.pool.Get()
 	defer conn.Close()
 	return conn.Do(command, args...)
 }
