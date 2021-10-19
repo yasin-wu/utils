@@ -13,8 +13,9 @@ import (
 	"path"
 	"strings"
 
+	"yasin-wu/utils/common"
+
 	"github.com/golang/freetype"
-	"github.com/yasin-wu/utils/common"
 )
 
 type WaterMark struct {

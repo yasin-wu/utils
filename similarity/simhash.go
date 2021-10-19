@@ -6,8 +6,9 @@ import (
 	"strconv"
 	"strings"
 
+	"yasin-wu/utils/common"
+
 	"github.com/yanyiwu/gojieba"
-	"github.com/yasin-wu/utils/common"
 )
 
 type WordWeight struct {

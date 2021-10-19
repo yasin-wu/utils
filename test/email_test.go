@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	email2 "github.com/yasin-wu/utils/email"
+	email2 "yasin-wu/utils/email"
 )
 
 func TestEmailSend(t *testing.T) {

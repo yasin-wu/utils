@@ -1,7 +1,7 @@
 package similarity
 
 import (
-	"github.com/yasin-wu/utils/common"
+	"yasin-wu/utils/common"
 )
 
 func GetFinger(fingerArr []string) int64 {

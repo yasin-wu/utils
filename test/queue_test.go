@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	queue2 "github.com/yasin-wu/utils/queue"
+	queue2 "yasin-wu/utils/queue"
 )
 
 func TestQueue(t *testing.T) {
