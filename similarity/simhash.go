@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"yasin-wu/utils/common"
+	"github.com/yasin-wu/utils/common"
 
 	"github.com/yanyiwu/gojieba"
 )

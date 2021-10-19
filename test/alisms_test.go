@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	sms2 "yasin-wu/utils/sms"
+	sms2 "github.com/yasin-wu/utils/sms"
 )
 
 func TestAliSmsSend(t *testing.T) {

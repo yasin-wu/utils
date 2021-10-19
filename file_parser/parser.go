@@ -11,7 +11,7 @@ import (
 
 	"github.com/yasin-wu/go-tika/tika"
 
-	"yasin-wu/utils/common"
+	"github.com/yasin-wu/utils/common"
 )
 
 type Parser struct {

@@ -1,4 +1,4 @@
-module yasin-wu/utils
+module github.com/yasin-wu/utils
 
 go 1.16
 

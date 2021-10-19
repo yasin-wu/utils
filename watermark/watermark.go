@@ -13,7 +13,7 @@ import (
 	"path"
 	"strings"
 
-	"yasin-wu/utils/common"
+	"github.com/yasin-wu/utils/common"
 
 	"github.com/golang/freetype"
 )

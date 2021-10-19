@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	"yasin-wu/utils/similarity"
+	"github.com/yasin-wu/utils/similarity"
 )
 
 func TestExtractWithWeight(t *testing.T) {

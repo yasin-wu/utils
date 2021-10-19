@@ -5,7 +5,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 
-	"yasin-wu/utils/file_parser"
+	"github.com/yasin-wu/utils/file_parser"
 )
 
 func TestFileParser(t *testing.T) {

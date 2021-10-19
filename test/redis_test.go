@@ -5,7 +5,7 @@ import (
 
 	mredis "github.com/gomodule/redigo/redis"
 
-	"yasin-wu/utils/redis"
+	"github.com/yasin-wu/utils/redis"
 )
 
 func TestRedis(t *testing.T) {

@@ -6,5 +6,5 @@ go get -u github.com/yasin-wu/utils
 ````
 推荐使用go.mod
 ````
-require yasin-wu/utils v1.3.0
+require github.com/yasin-wu/utils v1.3.0
 ````
