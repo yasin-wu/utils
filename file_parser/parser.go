@@ -30,11 +30,11 @@ func New(tika string, header http.Header, client *http.Client) (*Parser, error) 
 	return &Parser{tika: tika, header: header, client: client}, nil
 }
 
-func (this *Parser) Parser(fileName string, isFormat bool) (*FileInfo, error) {
-	if fileName == "" {
-		return nil, errors.New("fileName is nil")
+func (this *Parser) Parser(filePath string, isFormat bool) (*FileInfo, error) {
+	if filePath == "" {
+		return nil, errors.New("filePath is nil")
 	}
-	file, err := os.Open(fileName)
+	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
