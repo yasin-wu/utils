@@ -146,7 +146,7 @@ func (this *WaterMark) gifWaterMark(srcFile *os.File, dstFile, fontFile string, 
 func (this *WaterMark) do(img *image.NRGBA, fontInfo []FontInfo, fontFile string) error {
 	var err error
 	if fontFile == "" {
-		fontFile = "../conf/captcha.ttf"
+		fontFile = "./conf/captcha.ttf"
 	}
 	fontBytes, err := ioutil.ReadFile(fontFile)
 	if err != nil {
