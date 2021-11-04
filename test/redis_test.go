@@ -2,33 +2,37 @@ package test
 
 import (
 	"testing"
+	"time"
 
-	mredis "github.com/gomodule/redigo/redis"
+	js "github.com/bitly/go-simplejson"
 
 	"github.com/yasin-wu/utils/redis"
 )
 
+var key = "123"
+
 func TestRedis(t *testing.T) {
 	conf := &redis.Config{
-		Host:     "192.168.131.135:6379",
-		PassWord: "1qazxsw21201",
+		Host:     "47.108.155.25:6379",
+		PassWord: "yasinwu",
+		DB:       2,
 	}
 	cli, err := redis.New(conf)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	res, err := cli.Exec("SET", "123", "456")
+	cli.DB = 1
+	j := js.New()
+	j.Set("a", 123)
+	err = cli.Set(key, j, time.Minute)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Log(res)
-	resp, err := mredis.Bytes(cli.Exec("GET", "123"))
+	err = cli.Del(key)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-
-	t.Log(string(resp))
 }
