@@ -1,8 +1,8 @@
 package redis
 
 import (
-	"encoding/json"
 	"errors"
+	"reflect"
 	"strings"
 	"time"
 
@@ -138,42 +138,14 @@ func (this *Client) Exec(command string, args ...interface{}) (interface{}, erro
 	return conn.Do(command, args...)
 }
 
-func (this *Client) Set(key string, value interface{}, expiration time.Duration) error {
-	var err error
-	cmd := "SET"
-	args := make([]interface{}, 2, 5)
-	args[0] = key
-	args[1], err = json.Marshal(value)
-	if err != nil {
-		return err
+func (this *Client) readString(value interface{}) string {
+	var buffer []byte
+	typeString := reflect.TypeOf(value).String()
+	switch typeString {
+	case "[]uint8":
+		for _, v := range value.([]uint8) {
+			buffer = append(buffer, v)
+		}
 	}
-	if expiration > 0 {
-		args = append(args, "EX", int64(expiration.Seconds()))
-	}
-	_, err = this.Exec(cmd, args...)
-	return err
-}
-
-func (this *Client) Get(key string) ([]byte, error) {
-	cmd := "GET"
-	return redis.Bytes(this.Exec(cmd, key))
-}
-
-func (this *Client) Exists(key ...string) (int, error) {
-	cmd := "EXISTS"
-	args := make([]interface{}, len(key))
-	for i, v := range key {
-		args[i] = v
-	}
-	return redis.Int(this.Exec(cmd, args...))
-}
-
-func (this *Client) Del(key ...string) error {
-	cmd := "DEL"
-	args := make([]interface{}, len(key))
-	for i, v := range key {
-		args[i] = v
-	}
-	_, err := this.Exec(cmd, args...)
-	return err
+	return string(buffer)
 }
