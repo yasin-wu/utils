@@ -3,6 +3,8 @@ package test
 import (
 	"testing"
 
+	js "github.com/bitly/go-simplejson"
+
 	"github.com/yasin-wu/utils/redis"
 )
 
@@ -19,14 +21,9 @@ func TestRedis(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	/*var zs []redis.Z
-	zs = append(zs, redis.Z{Score: 1, Member: "a"}, redis.Z{Score: 2, Member: "b"})
-	err = cli.ZAdd(key, zs...)
-	if err != nil {
-		t.Error(err)
-		return
-	}*/
-	err = cli.ZRemrangEByScore(key, "1", "(2")
+	j := js.New()
+	j.Set("a", 1)
+	err = cli.Append(key, j)
 	if err != nil {
 		t.Error(err)
 		return

@@ -27,3 +27,16 @@ func (this *Client) Get(key string) ([]byte, error) {
 	cmd := "GET"
 	return redis.Bytes(this.Exec(cmd, key))
 }
+
+func (this *Client) Append(key string, value interface{}) error {
+	var err error
+	cmd := "APPEND"
+	args := make([]interface{}, 2)
+	args[0] = key
+	args[1], err = json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	_, err = this.Exec(cmd, args...)
+	return err
+}

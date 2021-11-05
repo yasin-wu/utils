@@ -30,3 +30,9 @@ func (this *Client) Expire(key string, expiration time.Duration) error {
 	_, err := this.Exec(cmd, key, int64(expiration.Seconds()))
 	return err
 }
+
+func (this *Client) Expireat(key string, timestamp int64) error {
+	cmd := "EXPIREAT"
+	_, err := this.Exec(cmd, key, timestamp)
+	return err
+}
