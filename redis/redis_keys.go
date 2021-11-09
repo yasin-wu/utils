@@ -36,3 +36,12 @@ func (this *Client) Expireat(key string, timestamp int64) error {
 	_, err := this.Exec(cmd, key, timestamp)
 	return err
 }
+
+func (this *Client) TTL(key string) (int64, error) {
+	cmd := "TTL"
+	ttl, err := this.Exec(cmd, key)
+	if err != nil {
+		return -1, err
+	}
+	return ttl.(int64), nil
+}

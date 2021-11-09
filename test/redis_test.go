@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	js "github.com/bitly/go-simplejson"
+	"github.com/davecgh/go-spew/spew"
 
 	"github.com/yasin-wu/utils/redis"
 )
@@ -21,11 +21,6 @@ func TestRedis(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	j := js.New()
-	j.Set("a", 1)
-	err = cli.Append(key, j)
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	//cli.Set(key, "", time.Minute)
+	spew.Dump(cli.TTL(key))
 }
