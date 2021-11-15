@@ -12,64 +12,62 @@ import (
 )
 
 const (
-	defaultHost           = "127.0.0.1:6379"
-	defaultPassWord       = ""
-	defaultDB             = 0
 	defaultNetWork        = "tcp"
+	defaultDB             = 0
 	defaultMaxIdle        = 10
 	defaultMaxActive      = 0
-	defaultConnectTimeout = 5000
-	defaultReadTimeout    = 180000
-	defaultWriteTimeout   = 3000
-	defaultIdleTimeout    = 300 * time.Second
+	defaultConnectTimeout = 5 * time.Second
+	defaultReadTimeout    = 30 * time.Second
+	defaultWriteTimeout   = 30 * time.Second
+	defaultIdleTimeout    = 30 * time.Second
 )
 
-type Config struct {
-	Host           string //Redis地址
-	DB             int    //使用的数据库
-	PassWord       string //密码
-	NetWork        string //网络协议
-	MaxIdle        int    //连接池最大空闲连接数
-	MaxActive      int    //连接池最大激活连接数
-	ConnectTimeout int    //连接超时,单位毫秒
-	ReadTimeout    int    //读取超时,单位毫秒
-	WriteTimeout   int    //写入超时,单位毫秒
-	ExpireTime     int    //key过期时间,单位秒
-}
-
 type Client struct {
-	pool       *redis.Pool
-	DB         int
-	ExpireTime int
+	DB int
+
+	network        string
+	password       string        //密码
+	maxidle        int           //连接池最大空闲连接数
+	maxactive      int           //连接池最大激活连接数
+	connecttimeout time.Duration //连接超时
+	readtimeout    time.Duration //读取超时
+	writetimeout   time.Duration //写入超时
+	pool           *redis.Pool
 }
 
-func New(conf *Config) (*Client, error) {
-	if conf == nil {
-		return nil, errors.New("redis config is nil")
+type Option func(client *Client)
+
+func New(host string, options ...Option) (*Client, error) {
+	if host == "" {
+		return nil, errors.New("host is nil")
 	}
-	checkConfig(conf)
+	c := &Client{}
+	for _, f := range options {
+		f(c)
+	}
+	checkConfig(c)
 	redisDial := func() (redis.Conn, error) {
 		conn, err := redis.Dial(
-			strings.ToLower(conf.NetWork),
-			conf.Host,
-			redis.DialConnectTimeout(time.Duration(conf.ConnectTimeout)*time.Millisecond),
-			redis.DialReadTimeout(time.Duration(conf.ReadTimeout)*time.Millisecond),
-			redis.DialWriteTimeout(time.Duration(conf.WriteTimeout)*time.Millisecond),
+			strings.ToLower(c.network),
+			host,
+			redis.DialConnectTimeout(c.connecttimeout),
+			redis.DialReadTimeout(c.readtimeout),
+			redis.DialWriteTimeout(c.writetimeout),
 		)
 		if err != nil {
 			log.Printf("连接redis失败:%s", err.Error())
 			return nil, err
 		}
 
-		if conf.PassWord != "" {
-			if _, err := conn.Do("AUTH", conf.PassWord); err != nil {
+		if c.password != "" {
+			if _, err := conn.Do("AUTH", c.password); err != nil {
 				conn.Close()
 				log.Printf("redis认证失败:%s", err.Error())
 				return nil, err
 			}
 		}
 
-		_, err = conn.Do("SELECT", conf.DB)
+		_, err = conn.Do("SELECT", c.DB)
 		if err != nil {
 			conn.Close()
 			log.Printf("redis选择数据库失败:%s", err.Error())
@@ -88,43 +86,78 @@ func New(conf *Config) (*Client, error) {
 	}
 
 	pool := &redis.Pool{
-		MaxIdle:      conf.MaxIdle,
-		MaxActive:    conf.MaxActive,
+		MaxIdle:      c.maxidle,
+		MaxActive:    c.maxactive,
 		IdleTimeout:  defaultIdleTimeout,
 		Dial:         redisDial,
 		TestOnBorrow: redisTestOnBorrow,
 		Wait:         true,
 	}
-	return &Client{pool: pool, DB: conf.DB, ExpireTime: conf.ExpireTime}, nil
+	c.pool = pool
+	return c, nil
 }
 
-func checkConfig(conf *Config) {
-	if conf.Host == "" {
-		conf.Host = defaultHost
+func checkConfig(c *Client) {
+	c.DB = defaultDB
+	if c.network == "" {
+		c.network = defaultNetWork
 	}
-	if conf.PassWord == "" {
-		conf.PassWord = defaultPassWord
+	if c.maxidle == 0 {
+		c.maxidle = defaultMaxIdle
 	}
-	if conf.DB == 0 {
-		conf.DB = defaultDB
+	if c.maxactive == 0 {
+		c.maxactive = defaultMaxActive
 	}
-	if conf.NetWork == "" {
-		conf.NetWork = defaultNetWork
+	if c.connecttimeout == 0 {
+		c.connecttimeout = defaultConnectTimeout
 	}
-	if conf.MaxIdle == 0 {
-		conf.MaxIdle = defaultMaxIdle
+	if c.readtimeout == 0 {
+		c.readtimeout = defaultReadTimeout
 	}
-	if conf.MaxActive == 0 {
-		conf.MaxActive = defaultMaxActive
+	if c.writetimeout == 0 {
+		c.writetimeout = defaultWriteTimeout
 	}
-	if conf.ConnectTimeout == 0 {
-		conf.ConnectTimeout = defaultConnectTimeout
+}
+
+func WithPassWord(passWord string) Option {
+	return func(c *Client) {
+		c.password = passWord
 	}
-	if conf.ReadTimeout == 0 {
-		conf.ReadTimeout = defaultReadTimeout
+}
+
+func WithNetWork(netWork string) Option {
+	return func(c *Client) {
+		c.network = netWork
 	}
-	if conf.WriteTimeout == 0 {
-		conf.WriteTimeout = defaultWriteTimeout
+}
+
+func WithMaxIdle(maxIdle int) Option {
+	return func(c *Client) {
+		c.maxidle = maxIdle
+	}
+}
+
+func WithMaxActive(maxActive int) Option {
+	return func(c *Client) {
+		c.maxactive = maxActive
+	}
+}
+
+func WithConnectTimeout(connectTimeout time.Duration) Option {
+	return func(c *Client) {
+		c.connecttimeout = connectTimeout
+	}
+}
+
+func WithReadTimeout(readTimeout time.Duration) Option {
+	return func(c *Client) {
+		c.readtimeout = readTimeout
+	}
+}
+
+func WithWriteTimeout(writeTimeout time.Duration) Option {
+	return func(c *Client) {
+		c.writetimeout = writeTimeout
 	}
 }
 
