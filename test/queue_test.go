@@ -1,13 +1,24 @@
 package test
 
 import (
+	"fmt"
+	"strings"
 	"testing"
+
+	"github.com/apolloconfig/agollo/v4"
+	"github.com/apolloconfig/agollo/v4/env/config"
 
 	queue2 "github.com/yasin-wu/utils/queue"
 )
 
 func TestQueue(t *testing.T) {
-	var brokers = []string{"127.0.0.1:9092"}
+	client, _ := agollo.StartWithConfig(func() (*config.AppConfig, error) {
+		return apolloConf, nil
+	})
+	fmt.Println("初始化Apollo配置成功")
+	cache := client.GetConfigCache(apolloConf.NamespaceName)
+	broker, _ := cache.Get("kafka.broker")
+	brokers := strings.Split(broker.(string), ",")
 	var err error
 	queue := queue2.NewQueue(brokers, "yasin-test", "yasin-testGroup", 10)
 	queue.Callback = queue2.Cb
