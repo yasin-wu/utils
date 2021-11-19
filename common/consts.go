@@ -1,10 +1,6 @@
 package common
 
 const (
-	DayTimestamp int64 = 24 * 60 * 60 * 1000
-)
-
-const (
 	Byte = 1 << (10 * iota)
 	KB
 	MB
