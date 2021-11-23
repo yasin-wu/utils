@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -59,7 +60,7 @@ func (this *Queue) Start() error {
 				m, err := r.ReadMessage(context.Background())
 				if err != nil {
 					errMsg := fmt.Sprintf("reader.ReadMessage err:%v", err)
-					fmt.Println(errMsg)
+					log.Println(errMsg)
 					break
 				}
 				this.Callback(context.Background(), &m)
