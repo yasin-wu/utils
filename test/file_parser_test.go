@@ -3,6 +3,7 @@ package test
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/apolloconfig/agollo/v4"
@@ -10,6 +11,10 @@ import (
 
 	"github.com/yasin-wu/utils/file_parser"
 )
+
+func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
 
 func TestFileParser(t *testing.T) {
 	client, _ := agollo.StartWithConfig(func() (*config.AppConfig, error) {
@@ -20,13 +25,11 @@ func TestFileParser(t *testing.T) {
 	url, _ := cache.Get("tika.url")
 	parser, err := file_parser.New(url.(string), nil, nil)
 	if err != nil {
-		t.Error(err)
-		return
+		log.Fatal(err)
 	}
 	fileInfo, err := parser.Parser("../../dsi_engine/sample/test.docx", true)
 	if err != nil {
-		t.Error(err)
-		return
+		log.Fatal(err)
 	}
 	fileInfos, _ := json.MarshalIndent(fileInfo, "", "\t")
 	fmt.Println(string(fileInfos))

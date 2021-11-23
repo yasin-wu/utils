@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -10,6 +11,10 @@ import (
 
 	"github.com/yasin-wu/utils/redis"
 )
+
+func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
 
 var key = "test-redis"
 
@@ -23,8 +28,7 @@ func TestRedis(t *testing.T) {
 	password, _ := cache.Get("redis.password")
 	cli, err := redis.New(host.(string), redis.WithPassWord(password.(string)))
 	if err != nil {
-		t.Error(err)
-		return
+		log.Fatal(err)
 	}
 	cli.Set(key, "", time.Minute)
 	fmt.Println(cli.TTL(key))

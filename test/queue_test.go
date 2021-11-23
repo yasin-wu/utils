@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"testing"
 
@@ -10,6 +11,10 @@ import (
 
 	queue2 "github.com/yasin-wu/utils/queue"
 )
+
+func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
 
 func TestQueue(t *testing.T) {
 	client, _ := agollo.StartWithConfig(func() (*config.AppConfig, error) {
@@ -24,11 +29,10 @@ func TestQueue(t *testing.T) {
 	queue.Callback = queue2.Cb
 	err = queue.Start()
 	if err != nil {
-		t.Log(err)
-		panic(err)
+		log.Fatal(err)
 	}
 	err = queue.Write("test", []byte("test message"))
 	if err != nil {
-		t.Log(err)
+		log.Fatal(err)
 	}
 }

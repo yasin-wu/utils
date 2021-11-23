@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"testing"
 
@@ -10,6 +11,10 @@ import (
 
 	email2 "github.com/yasin-wu/utils/email"
 )
+
+func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
 
 func TestEmailSend(t *testing.T) {
 	client, _ := agollo.StartWithConfig(func() (*config.AppConfig, error) {
@@ -25,14 +30,12 @@ func TestEmailSend(t *testing.T) {
 	to, _ := cache.Get("email.to")
 	email, err := email2.New(host.(string), port.(string), user.(string), password.(string), from.(string))
 	if err != nil {
-		t.Error(err)
-		return
+		log.Fatal(err)
 	}
 	tos := strings.Split(to.(string), ",")
 	err = email.SendTLS(tos, "test", "test")
 	if err != nil {
-		t.Error(err)
-		return
+		log.Fatal(err)
 	}
-	t.Log("send email ok")
+	fmt.Println("send email ok")
 }
