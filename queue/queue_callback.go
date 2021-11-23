@@ -2,9 +2,10 @@ package queue
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	js "github.com/bitly/go-simplejson"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -19,5 +20,6 @@ func doCallback(ctx context.Context, msg *kafka.Message) {
 	if err != nil {
 		return
 	}
-	spew.Dump(j)
+	jstr, _ := json.MarshalIndent(j, "", "\t")
+	fmt.Println(string(jstr))
 }

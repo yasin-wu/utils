@@ -8,8 +8,6 @@ import (
 	"github.com/apolloconfig/agollo/v4"
 	"github.com/apolloconfig/agollo/v4/env/config"
 
-	"github.com/davecgh/go-spew/spew"
-
 	"github.com/yasin-wu/utils/redis"
 )
 
@@ -29,5 +27,5 @@ func TestRedis(t *testing.T) {
 		return
 	}
 	cli.Set(key, "", time.Minute)
-	spew.Dump(cli.TTL(key))
+	fmt.Println(cli.TTL(key))
 }
