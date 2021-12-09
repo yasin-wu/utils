@@ -13,8 +13,6 @@ import (
 	"path"
 	"strings"
 
-	"github.com/yasin-wu/utils/common"
-
 	"github.com/golang/freetype"
 )
 
@@ -170,19 +168,19 @@ Loop:
 		first := 0
 		two := 0
 		switch v.Position {
-		case common.TopLeft:
+		case TopLeft:
 			first = v.Dx
 			two = v.Dy + int(f.PointToFixed(v.Size)>>6)
-		case common.TopRight:
+		case TopRight:
 			first = img.Bounds().Dx() - len(info)*4 - v.Dx
 			two = v.Dy + int(f.PointToFixed(v.Size)>>6)
-		case common.BottomLeft:
+		case BottomLeft:
 			first = v.Dx
 			two = img.Bounds().Dy() - v.Dy
-		case common.BottomRight:
+		case BottomRight:
 			first = img.Bounds().Dx() - len(info)*4 - v.Dx
 			two = img.Bounds().Dy() - v.Dy
-		case common.Center:
+		case Center:
 			first = (img.Bounds().Dx() - len(info)*4) / 2
 			two = (img.Bounds().Dy() - v.Dy) / 2
 		default:

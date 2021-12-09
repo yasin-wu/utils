@@ -20,7 +20,7 @@ type WordWeight struct {
 func ExtractWithWeight(input string, topKey int, addWords []string) ([]WordWeight, []string) {
 	if topKey == 0 {
 		_, num := GetAllWords(input, false, addWords)
-		topKeyStr := strconv.FormatFloat(float64(num)*common.WordRatio, 'f', 0, 64)
+		topKeyStr := strconv.FormatFloat(float64(num)*WordRatio, 'f', 0, 64)
 		topKey, _ = strconv.Atoi(topKeyStr)
 	}
 	var err error
