@@ -44,12 +44,12 @@ func (this *WaterMark) New(srcFile, dstFile, fontFile string, fontInfo []FontInf
 	case "gif":
 		err = this.gifWaterMark(imgFile, dstFile, fontFile, fontInfo)
 	default:
-		err = this.staticWaterMark(imgFile, dstFile, fontFile, fontInfo, fileType)
+		err = this.staticWaterMark(imgFile, dstFile, fontFile, fileType, fontInfo)
 	}
 	return nil
 }
 
-func (this *WaterMark) staticWaterMark(srcFile *os.File, dstFile, fontFile string, fontInfo []FontInfo, fileType string) error {
+func (this *WaterMark) staticWaterMark(srcFile *os.File, dstFile, fontFile, fileType string, fontInfo []FontInfo) error {
 	var staticImg image.Image
 	var err error
 	switch fileType {
@@ -67,7 +67,7 @@ func (this *WaterMark) staticWaterMark(srcFile *os.File, dstFile, fontFile strin
 			img.Set(x, y, staticImg.At(x, y))
 		}
 	}
-	err = this.do(img, fontInfo, fontFile)
+	err = this.do(img, fontFile, fontInfo)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func (this *WaterMark) gifWaterMark(srcFile *os.File, dstFile, fontFile string, 
 					img.Set(x, y, v.At(x, y))
 				}
 			}
-			err = this.do(img, fontInfo, fontFile)
+			err = this.do(img, fontFile, fontInfo)
 			if err != nil {
 				break
 			}
@@ -143,7 +143,7 @@ func (this *WaterMark) gifWaterMark(srcFile *os.File, dstFile, fontFile string, 
 	}
 }
 
-func (this *WaterMark) do(img *image.NRGBA, fontInfo []FontInfo, fontFile string) error {
+func (this *WaterMark) do(img *image.NRGBA, fontFile string, fontInfo []FontInfo) error {
 	var err error
 	if fontFile == "" {
 		fontFile = "./conf/captcha.ttf"
