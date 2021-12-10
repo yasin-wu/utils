@@ -23,11 +23,8 @@ func TestFileParser(t *testing.T) {
 	fmt.Println("初始化Apollo配置成功")
 	cache := client.GetConfigCache(apolloConf.NamespaceName)
 	url, _ := cache.Get("tika.url")
-	parser, err := file_parser.New(url.(string), nil, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fileInfo, err := parser.Parser("../../dsi_engine/sample/test.docx", true)
+	parser := file_parser.New(url.(string))
+	fileInfo, err := parser.Parse("../../dsi_engine/sample/test.docx", true)
 	if err != nil {
 		log.Fatal(err)
 	}

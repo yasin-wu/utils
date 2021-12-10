@@ -14,23 +14,41 @@ import (
 	"github.com/yasin-wu/utils/common"
 )
 
+type Option func(parser *Parser)
+
 type Parser struct {
 	tika   string
 	header http.Header
 	client *http.Client
 }
 
-func New(tika string, header http.Header, client *http.Client) (*Parser, error) {
+func New(tika string, options ...Option) *Parser {
 	if tika == "" {
 		tika = defaultTika
 	}
-	if header == nil {
-		header = defaultHeader
+	parser := &Parser{tika: tika}
+	for _, f := range options {
+		f(parser)
 	}
-	return &Parser{tika: tika, header: header, client: client}, nil
+	if parser.header == nil {
+		parser.header = defaultHeader
+	}
+	return parser
 }
 
-func (this *Parser) Parser(filePath string, isFormat bool) (*FileInfo, error) {
+func WithHeader(header http.Header) Option {
+	return func(parser *Parser) {
+		parser.header = header
+	}
+}
+
+func WithClient(client *http.Client) Option {
+	return func(parser *Parser) {
+		parser.client = client
+	}
+}
+
+func (this *Parser) Parse(filePath string, isFormat bool) (*FileInfo, error) {
 	if filePath == "" {
 		return nil, errors.New("filePath is nil")
 	}
