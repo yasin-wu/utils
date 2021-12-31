@@ -258,9 +258,8 @@ func ImgToBase64(img image.Image, fileType string) (string, error) {
 
 func StructToMap(data interface{}, result *map[string]interface{}) error {
 	t := reflect.TypeOf(data)
-	typeStr := t.String()
-	switch typeStr {
-	case reflect.Struct.String():
+	switch {
+	case t.Kind() == reflect.Struct:
 		v := reflect.ValueOf(data)
 		for i := 0; i < t.NumField(); i++ {
 			if v.Field(i).Type().Kind() == reflect.Struct {
@@ -272,7 +271,7 @@ func StructToMap(data interface{}, result *map[string]interface{}) error {
 			}
 			(*result)[t.Field(i).Tag.Get("json")] = v.Field(i).Interface()
 		}
-	case "*simplejson.Json":
+	case t.String() == "*simplejson.Json":
 		var err error
 		j := data.(*js.Json)
 		*result, err = j.Map()
