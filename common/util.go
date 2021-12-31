@@ -258,19 +258,29 @@ func ImgToBase64(img image.Image, fileType string) (string, error) {
 
 func StructToMap(data interface{}, result *map[string]interface{}) error {
 	t := reflect.TypeOf(data)
-	if k := t.Kind(); k != reflect.Struct {
-		return errors.New("non-struct type")
-	}
-	v := reflect.ValueOf(data)
-	for i := 0; i < t.NumField(); i++ {
-		if v.Field(i).Type().Kind() == reflect.Struct {
-			err := StructToMap(v.Field(i).Interface(), result)
-			if err != nil {
-				log.Printf(err.Error())
+	typeStr := t.String()
+	switch typeStr {
+	case reflect.Struct.String():
+		v := reflect.ValueOf(data)
+		for i := 0; i < t.NumField(); i++ {
+			if v.Field(i).Type().Kind() == reflect.Struct {
+				err := StructToMap(v.Field(i).Interface(), result)
+				if err != nil {
+					log.Printf(err.Error())
+				}
+				continue
 			}
-			continue
+			(*result)[t.Field(i).Tag.Get("json")] = v.Field(i).Interface()
 		}
-		(*result)[t.Field(i).Tag.Get("json")] = v.Field(i).Interface()
+	case "*simplejson.Json":
+		var err error
+		j := data.(*js.Json)
+		*result, err = j.Map()
+		if err != nil {
+			return err
+		}
+	default:
+		return errors.New("data type not supported")
 	}
 	return nil
 }
