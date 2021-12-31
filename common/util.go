@@ -8,10 +8,12 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io/ioutil"
+	"log"
 	"math"
 	"math/rand"
 	"os"
 	"path"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -252,4 +254,23 @@ func ImgToBase64(img image.Image, fileType string) (string, error) {
 	index := bytes.IndexByte(dist, 0)
 	baseImage := dist[0:index]
 	return *(*string)(unsafe.Pointer(&baseImage)), nil
+}
+
+func StructToMap(data interface{}, result *map[string]interface{}) error {
+	t := reflect.TypeOf(data)
+	if k := t.Kind(); k != reflect.Struct {
+		return errors.New("non-struct type")
+	}
+	v := reflect.ValueOf(data)
+	for i := 0; i < t.NumField(); i++ {
+		if v.Field(i).Type().Kind() == reflect.Struct {
+			err := StructToMap(v.Field(i).Interface(), result)
+			if err != nil {
+				log.Printf(err.Error())
+			}
+			continue
+		}
+		(*result)[t.Field(i).Tag.Get("json")] = v.Field(i).Interface()
+	}
+	return nil
 }
