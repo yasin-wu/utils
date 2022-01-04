@@ -273,8 +273,7 @@ func StructToMap(data interface{}, result *map[string]interface{}) error {
 		}
 	case t.String() == "*simplejson.Json":
 		var err error
-		j := data.(*js.Json)
-		*result, err = j.Map()
+		*result, err = data.(*js.Json).Map()
 		if err != nil {
 			return err
 		}
