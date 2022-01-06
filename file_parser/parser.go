@@ -9,7 +9,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/yasin-wu/go-tika/tika"
+	"github.com/yasin-wu/utils/file_parser/tika"
 
 	"github.com/yasin-wu/utils/common"
 )

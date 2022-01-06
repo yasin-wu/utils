@@ -11,7 +11,7 @@ require (
 	github.com/jordan-wright/email v4.0.1-0.20200917010138-e1c00e156980+incompatible
 	github.com/segmentio/kafka-go v0.4.8
 	github.com/yanyiwu/gojieba v1.1.2
-	github.com/yasin-wu/go-tika v0.2.0
+	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
 )
 
 require (
@@ -36,7 +36,6 @@ require (
 	github.com/spf13/viper v1.8.1 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
-	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
 	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect
 	golang.org/x/text v0.3.6 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
