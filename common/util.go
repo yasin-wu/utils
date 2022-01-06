@@ -77,7 +77,7 @@ func sq(in <-chan int) <-chan int {
 	return out
 }
 func stringToIntArray(input string) []int {
-	output := []int{}
+	var output []int
 	for _, v := range input {
 		output = append(output, int(v))
 	}
