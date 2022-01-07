@@ -256,14 +256,14 @@ func ImgToBase64(img image.Image, fileType string) (string, error) {
 	return *(*string)(unsafe.Pointer(&baseImage)), nil
 }
 
-func StructToMap(data interface{}, result *map[string]interface{}) error {
+func ToMap(data interface{}, result *map[string]interface{}) error {
 	t := reflect.TypeOf(data)
 	switch {
 	case t.Kind() == reflect.Struct:
 		v := reflect.ValueOf(data)
 		for i := 0; i < t.NumField(); i++ {
 			if v.Field(i).Type().Kind() == reflect.Struct {
-				err := StructToMap(v.Field(i).Interface(), result)
+				err := ToMap(v.Field(i).Interface(), result)
 				if err != nil {
 					log.Printf(err.Error())
 				}
