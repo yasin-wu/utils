@@ -6,9 +6,6 @@ import (
 	"log"
 	"testing"
 
-	"github.com/apolloconfig/agollo/v4"
-	"github.com/apolloconfig/agollo/v4/env/config"
-
 	"github.com/yasin-wu/utils/file_parser"
 )
 
@@ -17,13 +14,8 @@ func init() {
 }
 
 func TestFileParser(t *testing.T) {
-	client, _ := agollo.StartWithConfig(func() (*config.AppConfig, error) {
-		return apolloConf, nil
-	})
-	fmt.Println("初始化Apollo配置成功")
-	cache := client.GetConfigCache(apolloConf.NamespaceName)
-	url, _ := cache.Get("tika.url")
-	parser := file_parser.New(url.(string))
+	url := "http://47.108.155.25:9998"
+	parser := file_parser.New(url)
 	fileInfo, err := parser.Parse("../../dsi_engine/sample/test.docx", true)
 	if err != nil {
 		log.Fatal(err)
