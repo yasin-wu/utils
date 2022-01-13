@@ -23,6 +23,13 @@ import (
 	js "github.com/bitly/go-simplejson"
 )
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:31
+ * @params: src string
+ * @return: string
+ * @description: 删除字符串中的HTML标签
+ */
 func RemoveHtml(src string) string {
 	re, _ := regexp.Compile(`\\<[\\S\\s]+?\\>`)
 	src = re.ReplaceAllStringFunc(src, strings.ToLower)
@@ -42,6 +49,13 @@ func RemoveHtml(src string) string {
 	return src
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:31
+ * @params: input string
+ * @return: int64
+ * @description: 字符串转10进制
+ */
 func ConvertString2To10(input string) int64 {
 	c := getInput(input)
 	out := sq(c)
@@ -87,6 +101,13 @@ func stringToIntArray(input string) []int {
 	return output
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:31
+ * @params: min, max int64
+ * @return: int64
+ * @description: 生成随机数在min和max之间
+ */
 func RandInt64(min, max int64) int64 {
 	if min >= max || min == 0 || max == 0 {
 		return max
@@ -94,6 +115,13 @@ func RandInt64(min, max int64) int64 {
 	return rand.Int63n(max-min) + min
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:32
+ * @params: startTime, endTime time.Time, timeFormatTpl string
+ * @return: []*js.Json, error
+ * @description: 切割时间区间为天
+ */
 func CalendarDays(startTime, endTime time.Time, timeFormatTpl string) ([]*js.Json, error) {
 	if endTime.Before(startTime) || endTime.Equal(startTime) {
 		return nil, errors.New("startTime <= endTime")
@@ -129,6 +157,12 @@ func CalendarDays(startTime, endTime time.Time, timeFormatTpl string) ([]*js.Jso
 	return data, nil
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:33
+ * @params: arr *[]string
+ * @description: 删除[]string中的重复元素
+ */
 func RemoveRepeatedElement(arr *[]string) {
 	oldArr := *arr
 	*arr = nil
@@ -146,6 +180,12 @@ func RemoveRepeatedElement(arr *[]string) {
 	}
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:33
+ * @params: arr *[]string
+ * @description: 删除[]string中的空元素
+ */
 func DelEmptyStrings(arr *[]string) {
 	oldArr := *arr
 	*arr = nil
@@ -157,6 +197,13 @@ func DelEmptyStrings(arr *[]string) {
 	}
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:34
+ * @params: startTime, endTime time.Time, timeFormatTpl string
+ * @return: []string
+ * @description: 获取时间区间中的天
+ */
 func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []string {
 	var days []string
 	if endTime.Before(startTime) {
@@ -183,6 +230,13 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 	return days
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:34
+ * @params: file string
+ * @return: string, error
+ * @description: 图片转base64
+ */
 func ImageFileToBase64(file string) (string, error) {
 	imgFile, err := os.Open(file)
 	if err != nil {
@@ -214,6 +268,13 @@ func ImageFileToBase64(file string) (string, error) {
 	return *(*string)(unsafe.Pointer(&baseImage)), nil
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:35
+ * @params: path string
+ * @return: string, error
+ * @description: 随机获取目录中的文件
+ */
 func RandFile(path string) (string, error) {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
@@ -237,7 +298,14 @@ func RandFile(path string) (string, error) {
 	return fileNames[index], err
 }
 
-func ImgToBase64(img image.Image, fileType string) (string, error) {
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:36
+ * @params: img image.Image, fileType string
+ * @return: string, error
+ * @description: image文件转base64
+ */
+func ImageToBase64(img image.Image, fileType string) (string, error) {
 	var err error
 	emptyBuff := bytes.NewBuffer(nil)
 	switch fileType {
@@ -256,6 +324,13 @@ func ImgToBase64(img image.Image, fileType string) (string, error) {
 	return *(*string)(unsafe.Pointer(&baseImage)), nil
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:36
+ * @params: data interface{}, result *map[string]interface{}
+ * @return: error
+ * @description: interface{}转map,只支持struct{}和*simplejson.Json
+ */
 func ToMap(data interface{}, result *map[string]interface{}) error {
 	t := reflect.TypeOf(data)
 	switch {

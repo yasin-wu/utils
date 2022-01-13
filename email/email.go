@@ -12,6 +12,11 @@ import (
 	"github.com/jordan-wright/email"
 )
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:38
+ * @description: Email Client
+ */
 type Email struct {
 	host     string
 	port     string
@@ -24,6 +29,13 @@ var (
 	emailRegexpStr = `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`
 )
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:39
+ * @params: host, port, user, password, from string
+ * @return: *Email, error
+ * @description: 新建Email Client
+ */
 func New(host, port, user, password, from string) (*Email, error) {
 	if host == "" {
 		return nil, errors.New("smtp server host is nil")
@@ -40,6 +52,13 @@ func New(host, port, user, password, from string) (*Email, error) {
 	return &Email{host: host, port: port, user: user, passWord: password, from: from}, nil
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:39
+ * @params: to []string, subject, content string
+ * @return: error
+ * @description: 发送普通邮件
+ */
 func (this *Email) Send(to []string, subject, content string) error {
 	err := this.check(to, subject, content)
 	if err != nil {
@@ -48,6 +67,13 @@ func (this *Email) Send(to []string, subject, content string) error {
 	return this.sendMail(to, subject, content)
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:39
+ * @params: to []string, subject, content string
+ * @return: error
+ * @description: 发送TLS加密邮件
+ */
 func (this *Email) SendTLS(to []string, subject, content string) error {
 	err := this.check(to, subject, content)
 	if err != nil {

@@ -14,14 +14,31 @@ import (
 	"github.com/yasin-wu/utils/common"
 )
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:41
+ * @description: 文件解析器配置项
+ */
 type Option func(parser *Parser)
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:41
+ * @description: Parser Client
+ */
 type Parser struct {
 	tika   string
 	header http.Header
 	client *http.Client
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:41
+ * @params: tika string, options ...Option
+ * @return: *Parser
+ * @description: 新建Parser Client
+ */
 func New(tika string, options ...Option) *Parser {
 	if tika == "" {
 		tika = defaultTika
@@ -36,18 +53,39 @@ func New(tika string, options ...Option) *Parser {
 	return parser
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:42
+ * @params: header http.Header
+ * @return: Option
+ * @description: 配置http header
+ */
 func WithHeader(header http.Header) Option {
 	return func(parser *Parser) {
 		parser.header = header
 	}
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:42
+ * @params: client *http.Client
+ * @return: Option
+ * @description: 配置http client
+ */
 func WithClient(client *http.Client) Option {
 	return func(parser *Parser) {
 		parser.client = client
 	}
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/1/13 14:42
+ * @params: filePath string, isFormat bool
+ * @return: *FileInfo, error
+ * @description: 解析文件
+ */
 func (this *Parser) Parse(filePath string, isFormat bool) (*FileInfo, error) {
 	if filePath == "" {
 		return nil, errors.New("filePath is nil")
