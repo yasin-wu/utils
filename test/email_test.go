@@ -13,7 +13,7 @@ func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 }
 
-func TestEmailSend(t *testing.T) {
+func TestEmail(t *testing.T) {
 	host := ""
 	port := ""
 	user := ""

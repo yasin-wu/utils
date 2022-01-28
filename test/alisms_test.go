@@ -13,7 +13,7 @@ func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 }
 
-func TestAliSmsSend(t *testing.T) {
+func TestAliSms(t *testing.T) {
 	scheme := ""
 	regionId := ""
 	accessKeyId := ""
