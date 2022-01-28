@@ -14,13 +14,21 @@ func init() {
 type Kafka struct {
 	brokers           []string
 	groupId           string
-	strategy          string
+	strategy          Strategy
 	ctx               context.Context
 	config            *sarama.Config
 	consumer          sarama.Consumer
 	partitionConsumer sarama.PartitionConsumer
 	messageHandler    MessageHandler
 }
+
+type Strategy string
+
+const (
+	Sticky_Strategy     Strategy = "sticky"
+	Roundrobin_Strategy Strategy = "roundrobin"
+	Range_Strategy      Strategy = "range"
+)
 
 type MessageHandler func(message *sarama.ConsumerMessage)
 
@@ -52,7 +60,7 @@ func WithGroupId(groupId string) Option {
 	}
 }
 
-func WithStrategy(strategy string) Option {
+func WithStrategy(strategy Strategy) Option {
 	return func(kafka *Kafka) {
 		kafka.strategy = strategy
 	}
@@ -68,7 +76,7 @@ func (k *Kafka) SetGroupId(groupId string) {
 	k.groupId = groupId
 }
 
-func (k *Kafka) SetStrategy(strategy string) {
+func (k *Kafka) SetStrategy(strategy Strategy) {
 	k.strategy = strategy
 }
 

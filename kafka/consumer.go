@@ -42,11 +42,11 @@ func (k *Kafka) receiveGroup(topics []string, offset int64) error {
 	k.config.Consumer.Return.Errors = true
 	k.config.Consumer.Offsets.Initial = offset
 	switch k.strategy {
-	case "sticky":
+	case Sticky_Strategy:
 		k.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategySticky
-	case "roundrobin":
+	case Roundrobin_Strategy:
 		k.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
-	case "range":
+	case Range_Strategy:
 		k.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange
 	default:
 		return errors.New("strategy is not supported")
