@@ -7,7 +7,7 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-func (this *Client) Set(key string, value interface{}, expiration time.Duration) error {
+func (r *Redis) Set(key string, value interface{}, expiration time.Duration) error {
 	var err error
 	cmd := "SET"
 	args := make([]interface{}, 2, 5)
@@ -19,16 +19,16 @@ func (this *Client) Set(key string, value interface{}, expiration time.Duration)
 	if expiration > 0 {
 		args = append(args, "EX", int64(expiration.Seconds()))
 	}
-	_, err = this.Exec(cmd, args...)
+	_, err = r.Exec(cmd, args...)
 	return err
 }
 
-func (this *Client) Get(key string) ([]byte, error) {
+func (r *Redis) Get(key string) ([]byte, error) {
 	cmd := "GET"
-	return redis.Bytes(this.Exec(cmd, key))
+	return redis.Bytes(r.Exec(cmd, key))
 }
 
-func (this *Client) Append(key string, value interface{}) error {
+func (r *Redis) Append(key string, value interface{}) error {
 	var err error
 	cmd := "APPEND"
 	args := make([]interface{}, 2)
@@ -37,6 +37,6 @@ func (this *Client) Append(key string, value interface{}) error {
 	if err != nil {
 		return err
 	}
-	_, err = this.Exec(cmd, args...)
+	_, err = r.Exec(cmd, args...)
 	return err
 }

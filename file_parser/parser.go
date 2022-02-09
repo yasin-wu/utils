@@ -30,6 +30,7 @@ type Parser struct {
 	tika   string
 	header http.Header
 	client *http.Client
+	ctx    context.Context
 }
 
 /**
@@ -43,7 +44,7 @@ func New(tika string, options ...Option) *Parser {
 	if tika == "" {
 		tika = defaultTika
 	}
-	parser := &Parser{tika: tika}
+	parser := &Parser{tika: tika, ctx: context.Background()}
 	for _, f := range options {
 		f(parser)
 	}
@@ -86,7 +87,7 @@ func WithClient(client *http.Client) Option {
  * @return: *FileInfo, error
  * @description: 解析文件
  */
-func (this *Parser) Parse(filePath string, isFormat bool) (*FileInfo, error) {
+func (p *Parser) Parse(filePath string, isFormat bool) (*FileInfo, error) {
 	if filePath == "" {
 		return nil, errors.New("filePath is nil")
 	}
@@ -95,24 +96,24 @@ func (this *Parser) Parse(filePath string, isFormat bool) (*FileInfo, error) {
 		return nil, err
 	}
 	defer file.Close()
-	fileInfo := this.parseFileInfo(file)
-	ok := this.checkFileType(fileInfo.FileType)
+	fileInfo := p.parseFileInfo(file)
+	ok := p.checkFileType(fileInfo.FileType)
 	if !ok {
 		return nil, errors.New("unsupported file type")
 	}
-	client := tika.NewClient(this.client, this.tika)
-	body, err := client.Parse(context.Background(), file, this.header)
+	client := tika.NewClient(p.client, p.tika)
+	body, err := client.Parse(p.ctx, file, p.header)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("client parse err:%v", err.Error()))
 	}
 	if isFormat {
-		body = this.handleBody(body)
+		body = p.handleBody(body)
 	}
 	fileInfo.Content = body
 	return fileInfo, nil
 }
 
-func (this *Parser) parseFileInfo(file *os.File) *FileInfo {
+func (p *Parser) parseFileInfo(file *os.File) *FileInfo {
 	fileName := file.Name()
 	f, err := os.Stat(fileName)
 	var size int64 = 0
@@ -129,7 +130,7 @@ func (this *Parser) parseFileInfo(file *os.File) *FileInfo {
 	return fileInfo
 }
 
-func (this *Parser) checkFileType(fileType string) bool {
+func (p *Parser) checkFileType(fileType string) bool {
 	for _, o := range FileTypes {
 		if o == fileType {
 			return true
@@ -138,7 +139,7 @@ func (this *Parser) checkFileType(fileType string) bool {
 	return false
 }
 
-func (this *Parser) handleBody(body string) string {
+func (p *Parser) handleBody(body string) string {
 	body = strings.Replace(body, "\n", "", -1)
 	body = strings.Replace(body, "\t", "", -1)
 	body = strings.Replace(body, "\r", "", -1)

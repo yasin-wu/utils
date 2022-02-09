@@ -31,7 +31,7 @@ func New(scheme, regionId, accessKeyId, accessKeySecret string) (*AliSms, error)
 	return &AliSms{scheme: scheme, regionId: regionId, accessKeyId: accessKeyId, accessKeySecret: accessKeySecret}, nil
 }
 
-func (this *AliSms) Send(signName, templateCode string, phones []string, param map[string]string) error {
+func (a *AliSms) Send(signName, templateCode string, phones []string, param map[string]string) error {
 	if signName == "" {
 		return errors.New("SignName is nil")
 	}
@@ -41,16 +41,16 @@ func (this *AliSms) Send(signName, templateCode string, phones []string, param m
 	if param == nil {
 		return errors.New("param is nil")
 	}
-	phoneStr, err := this.verifyPhones(phones)
+	phoneStr, err := a.verifyPhones(phones)
 	if err != nil {
 		return err
 	}
-	client, err := dysmsapi.NewClientWithAccessKey(this.regionId, this.accessKeyId, this.accessKeySecret)
+	client, err := dysmsapi.NewClientWithAccessKey(a.regionId, a.accessKeyId, a.accessKeySecret)
 	if err != nil {
 		return err
 	}
 	request := dysmsapi.CreateSendSmsRequest()
-	request.Scheme = this.scheme
+	request.Scheme = a.scheme
 	request.PhoneNumbers = phoneStr
 	request.SignName = signName
 	request.TemplateCode = templateCode

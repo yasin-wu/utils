@@ -59,12 +59,12 @@ func New(host, port, user, password, from string) (*Email, error) {
  * @return: error
  * @description: 发送普通邮件
  */
-func (this *Email) Send(to []string, subject, content string) error {
-	err := this.check(to, subject, content)
+func (e *Email) Send(to []string, subject, content string) error {
+	err := e.check(to, subject, content)
 	if err != nil {
 		return err
 	}
-	return this.sendMail(to, subject, content)
+	return e.sendMail(to, subject, content)
 }
 
 /**
@@ -74,31 +74,31 @@ func (this *Email) Send(to []string, subject, content string) error {
  * @return: error
  * @description: 发送TLS加密邮件
  */
-func (this *Email) SendTLS(to []string, subject, content string) error {
-	err := this.check(to, subject, content)
+func (e *Email) SendTLS(to []string, subject, content string) error {
+	err := e.check(to, subject, content)
 	if err != nil {
 		return err
 	}
-	return this.sendTLSMail(to, subject, content)
+	return e.sendTLSMail(to, subject, content)
 }
 
-func (this *Email) sendMail(to []string, subject, content string) error {
-	e := email.NewEmail()
-	e.From = this.from
-	e.To = to
-	e.Subject = subject
-	e.Text = []byte(content)
-	err := e.Send(fmt.Sprintf("%s:%s", this.host, this.port),
-		smtp.PlainAuth("", this.user, this.passWord, this.host))
+func (e *Email) sendMail(to []string, subject, content string) error {
+	email := email.NewEmail()
+	email.From = e.from
+	email.To = to
+	email.Subject = subject
+	email.Text = []byte(content)
+	err := email.Send(fmt.Sprintf("%s:%s", e.host, e.port),
+		smtp.PlainAuth("", e.user, e.passWord, e.host))
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (this *Email) sendTLSMail(to []string, subject, content string) error {
+func (e *Email) sendTLSMail(to []string, subject, content string) error {
 	header := make(map[string]interface{})
-	header["From"] = this.from
+	header["From"] = e.from
 	header["Subject"] = subject
 	header["Content-Type"] = "text/html; charset=UTF-8"
 	body := content
@@ -107,10 +107,10 @@ func (this *Email) sendTLSMail(to []string, subject, content string) error {
 		sendMsg += fmt.Sprintf("%s: %s\r\n", k, v)
 	}
 	sendMsg += "\r\n" + body
-	err := this.sendMailUsingTLS(
-		fmt.Sprintf("%s:%s", this.host, this.port),
-		smtp.PlainAuth("", this.user, this.passWord, this.host),
-		this.user,
+	err := e.sendMailUsingTLS(
+		fmt.Sprintf("%s:%s", e.host, e.port),
+		smtp.PlainAuth("", e.user, e.passWord, e.host),
+		e.user,
 		to,
 		[]byte(sendMsg),
 	)
@@ -120,28 +120,28 @@ func (this *Email) sendTLSMail(to []string, subject, content string) error {
 	return nil
 }
 
-func (this *Email) sendMailUsingTLS(addr string, auth smtp.Auth, from string, to []string, msg []byte) (err error) {
-	c, err := this.dial(addr)
+func (e *Email) sendMailUsingTLS(addr string, auth smtp.Auth, from string, to []string, msg []byte) (err error) {
+	client, err := e.dial(addr)
 	if err != nil {
 		return err
 	}
-	defer c.Close()
+	defer client.Close()
 	if auth != nil {
-		if ok, _ := c.Extension("AUTH"); ok {
-			if err = c.Auth(auth); err != nil {
+		if ok, _ := client.Extension("AUTH"); ok {
+			if err = client.Auth(auth); err != nil {
 				return err
 			}
 		}
 	}
-	if err = c.Mail(from); err != nil {
+	if err = client.Mail(from); err != nil {
 		return err
 	}
 	for _, addr := range to {
-		if err = c.Rcpt(addr); err != nil {
+		if err = client.Rcpt(addr); err != nil {
 			return err
 		}
 	}
-	w, err := c.Data()
+	w, err := client.Data()
 	if err != nil {
 		return err
 	}
@@ -153,10 +153,10 @@ func (this *Email) sendMailUsingTLS(addr string, auth smtp.Auth, from string, to
 	if err != nil {
 		return err
 	}
-	return c.Quit()
+	return client.Quit()
 }
 
-func (this *Email) dial(addr string) (*smtp.Client, error) {
+func (e *Email) dial(addr string) (*smtp.Client, error) {
 	conn, err := tls.Dial("tcp", addr, nil)
 	if err != nil {
 		return nil, err
@@ -165,7 +165,7 @@ func (this *Email) dial(addr string) (*smtp.Client, error) {
 	return smtp.NewClient(conn, host)
 }
 
-func (this *Email) check(to []string, subject, content string) error {
+func (e *Email) check(to []string, subject, content string) error {
 	if to == nil {
 		return errors.New("to email is nil")
 	}
@@ -176,14 +176,14 @@ func (this *Email) check(to []string, subject, content string) error {
 		return errors.New("content of email is nil")
 	}
 	for _, v := range to {
-		if !this.isEmail(v) {
+		if !e.isEmail(v) {
 			return errors.New("to email is error :" + v)
 		}
 	}
 	return nil
 }
 
-func (this *Email) isEmail(to string) bool {
+func (e *Email) isEmail(to string) bool {
 	if !strings.Contains(to, "@") {
 		return false
 	}

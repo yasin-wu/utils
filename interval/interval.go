@@ -28,9 +28,9 @@ type Interval struct {
  * @return: bool
  * @description: 判断interval是否与该区间有交集
  */
-func (this *Interval) IntervalMixed(interval *Interval) bool {
-	startMax := math.Max(float64(this.Start), float64(interval.Start))
-	endMin := math.Min(float64(this.End), float64(interval.End))
+func (i *Interval) IntervalMixed(interval *Interval) bool {
+	startMax := math.Max(float64(i.Start), float64(interval.Start))
+	endMin := math.Min(float64(i.End), float64(interval.End))
 	return startMax <= endMin
 }
 
@@ -41,18 +41,18 @@ func (this *Interval) IntervalMixed(interval *Interval) bool {
  * @return: bool
  * @description: 判断i是否属于该区间
  */
-func (this *Interval) Belong(i int64, eq EQType) bool {
+func (i *Interval) Belong(value int64, eq EQType) bool {
 	switch eq {
 	case EQType1:
-		return i >= this.Start && i <= this.End
+		return value >= i.Start && value <= i.End
 	case EQType2:
-		return i > this.Start && i <= this.End
+		return value > i.Start && value <= i.End
 	case EQType3:
-		return i >= this.Start && i < this.End
+		return value >= i.Start && value < i.End
 	case EQType4:
-		return i > this.Start && i < this.End
+		return value > i.Start && value < i.End
 	default:
-		return i >= this.Start && i <= this.End
+		return value >= i.Start && value <= i.End
 	}
 }
 
@@ -63,17 +63,17 @@ func (this *Interval) Belong(i int64, eq EQType) bool {
  * @return: bool
  * @description: 判断interval是否是该区间子集
  */
-func (this *Interval) Contain(interval *Interval, eq EQType) bool {
+func (i *Interval) Contain(interval *Interval, eq EQType) bool {
 	switch eq {
 	case EQType1:
-		return interval.Start >= this.Start && interval.End <= this.End
+		return interval.Start >= i.Start && interval.End <= i.End
 	case EQType2:
-		return interval.Start > this.Start && interval.End <= this.End
+		return interval.Start > i.Start && interval.End <= i.End
 	case EQType3:
-		return interval.Start >= this.Start && interval.End < this.End
+		return interval.Start >= i.Start && interval.End < i.End
 	case EQType4:
-		return interval.Start > this.Start && interval.End < this.End
+		return interval.Start > i.Start && interval.End < i.End
 	default:
-		return interval.Start >= this.Start && interval.End <= this.End
+		return interval.Start >= i.Start && interval.End <= i.End
 	}
 }

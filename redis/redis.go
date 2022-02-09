@@ -22,7 +22,7 @@ const (
 	defaultIdleTimeout    = 30 * time.Second
 )
 
-type Client struct {
+type Redis struct {
 	DB int
 
 	network        string
@@ -35,13 +35,13 @@ type Client struct {
 	pool           *redis.Pool
 }
 
-type Option func(client *Client)
+type Option func(client *Redis)
 
-func New(host string, options ...Option) (*Client, error) {
+func New(host string, options ...Option) (*Redis, error) {
 	if host == "" {
 		return nil, errors.New("host is nil")
 	}
-	c := &Client{}
+	c := &Redis{}
 	for _, f := range options {
 		f(c)
 	}
@@ -97,7 +97,7 @@ func New(host string, options ...Option) (*Client, error) {
 	return c, nil
 }
 
-func checkConfig(c *Client) {
+func checkConfig(c *Redis) {
 	c.DB = defaultDB
 	if c.network == "" {
 		c.network = defaultNetWork
@@ -120,58 +120,58 @@ func checkConfig(c *Client) {
 }
 
 func WithPassWord(passWord string) Option {
-	return func(c *Client) {
+	return func(c *Redis) {
 		c.password = passWord
 	}
 }
 
 func WithNetWork(netWork string) Option {
-	return func(c *Client) {
+	return func(c *Redis) {
 		c.network = netWork
 	}
 }
 
 func WithMaxIdle(maxIdle int) Option {
-	return func(c *Client) {
+	return func(c *Redis) {
 		c.maxidle = maxIdle
 	}
 }
 
 func WithMaxActive(maxActive int) Option {
-	return func(c *Client) {
+	return func(c *Redis) {
 		c.maxactive = maxActive
 	}
 }
 
 func WithConnectTimeout(connectTimeout time.Duration) Option {
-	return func(c *Client) {
+	return func(c *Redis) {
 		c.connecttimeout = connectTimeout
 	}
 }
 
 func WithReadTimeout(readTimeout time.Duration) Option {
-	return func(c *Client) {
+	return func(c *Redis) {
 		c.readtimeout = readTimeout
 	}
 }
 
 func WithWriteTimeout(writeTimeout time.Duration) Option {
-	return func(c *Client) {
+	return func(c *Redis) {
 		c.writetimeout = writeTimeout
 	}
 }
 
-func (this *Client) Exec(command string, args ...interface{}) (interface{}, error) {
-	conn := this.pool.Get()
+func (r *Redis) Exec(command string, args ...interface{}) (interface{}, error) {
+	conn := r.pool.Get()
 	defer conn.Close()
-	_, err := conn.Do("SELECT", this.DB)
+	_, err := conn.Do("SELECT", r.DB)
 	if err != nil {
 		return nil, err
 	}
 	return conn.Do(command, args...)
 }
 
-func (this *Client) readString(value interface{}) string {
+func (r *Redis) readString(value interface{}) string {
 	var buffer []byte
 	typeString := reflect.TypeOf(value).String()
 	switch typeString {

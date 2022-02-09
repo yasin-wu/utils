@@ -31,7 +31,7 @@ type FontInfo struct {
 	A        uint8   //文字颜色值RGBA中的A值
 }
 
-func (this *WaterMark) New(srcFile, dstFile, fontFile string, fontInfo []FontInfo) error {
+func (w *WaterMark) New(srcFile, dstFile, fontFile string, fontInfo []FontInfo) error {
 	imgFile, err := os.Open(srcFile)
 	if err != nil {
 		return err
@@ -40,9 +40,9 @@ func (this *WaterMark) New(srcFile, dstFile, fontFile string, fontInfo []FontInf
 	fileType := strings.Replace(path.Ext(path.Base(imgFile.Name())), ".", "", -1)
 	switch fileType {
 	case "gif":
-		err = this.gifWaterMark(imgFile, dstFile, fontFile, fontInfo)
+		err = w.gifWaterMark(imgFile, dstFile, fontFile, fontInfo)
 	default:
-		err = this.staticWaterMark(imgFile, dstFile, fontFile, fileType, fontInfo)
+		err = w.staticWaterMark(imgFile, dstFile, fontFile, fileType, fontInfo)
 	}
 	return nil
 }
