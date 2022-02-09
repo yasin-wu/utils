@@ -25,13 +25,13 @@ func (k *Kafka) Receive(topics []string, offset int64) error {
 func (k *Kafka) receive(topics []string, offset int64) error {
 	var err error
 	k.config.Consumer.Return.Errors = true
+	k.ctx = context.Background()
 	k.consumer, err = sarama.NewConsumer(k.brokers, k.config)
 	if err != nil {
 		return errors.New("new consumer failed: " + err.Error())
 	}
 	defer k.consumer.Close()
 	for _, v := range topics {
-		k.ctx = context.Background()
 		go k.topic(v, offset)
 	}
 	select {}
