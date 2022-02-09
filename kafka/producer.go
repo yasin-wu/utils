@@ -8,7 +8,7 @@ import (
 )
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/2/9 11:46
  * @params: topic, key string, value interface{}
  * @return: int32, int64, error

@@ -1,7 +1,7 @@
 package file_parser
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:40
  * @description: 文件信息
  */

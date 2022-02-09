@@ -15,14 +15,14 @@ import (
 )
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:41
  * @description: 文件解析器配置项
  */
 type Option func(parser *Parser)
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:41
  * @description: Parser Client
  */
@@ -34,7 +34,7 @@ type Parser struct {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:41
  * @params: tika string, options ...Option
  * @return: *Parser
@@ -55,7 +55,7 @@ func New(tika string, options ...Option) *Parser {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:42
  * @params: header http.Header
  * @return: Option
@@ -68,7 +68,7 @@ func WithHeader(header http.Header) Option {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:42
  * @params: client *http.Client
  * @return: Option
@@ -81,7 +81,7 @@ func WithClient(client *http.Client) Option {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:42
  * @params: filePath string, isFormat bool
  * @return: *FileInfo, error

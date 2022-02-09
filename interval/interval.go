@@ -12,7 +12,7 @@ const (
 )
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:45
  * @description: Interval
  */
@@ -22,7 +22,7 @@ type Interval struct {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:45
  * @params: interval *Interval
  * @return: bool
@@ -35,7 +35,7 @@ func (i *Interval) IntervalMixed(interval *Interval) bool {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:46
  * @params: i int64, eq EQType
  * @return: bool
@@ -57,7 +57,7 @@ func (i *Interval) Belong(value int64, eq EQType) bool {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:46
  * @params: interval *Interval, eq EQType
  * @return: bool

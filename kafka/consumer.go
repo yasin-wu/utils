@@ -13,7 +13,7 @@ import (
 )
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/2/9 11:45
  * @params: topics []string, offset int64
  * @return: error

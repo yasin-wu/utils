@@ -24,7 +24,7 @@ import (
 )
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:31
  * @params: src string
  * @return: string
@@ -50,7 +50,7 @@ func RemoveHtml(src string) string {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:31
  * @params: input string
  * @return: int64
@@ -102,7 +102,7 @@ func stringToIntArray(input string) []int {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:31
  * @params: min, max int64
  * @return: int64
@@ -116,7 +116,7 @@ func RandInt64(min, max int64) int64 {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:32
  * @params: startTime, endTime time.Time, timeFormatTpl string
  * @return: []*js.Json, error
@@ -158,7 +158,7 @@ func CalendarDays(startTime, endTime time.Time, timeFormatTpl string) ([]*js.Jso
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:33
  * @params: arr *[]string
  * @description: 删除[]string中的重复元素
@@ -181,7 +181,7 @@ func RemoveRepeatedElement(arr *[]string) {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:33
  * @params: arr *[]string
  * @description: 删除[]string中的空元素
@@ -198,7 +198,7 @@ func DelEmptyStrings(arr *[]string) {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:34
  * @params: startTime, endTime time.Time, timeFormatTpl string
  * @return: []string
@@ -231,7 +231,7 @@ func GetBetweenDates(startTime, endTime time.Time, timeFormatTpl string) []strin
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:34
  * @params: file string
  * @return: string, error
@@ -269,7 +269,7 @@ func ImageFileToBase64(file string) (string, error) {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:35
  * @params: path string
  * @return: string, error
@@ -299,7 +299,7 @@ func RandFile(path string) (string, error) {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:36
  * @params: img image.Image, fileType string
  * @return: string, error
@@ -325,7 +325,7 @@ func ImageToBase64(img image.Image, fileType string) (string, error) {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:36
  * @params: data interface{}, result *map[string]interface{}
  * @return: error
@@ -359,7 +359,7 @@ func ToMap(data interface{}, result *map[string]interface{}) error {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/14 11:28
  * @params: value int64
  * @return: string

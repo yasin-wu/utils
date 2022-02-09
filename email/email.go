@@ -13,7 +13,7 @@ import (
 )
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:38
  * @description: Email Client
  */
@@ -30,7 +30,7 @@ var (
 )
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:39
  * @params: host, port, user, password, from string
  * @return: *Email, error
@@ -53,7 +53,7 @@ func New(host, port, user, password, from string) (*Email, error) {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:39
  * @params: to []string, subject, content string
  * @return: error
@@ -68,7 +68,7 @@ func (e *Email) Send(to []string, subject, content string) error {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/1/13 14:39
  * @params: to []string, subject, content string
  * @return: error

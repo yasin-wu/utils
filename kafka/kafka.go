@@ -37,7 +37,7 @@ type Option func(kafka *Kafka)
 type Config sarama.Config
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/2/9 11:48
  * @params: brokers []string, config *Config, options ...Option
  * @return: *Kafka
@@ -58,7 +58,7 @@ func New(brokers []string, config *Config, options ...Option) *Kafka {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/2/9 11:50
  * @return: *Config
  * @description: new kafka config
@@ -68,7 +68,7 @@ func NewConfig() *Config {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/2/9 11:48
  * @params: groupId string
  * @return: Option
@@ -81,7 +81,7 @@ func WithGroupId(groupId string) Option {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/2/9 11:49
  * @params: strategy Strategy
  * @return: Option
@@ -94,7 +94,7 @@ func WithStrategy(strategy Strategy) Option {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/2/9 11:49
  * @params: messageHandler MessageHandler
  * @return: Option
@@ -107,7 +107,7 @@ func WithMessageHandler(messageHandler MessageHandler) Option {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/2/9 11:49
  * @params: groupId string
  * @description: set groupId
@@ -117,7 +117,7 @@ func (k *Kafka) SetGroupId(groupId string) {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/2/9 11:50
  * @params: strategy Strategy
  * @description: set strategy
@@ -127,7 +127,7 @@ func (k *Kafka) SetStrategy(strategy Strategy) {
 }
 
 /**
- * @author: yasin
+ * @author: yasinWu
  * @date: 2022/2/9 11:50
  * @params: messageHandler MessageHandler
  * @description: set messageHandler
