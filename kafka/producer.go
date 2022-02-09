@@ -7,6 +7,13 @@ import (
 	"github.com/Shopify/sarama"
 )
 
+/**
+ * @author: yasin
+ * @date: 2022/2/9 11:46
+ * @params: topic, key string, value interface{}
+ * @return: int32, int64, error
+ * @description: kafka producer
+ */
 func (k *Kafka) Send(topic, key string, value interface{}) (int32, int64, error) {
 	k.config.Producer.Return.Successes = true
 	client, err := sarama.NewSyncProducer(k.brokers, k.config)

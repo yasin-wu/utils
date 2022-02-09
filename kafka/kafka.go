@@ -36,6 +36,13 @@ type Option func(kafka *Kafka)
 
 type Config sarama.Config
 
+/**
+ * @author: yasin
+ * @date: 2022/2/9 11:48
+ * @params: brokers []string, config *Config, options ...Option
+ * @return: *Kafka
+ * @description: new kafka client
+ */
 func New(brokers []string, config *Config, options ...Option) *Kafka {
 	if config == nil {
 		config = NewConfig()
@@ -50,36 +57,81 @@ func New(brokers []string, config *Config, options ...Option) *Kafka {
 	return kafka
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/2/9 11:50
+ * @return: *Config
+ * @description: new kafka config
+ */
 func NewConfig() *Config {
 	return (*Config)(sarama.NewConfig())
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/2/9 11:48
+ * @params: groupId string
+ * @return: Option
+ * @description: new kafka client with groupId
+ */
 func WithGroupId(groupId string) Option {
 	return func(kafka *Kafka) {
 		kafka.groupId = groupId
 	}
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/2/9 11:49
+ * @params: strategy Strategy
+ * @return: Option
+ * @description: new kafka client with strategy
+ */
 func WithStrategy(strategy Strategy) Option {
 	return func(kafka *Kafka) {
 		kafka.strategy = strategy
 	}
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/2/9 11:49
+ * @params: messageHandler MessageHandler
+ * @return: Option
+ * @description: new kafka client with messageHandler
+ */
 func WithMessageHandler(messageHandler MessageHandler) Option {
 	return func(kafka *Kafka) {
 		kafka.messageHandler = messageHandler
 	}
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/2/9 11:49
+ * @params: groupId string
+ * @description: set groupId
+ */
 func (k *Kafka) SetGroupId(groupId string) {
 	k.groupId = groupId
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/2/9 11:50
+ * @params: strategy Strategy
+ * @description: set strategy
+ */
 func (k *Kafka) SetStrategy(strategy Strategy) {
 	k.strategy = strategy
 }
 
+/**
+ * @author: yasin
+ * @date: 2022/2/9 11:50
+ * @params: messageHandler MessageHandler
+ * @description: set messageHandler
+ */
 func (k *Kafka) SetMessageHandler(messageHandler MessageHandler) {
 	k.messageHandler = messageHandler
 }

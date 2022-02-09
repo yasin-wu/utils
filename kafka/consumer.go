@@ -12,6 +12,13 @@ import (
 	"github.com/Shopify/sarama"
 )
 
+/**
+ * @author: yasin
+ * @date: 2022/2/9 11:45
+ * @params: topics []string, offset int64
+ * @return: error
+ * @description: kafka consumer
+ */
 func (k *Kafka) Receive(topics []string, offset int64) error {
 	var err error
 	if k.groupId != "" && k.strategy != "" {
