@@ -7,7 +7,6 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.656
 	github.com/bitly/go-simplejson v0.5.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
-	github.com/gomodule/redigo v1.8.5
 	github.com/jordan-wright/email v4.0.1-0.20200917010138-e1c00e156980+incompatible
 	github.com/yanyiwu/gojieba v1.1.2
 	golang.org/x/net v0.0.0-20220105145211-5b0dc2dfae98
