@@ -47,5 +47,5 @@ func producer() {
 func consumer() {
 	config.Version = version
 	client := kafka.New(brokers, config)
-	client.Receive([]string{topic}, -1)
+	client.Receive([]string{topic}, -1, nil)
 }

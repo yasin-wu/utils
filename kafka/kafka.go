@@ -21,7 +21,6 @@ type Kafka struct {
 	config            *sarama.Config
 	consumer          sarama.Consumer
 	partitionConsumer sarama.PartitionConsumer
-	messageHandler    MessageHandler
 }
 
 type Strategy string
@@ -31,8 +30,6 @@ const (
 	Roundrobin_Strategy Strategy = "roundrobin"
 	Range_Strategy      Strategy = "range"
 )
-
-type MessageHandler func(message *sarama.ConsumerMessage)
 
 type Option func(kafka *Kafka)
 
@@ -66,9 +63,6 @@ func New(brokers []string, config *Config, options ...Option) *Kafka {
 		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange
 	default:
 		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange
-	}
-	if kafka.messageHandler == nil {
-		kafka.messageHandler = printMsg
 	}
 	return kafka
 }
@@ -112,19 +106,6 @@ func WithStrategy(strategy Strategy) Option {
 /**
  * @author: yasinWu
  * @date: 2022/2/9 11:49
- * @params: messageHandler MessageHandler
- * @return: Option
- * @description: new kafka client with messageHandler
- */
-func WithMessageHandler(messageHandler MessageHandler) Option {
-	return func(kafka *Kafka) {
-		kafka.messageHandler = messageHandler
-	}
-}
-
-/**
- * @author: yasinWu
- * @date: 2022/2/9 11:49
  * @params: groupId string
  * @description: set groupId
  */
@@ -140,14 +121,4 @@ func (k *Kafka) SetGroupId(groupId string) {
  */
 func (k *Kafka) SetStrategy(strategy Strategy) {
 	k.strategy = strategy
-}
-
-/**
- * @author: yasinWu
- * @date: 2022/2/9 11:50
- * @params: messageHandler MessageHandler
- * @description: set messageHandler
- */
-func (k *Kafka) SetMessageHandler(messageHandler MessageHandler) {
-	k.messageHandler = messageHandler
 }

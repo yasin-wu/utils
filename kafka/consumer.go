@@ -12,6 +12,8 @@ import (
 	"github.com/Shopify/sarama"
 )
 
+type MessageHandler func(message *sarama.ConsumerMessage)
+
 /**
  * @author: yasinWu
  * @date: 2022/2/9 11:45
@@ -19,13 +21,16 @@ import (
  * @return: error
  * @description: kafka consumer
  */
-func (k *Kafka) Receive(topics []string, offset int64) {
+func (k *Kafka) Receive(topics []string, offset int64, messageHandler MessageHandler) {
+	if messageHandler == nil {
+		messageHandler = printMsg
+	}
 	go func() {
 		var err error
 		if k.groupId != "" && k.strategy != "" {
-			err = k.receiveGroup(topics, offset)
+			err = k.receiveGroup(topics, offset, messageHandler)
 		} else {
-			err = k.receive(topics, offset)
+			err = k.receive(topics, offset, messageHandler)
 		}
 		if err != nil {
 			log.Printf("consumer failed :%v", err)
@@ -33,7 +38,7 @@ func (k *Kafka) Receive(topics []string, offset int64) {
 	}()
 }
 
-func (k *Kafka) receive(topics []string, offset int64) error {
+func (k *Kafka) receive(topics []string, offset int64, messageHandler MessageHandler) error {
 	var err error
 	k.ctx = context.Background()
 	k.consumer, err = sarama.NewConsumer(k.brokers, k.config)
@@ -41,13 +46,13 @@ func (k *Kafka) receive(topics []string, offset int64) error {
 		return errors.New("new consumer failed: " + err.Error())
 	}
 	defer k.consumer.Close()
-	for _, v := range topics {
-		go k.topic(v, offset)
+	for _, topic := range topics {
+		go k.topic(topic, offset, messageHandler)
 	}
 	select {}
 }
 
-func (k *Kafka) receiveGroup(topics []string, offset int64) error {
+func (k *Kafka) receiveGroup(topics []string, offset int64, messageHandler MessageHandler) error {
 	keepRunning := true
 	k.config.Consumer.Offsets.Initial = offset
 	ctx, cancel := context.WithCancel(context.Background())
@@ -59,7 +64,7 @@ func (k *Kafka) receiveGroup(topics []string, offset int64) error {
 	defer consumerGroup.Close()
 	consumer := Consumer{
 		ready:          make(chan bool),
-		messageHandler: k.messageHandler,
+		messageHandler: messageHandler,
 	}
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -93,7 +98,7 @@ func (k *Kafka) receiveGroup(topics []string, offset int64) error {
 	return nil
 }
 
-func (k *Kafka) topic(topic string, offset int64) {
+func (k *Kafka) topic(topic string, offset int64, messageHandler MessageHandler) {
 	partitionList, err := k.consumer.Partitions(topic)
 	if err != nil {
 		log.Fatalf("fail to start consumer partition,err:%v\n", err)
@@ -103,9 +108,9 @@ func (k *Kafka) topic(topic string, offset int64) {
 		k.partitionConsumer, err = k.consumer.ConsumePartition(topic, int32(partition), offset)
 		if err != nil {
 			log.Printf("fail to start consumer for partition %d,err:%v\n", partition, err)
-			return
+			continue
 		}
-		go k.message()
+		go k.message(messageHandler)
 	}
 	for {
 		select {
@@ -117,10 +122,10 @@ func (k *Kafka) topic(topic string, offset int64) {
 	}
 }
 
-func (k *Kafka) message() {
+func (k *Kafka) message(messageHandler MessageHandler) {
 	defer k.partitionConsumer.AsyncClose()
 	for message := range k.partitionConsumer.Messages() {
-		k.messageHandler(message)
+		messageHandler(message)
 		select {
 		case <-k.ctx.Done():
 			return
