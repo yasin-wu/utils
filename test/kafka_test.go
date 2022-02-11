@@ -23,8 +23,8 @@ var (
 )
 
 func TestKafka(t *testing.T) {
+	consumer()
 	go producer()
-	go consumer()
 	time.Sleep(30 * time.Second)
 }
 
@@ -47,8 +47,5 @@ func producer() {
 func consumer() {
 	config.Version = version
 	client := kafka.New(brokers, config)
-	err := client.Receive([]string{topic}, -1)
-	if err != nil {
-		return
-	}
+	client.Receive([]string{topic}, -1)
 }

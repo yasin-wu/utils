@@ -19,14 +19,18 @@ import (
  * @return: error
  * @description: kafka consumer
  */
-func (k *Kafka) Receive(topics []string, offset int64) error {
-	var err error
-	if k.groupId != "" && k.strategy != "" {
-		err = k.receiveGroup(topics, offset)
-	} else {
-		err = k.receive(topics, offset)
-	}
-	return err
+func (k *Kafka) Receive(topics []string, offset int64) {
+	go func() {
+		var err error
+		if k.groupId != "" && k.strategy != "" {
+			err = k.receiveGroup(topics, offset)
+		} else {
+			err = k.receive(topics, offset)
+		}
+		if err != nil {
+			log.Printf("consumer failed :%v", err)
+		}
+	}()
 }
 
 func (k *Kafka) receive(topics []string, offset int64) error {
