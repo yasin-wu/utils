@@ -29,9 +29,9 @@ func TestKafka(t *testing.T) {
 }
 
 func producer() {
+	config.Version = version
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
-	config.Version = version
 	client := kafka.New(brokers, config)
 	for i := 0; i < count; i++ {
 		j := js.New()

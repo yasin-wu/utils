@@ -35,7 +35,6 @@ func (k *Kafka) Receive(topics []string, offset int64) {
 
 func (k *Kafka) receive(topics []string, offset int64) error {
 	var err error
-	k.config.Consumer.Return.Errors = true
 	k.ctx = context.Background()
 	k.consumer, err = sarama.NewConsumer(k.brokers, k.config)
 	if err != nil {
@@ -50,18 +49,7 @@ func (k *Kafka) receive(topics []string, offset int64) error {
 
 func (k *Kafka) receiveGroup(topics []string, offset int64) error {
 	keepRunning := true
-	k.config.Consumer.Return.Errors = true
 	k.config.Consumer.Offsets.Initial = offset
-	switch k.strategy {
-	case Sticky_Strategy:
-		k.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategySticky
-	case Roundrobin_Strategy:
-		k.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
-	case Range_Strategy:
-		k.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange
-	default:
-		return errors.New("strategy is not supported")
-	}
 	ctx, cancel := context.WithCancel(context.Background())
 	consumerGroup, err := sarama.NewConsumerGroup(k.brokers, k.groupId, k.config)
 	if err != nil {

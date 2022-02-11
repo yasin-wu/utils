@@ -11,6 +11,8 @@ func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 }
 
+var defaultBrokers = []string{"localhost:9092"}
+
 type Kafka struct {
 	brokers           []string
 	groupId           string
@@ -47,9 +49,23 @@ func New(brokers []string, config *Config, options ...Option) *Kafka {
 	if config == nil {
 		config = NewConfig()
 	}
+	if brokers == nil {
+		brokers = defaultBrokers
+	}
 	kafka := &Kafka{brokers: brokers, config: (*sarama.Config)(config)}
 	for _, f := range options {
 		f(kafka)
+	}
+	kafka.config.Consumer.Return.Errors = true
+	switch kafka.strategy {
+	case Sticky_Strategy:
+		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategySticky
+	case Roundrobin_Strategy:
+		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
+	case Range_Strategy:
+		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange
+	default:
+		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange
 	}
 	if kafka.messageHandler == nil {
 		kafka.messageHandler = printMsg
