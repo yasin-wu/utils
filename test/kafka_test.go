@@ -1,7 +1,7 @@
 package test
 
 import (
-	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -36,8 +36,10 @@ func producer() {
 	for i := 0; i < count; i++ {
 		j := js.New()
 		j.Set("num", i)
-		pid, offset, _ := client.Send(topic, key, j)
-		fmt.Printf("this is producer message, Partition:%v, Offset:%v \n", pid, offset)
+		err := client.Send(topic, key, j)
+		if err != nil {
+			log.Println(err)
+		}
 		time.Sleep(time.Second)
 	}
 }
