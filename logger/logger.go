@@ -92,12 +92,14 @@ func level(level string) zapcore.Level {
 	switch strings.ToLower(level) {
 	case "debug":
 		logLevel = zapcore.DebugLevel
-	case "error":
-		logLevel = zapcore.ErrorLevel
 	case "info":
 		logLevel = zapcore.InfoLevel
 	case "warn":
 		logLevel = zapcore.WarnLevel
+	case "error":
+		logLevel = zapcore.ErrorLevel
+	case "dpanic":
+		logLevel = zapcore.DPanicLevel
 	case "panic":
 		logLevel = zapcore.PanicLevel
 	case "fatal":
