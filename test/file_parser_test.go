@@ -9,10 +9,6 @@ import (
 	"github.com/yasin-wu/utils/file_parser"
 )
 
-func init() {
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-}
-
 func TestFileParser(t *testing.T) {
 	url := "http://47.108.155.25:9998"
 	parser := file_parser.New(url)

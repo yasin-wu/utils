@@ -9,10 +9,6 @@ import (
 	email2 "github.com/yasin-wu/utils/email"
 )
 
-func init() {
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-}
-
 func TestEmail(t *testing.T) {
 	host := ""
 	port := ""

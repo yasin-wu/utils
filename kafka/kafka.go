@@ -2,14 +2,9 @@ package kafka
 
 import (
 	"context"
-	"log"
 
 	"github.com/Shopify/sarama"
 )
-
-func init() {
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-}
 
 var defaultBrokers = []string{"localhost:9092"}
 

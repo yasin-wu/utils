@@ -9,10 +9,6 @@ import (
 	sms2 "github.com/yasin-wu/utils/sms"
 )
 
-func init() {
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-}
-
 func TestAliSms(t *testing.T) {
 	scheme := ""
 	regionId := ""
