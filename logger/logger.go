@@ -2,6 +2,7 @@ package logger
 
 import (
 	"os"
+	"strings"
 
 	"gopkg.in/natefinch/lumberjack.v2"
 
@@ -88,7 +89,7 @@ func newCore(conf *config) zapcore.Core {
 
 func level(level string) zapcore.Level {
 	logLevel := zapcore.InfoLevel
-	switch level {
+	switch strings.ToLower(level) {
 	case "debug":
 		logLevel = zapcore.DebugLevel
 	case "error":
