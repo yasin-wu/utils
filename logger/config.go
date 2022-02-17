@@ -1,14 +1,14 @@
 package logger
 
 type config struct {
-	filename   string //日志文件路径
-	level      string //日志输出级别
-	maxSize    int    //每个日志文件保存的最大尺寸 单位：M
-	maxBackups int    //日志文件最多保存多少个备份
-	maxAge     int    //文件最多保存多少天
-	compress   bool   //是否压缩
-	dev        bool   //是否dev
-	stdout     bool   //是否输出到控制台
+	filename   string
+	level      string
+	maxSize    int
+	maxBackups int
+	maxAge     int
+	compress   bool
+	dev        bool
+	stdout     bool
 }
 
 var defaultConfig = &config{
