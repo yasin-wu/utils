@@ -46,7 +46,7 @@ func (l *Logger) SugaredLogger(service string) *zap.SugaredLogger {
 }
 
 func newCore(conf *config) zapcore.Core {
-	//json encoder
+	//encoder
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "time",
 		LevelKey:       "level",
@@ -55,13 +55,17 @@ func newCore(conf *config) zapcore.Core {
 		MessageKey:     "msg",
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeLevel:    zapcore.LowercaseColorLevelEncoder,
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.FullCallerEncoder,
 		EncodeName:     zapcore.FullNameEncoder,
 	}
-	jsonEncoder := zapcore.NewJSONEncoder(encoderConfig)
+	encoder := zapcore.NewConsoleEncoder(encoderConfig)
+	if conf.jsonEncoder {
+		encoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
+		encoder = zapcore.NewJSONEncoder(encoderConfig)
+	}
 
 	//log output
 	hook := &lumberjack.Logger{
@@ -79,7 +83,7 @@ func newCore(conf *config) zapcore.Core {
 	//log level
 	atomicLevel := zap.NewAtomicLevel()
 	atomicLevel.SetLevel(level(conf.level))
-	return zapcore.NewCore(jsonEncoder, writeSyncer, atomicLevel)
+	return zapcore.NewCore(encoder, writeSyncer, atomicLevel)
 }
 
 func level(level string) zapcore.Level {

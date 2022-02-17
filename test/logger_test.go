@@ -7,7 +7,7 @@ import (
 )
 
 func TestLogger(t *testing.T) {
-	log := logger.New()
+	log := logger.New(logger.WithJsonEncoder(false))
 	log1 := log.SugaredLogger("test1")
 	log2 := log.SugaredLogger("test2")
 	log1.Info("info test1")
