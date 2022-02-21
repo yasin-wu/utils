@@ -2,20 +2,7 @@ package logger
 
 import "io"
 
-type config struct {
-	filename    string
-	level       string
-	maxSize     int
-	maxBackups  int
-	maxAge      int
-	compress    bool
-	dev         bool
-	stdout      bool
-	jsonEncoder bool
-	writer      []io.Writer
-}
-
-var defaultConfig = &config{
+var defaultLogger = &Logger{
 	filename:    "./log/main.log",
 	level:       "info",
 	maxSize:     128,
@@ -27,7 +14,7 @@ var defaultConfig = &config{
 	jsonEncoder: true,
 }
 
-type Option func(config *config)
+type Option func(logger *Logger)
 
 /**
  * @author: yasinWu
@@ -37,9 +24,9 @@ type Option func(config *config)
  * @description: 日志文件路径,default:./log/main.log
  */
 func WithFilename(filename string) Option {
-	return func(config *config) {
+	return func(logger *Logger) {
 		if filename != "" {
-			config.filename = filename
+			logger.filename = filename
 		}
 	}
 }
@@ -52,9 +39,9 @@ func WithFilename(filename string) Option {
  * @description: 日志输出级别,default:info
  */
 func WithLevel(level string) Option {
-	return func(config *config) {
+	return func(logger *Logger) {
 		if level != "" {
-			config.level = level
+			logger.level = level
 		}
 	}
 }
@@ -67,8 +54,8 @@ func WithLevel(level string) Option {
  * @description: 每个日志文件大小,单位:MB,default:128
  */
 func WithMaxSize(maxSize int) Option {
-	return func(config *config) {
-		config.maxSize = maxSize
+	return func(logger *Logger) {
+		logger.maxSize = maxSize
 	}
 }
 
@@ -80,9 +67,9 @@ func WithMaxSize(maxSize int) Option {
  * @description: 日志最大备份数,default:30
  */
 func WithMaxBackups(maxBackups int) Option {
-	return func(config *config) {
+	return func(logger *Logger) {
 		if maxBackups > 0 {
-			config.maxBackups = maxBackups
+			logger.maxBackups = maxBackups
 		}
 	}
 }
@@ -95,9 +82,9 @@ func WithMaxBackups(maxBackups int) Option {
  * @description: 日志保存最大天数,default:7
  */
 func WithMaxAge(maxAge int) Option {
-	return func(config *config) {
+	return func(logger *Logger) {
 		if maxAge > 0 {
-			config.maxAge = maxAge
+			logger.maxAge = maxAge
 		}
 	}
 }
@@ -110,8 +97,8 @@ func WithMaxAge(maxAge int) Option {
  * @description: 日志是否压缩,default:true
  */
 func WithCompress(compress bool) Option {
-	return func(config *config) {
-		config.compress = compress
+	return func(logger *Logger) {
+		logger.compress = compress
 	}
 }
 
@@ -123,8 +110,8 @@ func WithCompress(compress bool) Option {
  * @description: 日志是否dev,default:true
  */
 func WithDev(dev bool) Option {
-	return func(config *config) {
-		config.dev = dev
+	return func(logger *Logger) {
+		logger.dev = dev
 	}
 }
 
@@ -136,8 +123,8 @@ func WithDev(dev bool) Option {
  * @description: 日志是否控制台输出,default:true
  */
 func WithStdout(stdout bool) Option {
-	return func(config *config) {
-		config.stdout = stdout
+	return func(logger *Logger) {
+		logger.stdout = stdout
 	}
 }
 
@@ -149,8 +136,8 @@ func WithStdout(stdout bool) Option {
  * @description: 设置默认encoder,default:true
  */
 func WithJsonEncoder(jsonEncoder bool) Option {
-	return func(config *config) {
-		config.jsonEncoder = jsonEncoder
+	return func(logger *Logger) {
+		logger.jsonEncoder = jsonEncoder
 	}
 }
 
@@ -162,7 +149,7 @@ func WithJsonEncoder(jsonEncoder bool) Option {
  * @description: 设置io writer,default:file
  */
 func WithWriter(w ...io.Writer) Option {
-	return func(config *config) {
-		config.writer = w
+	return func(logger *Logger) {
+		logger.writer = w
 	}
 }

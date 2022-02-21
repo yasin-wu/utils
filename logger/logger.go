@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"io"
 	"os"
 	"strings"
 
@@ -11,8 +12,17 @@ import (
 )
 
 type Logger struct {
-	logger *zap.Logger
-	conf   *config
+	filename    string      //default:./log/main.log
+	level       string      //default:info
+	maxSize     int         //default:128,MB
+	maxBackups  int         //default:30
+	maxAge      int         //default:7,day
+	compress    bool        //default:true
+	dev         bool        //default:true
+	stdout      bool        //default:true
+	jsonEncoder bool        //default:true
+	writer      []io.Writer //default:nil,output is filename
+	logger      *zap.Logger
 }
 
 /**
@@ -23,14 +33,13 @@ type Logger struct {
  * @description: New Logger
  */
 func New(options ...Option) *Logger {
-	conf := defaultConfig
+	logger := defaultLogger
 	for _, f := range options {
-		f(conf)
+		f(logger)
 	}
-	logger := &Logger{conf: conf}
-	core := zapcore.NewCore(logger.encoder(), logger.writeSyncer(), logger.level())
+	core := zapcore.NewCore(logger.encoder(), logger.writeSyncer(), logger.atomicLevel())
 	zapOptions := []zap.Option{zap.AddCaller()}
-	if conf.dev {
+	if logger.dev {
 		zapOptions = append(zapOptions, zap.Development())
 	}
 	logger.logger = zap.New(core, zapOptions...)
@@ -64,7 +73,7 @@ func (l *Logger) encoder() zapcore.Encoder {
 		EncodeName:     zapcore.FullNameEncoder,
 	}
 	encoder := zapcore.NewConsoleEncoder(encoderConfig)
-	if l.conf.jsonEncoder {
+	if l.jsonEncoder {
 		encoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	}
@@ -73,26 +82,26 @@ func (l *Logger) encoder() zapcore.Encoder {
 
 func (l *Logger) writeSyncer() zapcore.WriteSyncer {
 	hook := &lumberjack.Logger{
-		Filename:   l.conf.filename,
-		MaxSize:    l.conf.maxSize,
-		MaxBackups: l.conf.maxBackups,
-		MaxAge:     l.conf.maxAge,
-		Compress:   l.conf.compress,
+		Filename:   l.filename,
+		MaxSize:    l.maxSize,
+		MaxBackups: l.maxBackups,
+		MaxAge:     l.maxAge,
+		Compress:   l.compress,
 	}
 	var sync []zapcore.WriteSyncer
 	sync = append(sync, zapcore.AddSync(hook))
-	if l.conf.stdout {
+	if l.stdout {
 		sync = append(sync, zapcore.AddSync(os.Stdout))
 	}
-	for _, w := range l.conf.writer {
+	for _, w := range l.writer {
 		sync = append(sync, zapcore.AddSync(w))
 	}
 	return zapcore.NewMultiWriteSyncer(sync...)
 }
 
-func (l *Logger) level() zap.AtomicLevel {
+func (l *Logger) atomicLevel() zap.AtomicLevel {
 	logLevel := zapcore.InfoLevel
-	switch strings.ToLower(l.conf.level) {
+	switch strings.ToLower(l.level) {
 	case "debug":
 		logLevel = zapcore.DebugLevel
 	case "info":
