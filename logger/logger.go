@@ -12,6 +12,7 @@ import (
 
 type Logger struct {
 	logger *zap.Logger
+	conf   *config
 }
 
 /**
@@ -26,13 +27,14 @@ func New(options ...Option) *Logger {
 	for _, f := range options {
 		f(conf)
 	}
-	core := newCore(conf)
+	logger := &Logger{conf: conf}
+	core := zapcore.NewCore(logger.encoder(), logger.writeSyncer(), logger.level())
 	zapOptions := []zap.Option{zap.AddCaller()}
 	if conf.dev {
 		zapOptions = append(zapOptions, zap.Development())
 	}
-
-	return &Logger{logger: zap.New(core, zapOptions...)}
+	logger.logger = zap.New(core, zapOptions...)
+	return logger
 }
 
 /**
@@ -46,8 +48,7 @@ func (l *Logger) SugaredLogger(service string) *zap.SugaredLogger {
 	return l.logger.With(zap.String("service", service)).Sugar()
 }
 
-func newCore(conf *config) zapcore.Core {
-	//encoder
+func (l *Logger) encoder() zapcore.Encoder {
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "time",
 		LevelKey:       "level",
@@ -63,33 +64,35 @@ func newCore(conf *config) zapcore.Core {
 		EncodeName:     zapcore.FullNameEncoder,
 	}
 	encoder := zapcore.NewConsoleEncoder(encoderConfig)
-	if conf.jsonEncoder {
+	if l.conf.jsonEncoder {
 		encoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	}
-
-	//log output
-	hook := &lumberjack.Logger{
-		Filename:   conf.filename,
-		MaxSize:    conf.maxSize,
-		MaxBackups: conf.maxBackups,
-		MaxAge:     conf.maxAge,
-		Compress:   conf.compress,
-	}
-	writeSyncer := zapcore.NewMultiWriteSyncer(zapcore.AddSync(hook))
-	if conf.stdout {
-		writeSyncer = zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(hook))
-	}
-
-	//log level
-	atomicLevel := zap.NewAtomicLevel()
-	atomicLevel.SetLevel(level(conf.level))
-	return zapcore.NewCore(encoder, writeSyncer, atomicLevel)
+	return encoder
 }
 
-func level(level string) zapcore.Level {
+func (l *Logger) writeSyncer() zapcore.WriteSyncer {
+	hook := &lumberjack.Logger{
+		Filename:   l.conf.filename,
+		MaxSize:    l.conf.maxSize,
+		MaxBackups: l.conf.maxBackups,
+		MaxAge:     l.conf.maxAge,
+		Compress:   l.conf.compress,
+	}
+	var sync []zapcore.WriteSyncer
+	sync = append(sync, zapcore.AddSync(hook))
+	if l.conf.stdout {
+		sync = append(sync, zapcore.AddSync(os.Stdout))
+	}
+	for _, w := range l.conf.writer {
+		sync = append(sync, zapcore.AddSync(w))
+	}
+	return zapcore.NewMultiWriteSyncer(sync...)
+}
+
+func (l *Logger) level() zap.AtomicLevel {
 	logLevel := zapcore.InfoLevel
-	switch strings.ToLower(level) {
+	switch strings.ToLower(l.conf.level) {
 	case "debug":
 		logLevel = zapcore.DebugLevel
 	case "info":
@@ -105,5 +108,7 @@ func level(level string) zapcore.Level {
 	case "fatal":
 		logLevel = zapcore.FatalLevel
 	}
-	return logLevel
+	atomicLevel := zap.NewAtomicLevel()
+	atomicLevel.SetLevel(logLevel)
+	return atomicLevel
 }

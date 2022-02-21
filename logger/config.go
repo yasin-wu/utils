@@ -1,5 +1,7 @@
 package logger
 
+import "io"
+
 type config struct {
 	filename    string
 	level       string
@@ -10,6 +12,7 @@ type config struct {
 	dev         bool
 	stdout      bool
 	jsonEncoder bool
+	writer      []io.Writer
 }
 
 var defaultConfig = &config{
@@ -148,5 +151,18 @@ func WithStdout(stdout bool) Option {
 func WithJsonEncoder(jsonEncoder bool) Option {
 	return func(config *config) {
 		config.jsonEncoder = jsonEncoder
+	}
+}
+
+/**
+ * @author: yasinWu
+ * @date: 2022/2/21 10:02
+ * @params: w ...io.Writer
+ * @return: Option
+ * @description: 设置io writer,default:file
+ */
+func WithWriter(w ...io.Writer) Option {
+	return func(config *config) {
+		config.writer = w
 	}
 }
