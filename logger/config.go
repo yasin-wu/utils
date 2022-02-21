@@ -47,7 +47,7 @@ func WithFilename(filename string) Option {
 /**
  * @author: yasinWu
  * @date: 2022/2/17 14:05
- * @params: level string
+ * @params: level string;debug,info,warn,error,dpanic,panic,fatal
  * @return: Option
  * @description: 日志输出级别,default:info
  */
