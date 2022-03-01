@@ -119,7 +119,5 @@ func (l *Logger) atomicLevel() zap.AtomicLevel {
 	case "fatal":
 		logLevel = zapcore.FatalLevel
 	}
-	atomicLevel := zap.NewAtomicLevel()
-	atomicLevel.SetLevel(logLevel)
-	return atomicLevel
+	return zap.NewAtomicLevelAt(logLevel)
 }
