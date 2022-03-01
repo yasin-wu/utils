@@ -37,7 +37,9 @@ func New(options ...Option) *Logger {
 	for _, f := range options {
 		f(logger)
 	}
-	core := zapcore.NewCore(logger.encoder(), logger.writeSyncer(), logger.atomicLevel())
+	core := zapcore.NewTee(
+		zapcore.NewCore(logger.encoder(), logger.writeSyncer(), logger.atomicLevel()),
+	)
 	zapOptions := []zap.Option{zap.AddCaller()}
 	if logger.dev {
 		zapOptions = append(zapOptions, zap.Development())
