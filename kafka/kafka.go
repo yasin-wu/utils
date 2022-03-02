@@ -49,6 +49,7 @@ func New(brokers []string, config *Config, options ...Option) *Kafka {
 		f(kafka)
 	}
 	kafka.config.Consumer.Return.Errors = true
+	kafka.config.Producer.Return.Successes = true
 	switch kafka.strategy {
 	case Sticky_Strategy:
 		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategySticky

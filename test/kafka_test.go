@@ -33,14 +33,20 @@ func producer() {
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	client := kafka.New(brokers, config)
+	var msgs []*kafka.Message
 	for i := 0; i < count; i++ {
 		j := js.New()
-		j.Set("num", i)
-		err := client.Send(topic, key, j)
-		if err != nil {
-			log.Println(err)
+		j.Set("number", i)
+		msg := &kafka.Message{
+			Topic:   topic,
+			Key:     key,
+			Message: j,
 		}
-		time.Sleep(time.Second)
+		msgs = append(msgs, msg)
+	}
+	err := client.Send(msgs)
+	if err != nil {
+		log.Println(err)
 	}
 }
 
