@@ -16,7 +16,9 @@ func TestLogger(t *testing.T) {
 		Password:  "yasinwu",
 	}
 	esWriter, _ := writer.NewESWriter("yasin_logs", esConf)
-	log := logger.New(logger.WithJsonEncoder(true), logger.WithWriter(esWriter))
+	log := logger.New(logger.WithJsonEncoder(true),
+		logger.WithWriter(esWriter),
+		logger.WithErrorFile("./log/error.log"))
 	log1 := log.SugaredLogger("test1")
 	log2 := log.SugaredLogger("test2")
 	log1.Info("info test1")

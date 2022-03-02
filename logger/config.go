@@ -153,3 +153,16 @@ func WithWriter(w ...io.Writer) Option {
 		logger.writer = w
 	}
 }
+
+/**
+ * @author: yasinWu
+ * @date: 2022/2/21 10:02
+ * @params: errorFile string
+ * @return: Option
+ * @description: 设置error file,default:filename
+ */
+func WithErrorFile(errorFile string) Option {
+	return func(logger *Logger) {
+		logger.errorfile = errorFile
+	}
+}

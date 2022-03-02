@@ -22,6 +22,7 @@ type Logger struct {
 	stdout      bool        //default:true
 	jsonEncoder bool        //default:true
 	writer      []io.Writer //default:nil,output is filename
+	errorfile   string
 	logger      *zap.Logger
 }
 
@@ -37,9 +38,12 @@ func New(options ...Option) *Logger {
 	for _, f := range options {
 		f(logger)
 	}
-	core := zapcore.NewTee(
-		zapcore.NewCore(logger.encoder(), logger.writeSyncer(), logger.atomicLevel()),
-	)
+	var cores []zapcore.Core
+	cores = append(cores, logger.mainCore())
+	if logger.errorfile != "" {
+		cores = append(cores, logger.errorCore())
+	}
+	core := zapcore.NewTee(cores...)
 	zapOptions := []zap.Option{zap.AddCaller()}
 	if logger.dev {
 		zapOptions = append(zapOptions, zap.Development())
@@ -57,6 +61,23 @@ func New(options ...Option) *Logger {
  */
 func (l *Logger) SugaredLogger(service string) *zap.SugaredLogger {
 	return l.logger.With(zap.String("service", service)).Sugar()
+}
+
+func (l *Logger) mainCore() zapcore.Core {
+	return zapcore.NewCore(l.encoder(), l.writeSyncer(), l.atomicLevel())
+}
+
+func (l *Logger) errorCore() zapcore.Core {
+	hook := &lumberjack.Logger{
+		Filename:   l.errorfile,
+		MaxSize:    l.maxSize,
+		MaxBackups: l.maxBackups,
+		MaxAge:     l.maxAge,
+		Compress:   l.compress,
+	}
+	writeSyncer := zapcore.NewMultiWriteSyncer(zapcore.AddSync(hook))
+	atomicLevel := zap.NewAtomicLevelAt(zapcore.ErrorLevel)
+	return zapcore.NewCore(l.encoder(), writeSyncer, atomicLevel)
 }
 
 func (l *Logger) encoder() zapcore.Encoder {
