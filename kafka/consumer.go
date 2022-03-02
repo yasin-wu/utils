@@ -17,7 +17,7 @@ type MessageHandler func(message *sarama.ConsumerMessage)
 /**
  * @author: yasinWu
  * @date: 2022/2/9 11:45
- * @params: topics []string, offset int64
+ * @params: topics []string, offset int64, messageHandler MessageHandler
  * @return: error
  * @description: kafka consumer
  */
