@@ -19,6 +19,11 @@ var defaultOutput = Output{
 	jsonEncoder: true,
 }
 
+/**
+ * @author: yasinWu
+ * @date: 2022/3/3 15:44
+ * @params: level:debug,info,warn,error,dpanic,panic,fatal
+ */
 func NewOutput(filename, level string, stdout, jsonEncoder bool, writers ...io.Writer) Output {
 	output := Output{
 		filename:    filename,
