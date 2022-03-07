@@ -6,7 +6,6 @@ var defaultLogger = &Logger{
 	maxAge:     7,
 	compress:   true,
 	dev:        true,
-	outputs:    []Output{defaultOutput},
 }
 
 type Option func(logger *Logger)

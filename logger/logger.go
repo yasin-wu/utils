@@ -32,6 +32,9 @@ func New(options ...Option) *Logger {
 	for _, f := range options {
 		f(logger)
 	}
+	if len(logger.outputs) == 0 {
+		logger.outputs = append(logger.outputs, defaultOutput)
+	}
 	var cores []zapcore.Core
 	for _, output := range logger.outputs {
 		cores = append(cores, logger.newCore(output))
