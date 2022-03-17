@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/yasin-wu/utils/common"
+	"github.com/yasin-wu/utils/tool"
 
 	"github.com/yanyiwu/gojieba"
 )
@@ -29,7 +29,7 @@ func ExtractWithWeight(input string, topKey int, addWords []string) ([]WordWeigh
 		g.AddWord(addWord)
 	}
 	defer g.Free()
-	input = common.RemoveHtml(input)
+	input = tool.RemoveHtml(input)
 	wordWeights := g.ExtractWithWeight(input, topKey)
 	binaryWeights := make([]float64, 32)
 	wordWeightList := make([]WordWeight, 0)
@@ -43,7 +43,7 @@ func ExtractWithWeight(input string, topKey int, addWords []string) ([]WordWeigh
 		}
 		w.Word = ww.Word
 		w.Weight = ww.Weight
-		w.Print = common.ConvertString2To10(bitHash)
+		w.Print = tool.ConvertString2To10(bitHash)
 
 		wordWeightList = append(wordWeightList, w)
 	}

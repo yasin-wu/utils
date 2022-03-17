@@ -1,9 +1,11 @@
-package common
+package tool
 
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -381,4 +383,9 @@ func ByteWithUnit(value int64) string {
 	}
 
 	return strconv.FormatFloat(data, 'f', 2, 64) + unit[5]
+}
+
+func Println(data interface{}) {
+	j, _ := json.MarshalIndent(data, "", "\t")
+	fmt.Println(string(j))
 }

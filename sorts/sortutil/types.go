@@ -5,7 +5,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package sortutil sorts and searches common slice types (and helps sort
+// Package sortutil sorts and searches tool slice types (and helps sort
 // floats).
 package sortutil
 

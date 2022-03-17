@@ -7,7 +7,7 @@
 
 // Package sorts does parallel radix sorts of data by (u)int64, string, or
 // []byte keys, and parallel quicksort.  See the sorts/sortutil package for
-// shortcuts for common slice types and help sorting floats.
+// shortcuts for tool slice types and help sorting floats.
 package sorts
 
 import "sort" // for Interface

@@ -234,7 +234,7 @@ func radixSortUint64(dataI sort.Interface, t task, sortRange func(task)) {
 		}
 	}
 
-	// skip past common prefixes, bail if all keys equal
+	// skip past tool prefixes, bail if all keys equal
 	diff := min ^ max
 	if diff == 0 {
 		qSortEqualKeyRange(data, a, b)
@@ -324,7 +324,7 @@ func radixSortInt64(dataI sort.Interface, t task, sortRange func(task)) {
 		}
 	}
 
-	// skip past common prefixes, bail if all keys equal
+	// skip past tool prefixes, bail if all keys equal
 	diff := min ^ max
 	if diff == 0 {
 		qSortEqualKeyRange(data, a, b)
@@ -395,7 +395,7 @@ func radixSortString(dataI sort.Interface, t task, sortRange func(task)) {
 	data := dataI.(StringInterface)
 	offset, a, b := t.offs, t.pos, t.end
 	if offset < 0 {
-		// in a parallel quicksort of items w/long common key prefix
+		// in a parallel quicksort of items w/long tool key prefix
 		quickSortWorker(data, t, sortRange)
 		return
 	}
@@ -461,7 +461,7 @@ func radixSortBytes(dataI sort.Interface, t task, sortRange func(task)) {
 	data := dataI.(BytesInterface)
 	offset, a, b := t.offs, t.pos, t.end
 	if offset < 0 {
-		// in a parallel quicksort of items w/long common key prefix
+		// in a parallel quicksort of items w/long tool key prefix
 		quickSortWorker(data, t, sortRange)
 		return
 	}

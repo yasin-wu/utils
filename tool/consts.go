@@ -1,4 +1,4 @@
-package common
+package tool
 
 const (
 	Byte = 1 << (10 * iota)

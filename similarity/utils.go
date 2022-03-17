@@ -1,7 +1,7 @@
 package similarity
 
 import (
-	"github.com/yasin-wu/utils/common"
+	"github.com/yasin-wu/utils/tool"
 )
 
 func GetFinger(fingerArr []string) int64 {
@@ -9,7 +9,7 @@ func GetFinger(fingerArr []string) int64 {
 	for _, f := range fingerArr {
 		fingerStr += f
 	}
-	return common.ConvertString2To10(fingerStr)
+	return tool.ConvertString2To10(fingerStr)
 }
 
 func GetWords(wordsWeights []WordWeight) []string {
