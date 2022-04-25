@@ -17,6 +17,7 @@ import (
 	"path"
 	"reflect"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -388,4 +389,13 @@ func ByteWithUnit(value int64) string {
 func Println(data interface{}) {
 	j, _ := json.MarshalIndent(data, "", "\t")
 	fmt.Println(string(j))
+}
+
+func StringIn(target string, src []string) bool {
+	sort.Strings(src)
+	index := sort.SearchStrings(src, target)
+	if index < len(src) && src[index] == target {
+		return true
+	}
+	return false
 }
