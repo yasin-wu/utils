@@ -5,37 +5,42 @@ import (
 )
 
 type Output struct {
-	filename    string
-	level       string
-	stdout      bool
-	jsonEncoder bool
-	writer      []io.Writer
+	config *Config
+	writer []io.Writer
+}
+
+type Config struct {
+	Topics      []string
+	Filename    string
+	Level       string
+	Stdout      bool
+	JsonEncoder bool
+}
+
+var defaultConfig = &Config{
+	Filename:    "./log/main.log",
+	Level:       "info",
+	Stdout:      true,
+	JsonEncoder: true,
 }
 
 var defaultOutput = Output{
-	filename:    "./log/main.log",
-	level:       "info",
-	stdout:      true,
-	jsonEncoder: true,
+	config: defaultConfig,
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/3/3 15:44
- * @params: level:debug,info,warn,error,dpanic,panic,fatal
- */
-func NewOutput(filename, level string, stdout, jsonEncoder bool, writers ...io.Writer) Output {
+func NewOutput(config *Config, writers ...io.Writer) Output {
 	output := Output{
-		filename:    filename,
-		level:       level,
-		stdout:      stdout,
-		jsonEncoder: jsonEncoder,
-		writer:      writers,
+		config: config,
+		writer: writers,
 	}
 
 	if len(output.writer) > 0 {
-		output.jsonEncoder = true
+		output.config.JsonEncoder = true
 	}
 
 	return output
+}
+
+func NewDefaultOutput() Output {
+	return defaultOutput
 }

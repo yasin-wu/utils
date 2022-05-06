@@ -79,7 +79,7 @@ func (l *Logger) encoder(output Output) zapcore.Encoder {
 		EncodeName:     zapcore.FullNameEncoder,
 	}
 	encoder := zapcore.NewConsoleEncoder(encoderConfig)
-	if output.jsonEncoder {
+	if output.config.JsonEncoder {
 		encoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	}
@@ -88,7 +88,7 @@ func (l *Logger) encoder(output Output) zapcore.Encoder {
 
 func (l *Logger) writeSyncer(output Output) zapcore.WriteSyncer {
 	hook := &lumberjack.Logger{
-		Filename:   output.filename,
+		Filename:   output.config.Filename,
 		MaxSize:    l.maxSize,
 		MaxBackups: l.maxBackups,
 		MaxAge:     l.maxAge,
@@ -96,7 +96,7 @@ func (l *Logger) writeSyncer(output Output) zapcore.WriteSyncer {
 	}
 	var sync []zapcore.WriteSyncer
 	sync = append(sync, zapcore.AddSync(hook))
-	if output.stdout {
+	if output.config.Stdout {
 		sync = append(sync, zapcore.AddSync(os.Stdout))
 	}
 	for _, w := range output.writer {
@@ -107,7 +107,7 @@ func (l *Logger) writeSyncer(output Output) zapcore.WriteSyncer {
 
 func (l *Logger) atomicLevel(output Output) zap.AtomicLevel {
 	logLevel := zapcore.InfoLevel
-	switch strings.ToLower(output.level) {
+	switch strings.ToLower(output.config.Level) {
 	case "debug":
 		logLevel = zapcore.DebugLevel
 	case "info":

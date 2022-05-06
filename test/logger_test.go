@@ -15,8 +15,14 @@ func TestLogger(t *testing.T) {
 		Username:  "elastic",
 		Password:  "yasinwu",
 	}
+	errOutputConfig := &logger.Config{
+		Filename:    "./log/error.log",
+		Level:       "error",
+		Stdout:      false,
+		JsonEncoder: false,
+	}
 	esWriter, _ := writer.NewESWriter("yasin_logs", esConf)
-	errOutput := logger.NewOutput("./log/error.log", "error", false, false, esWriter)
+	errOutput := logger.NewOutput(errOutputConfig, esWriter)
 	log := logger.New(logger.WithOutputs(errOutput))
 	log1 := log.SugaredLogger("test1")
 	log2 := log.SugaredLogger("test2")
