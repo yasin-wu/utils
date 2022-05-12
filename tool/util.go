@@ -387,8 +387,8 @@ func ByteWithUnit(value int64) string {
 }
 
 func Println(data interface{}) {
-	j, _ := json.MarshalIndent(data, "", "\t")
-	fmt.Println(string(j))
+	buffer, _ := json.MarshalIndent(data, "", "   ")
+	fmt.Println(string(buffer))
 }
 
 func StringIn(target string, src []string) bool {
