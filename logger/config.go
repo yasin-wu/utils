@@ -1,6 +1,6 @@
 package logger
 
-var defaultLogger = &Logger{
+var defaultLogger = Logger{
 	maxSize:    128,
 	maxBackups: 30,
 	maxAge:     7,

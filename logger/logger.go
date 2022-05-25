@@ -27,10 +27,10 @@ type Logger struct {
  * @return: *Logger
  * @description: New Logger
  */
-func New(options ...Option) *Logger {
+func New(options ...Option) Logger {
 	logger := defaultLogger
 	for _, f := range options {
-		f(logger)
+		f(&logger)
 	}
 	if len(logger.outputs) == 0 {
 		logger.outputs = append(logger.outputs, defaultOutput)
@@ -55,15 +55,15 @@ func New(options ...Option) *Logger {
  * @return: *zap.SugaredLogger
  * @description: New SugaredLogger
  */
-func (l *Logger) SugaredLogger(service string) *zap.SugaredLogger {
+func (l Logger) SugaredLogger(service string) *zap.SugaredLogger {
 	return l.logger.With(zap.String("service", service)).Sugar()
 }
 
-func (l *Logger) newCore(output Output) zapcore.Core {
+func (l Logger) newCore(output Output) zapcore.Core {
 	return zapcore.NewCore(l.encoder(output), l.writeSyncer(output), l.atomicLevel(output))
 }
 
-func (l *Logger) encoder(output Output) zapcore.Encoder {
+func (l Logger) encoder(output Output) zapcore.Encoder {
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "time",
 		LevelKey:       "level",
@@ -86,7 +86,7 @@ func (l *Logger) encoder(output Output) zapcore.Encoder {
 	return encoder
 }
 
-func (l *Logger) writeSyncer(output Output) zapcore.WriteSyncer {
+func (l Logger) writeSyncer(output Output) zapcore.WriteSyncer {
 	hook := &lumberjack.Logger{
 		Filename:   output.config.Filename,
 		MaxSize:    l.maxSize,
@@ -105,7 +105,7 @@ func (l *Logger) writeSyncer(output Output) zapcore.WriteSyncer {
 	return zapcore.NewMultiWriteSyncer(sync...)
 }
 
-func (l *Logger) atomicLevel(output Output) zap.AtomicLevel {
+func (l Logger) atomicLevel(output Output) zap.AtomicLevel {
 	logLevel := zapcore.InfoLevel
 	switch strings.ToLower(output.config.Level) {
 	case "debug":
