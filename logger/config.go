@@ -1,93 +1,84 @@
 package logger
 
-var defaultLogger = Logger{
-	maxSize:    128,
-	maxBackups: 30,
-	maxAge:     7,
-	compress:   true,
-	dev:        true,
-}
+import (
+	"io"
+	"strings"
+)
 
-type Option func(logger *Logger)
+type Option func(core *Core)
 
-/**
- * @author: yasinWu
- * @date: 2022/2/17 14:06
- * @params: maxSize int
- * @return: Option
- * @description: 每个日志文件大小,单位:MB,default:128
- */
+type OutputOption func(output *Output)
+
 func WithMaxSize(maxSize int) Option {
-	return func(logger *Logger) {
-		logger.maxSize = maxSize
+	return func(core *Core) {
+		if maxSize > 0 {
+			core.maxSize = maxSize
+		}
 	}
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/2/17 14:07
- * @params: maxBackups int
- * @return: Option
- * @description: 日志最大备份数,default:30
- */
 func WithMaxBackups(maxBackups int) Option {
-	return func(logger *Logger) {
+	return func(core *Core) {
 		if maxBackups > 0 {
-			logger.maxBackups = maxBackups
+			core.maxBackups = maxBackups
 		}
 	}
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/2/17 14:08
- * @params: maxAge int
- * @return: Option
- * @description: 日志保存最大天数,default:7
- */
 func WithMaxAge(maxAge int) Option {
-	return func(logger *Logger) {
+	return func(core *Core) {
 		if maxAge > 0 {
-			logger.maxAge = maxAge
+			core.maxAge = maxAge
 		}
 	}
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/2/17 14:09
- * @params: compress bool
- * @return: Option
- * @description: 日志是否压缩,default:true
- */
 func WithCompress(compress bool) Option {
-	return func(logger *Logger) {
-		logger.compress = compress
+	return func(core *Core) {
+		core.compress = compress
 	}
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/2/17 14:09
- * @params: dev bool
- * @return: Option
- * @description: 日志是否dev,default:true
- */
-func WithDev(dev bool) Option {
-	return func(logger *Logger) {
-		logger.dev = dev
-	}
-}
-
-/**
- * @author: yasinWu
- * @date: 2022/2/17 14:09
- * @params: outputs ...*Output
- * @return: Option
- * @description: 设置多个output,default:defaultOutput
- */
 func WithOutputs(outputs ...Output) Option {
-	return func(logger *Logger) {
-		logger.outputs = append(logger.outputs, outputs...)
+	return func(core *Core) {
+		if len(outputs) > 0 {
+			core.outputs = append(core.outputs, outputs...)
+		}
+	}
+}
+
+func WithFilename(filename string) OutputOption {
+	return func(output *Output) {
+		if filename != "" {
+			output.filename = filename
+		}
+	}
+}
+
+func WithLevel(level string) OutputOption {
+	return func(output *Output) {
+		if level != "" {
+			output.level = strings.ToLower(level)
+		}
+	}
+}
+
+func WithStdout(stdout bool) OutputOption {
+	return func(output *Output) {
+		output.stdout = stdout
+	}
+}
+
+func WithJsonEncoder(jsonEncoder bool) OutputOption {
+	return func(output *Output) {
+		output.jsonEncoder = jsonEncoder
+	}
+}
+
+func WithWriter(writer ...io.Writer) OutputOption {
+	return func(output *Output) {
+		if len(writer) > 0 {
+			output.writer = append(output.writer, writer...)
+		}
 	}
 }
