@@ -10,7 +10,7 @@ type Logger struct {
 
 func New(dev bool, options ...Option) Logger {
 	core := NewCore(options...)
-	zapOptions := []zap.Option{zap.AddCaller()}
+	zapOptions := []zap.Option{zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel)}
 	if dev {
 		zapOptions = append(zapOptions, zap.Development())
 	}
