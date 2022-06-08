@@ -1,7 +1,9 @@
 package logger
 
 import (
+	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"go.uber.org/zap"
@@ -10,11 +12,12 @@ import (
 )
 
 type Core struct {
-	maxSize    int  //default:128,MB
-	maxBackups int  //default:30
-	maxAge     int  //default:7,day
-	compress   bool //default:true
-	outputs    []Output
+	serviceName string
+	maxSize     int  //default:128,MB
+	maxBackups  int  //default:30
+	maxAge      int  //default:7,day
+	compress    bool //default:true
+	outputs     []Output
 }
 
 var defaultCore = Core{
@@ -24,8 +27,9 @@ var defaultCore = Core{
 	compress:   true,
 }
 
-func newCore(options ...Option) Core {
+func newCore(serviceName string, options ...Option) Core {
 	core := defaultCore
+	core.serviceName = serviceName
 	for _, f := range options {
 		f(&core)
 	}
@@ -68,7 +72,7 @@ func (c Core) encoder(output Output) zapcore.Encoder {
 
 func (c Core) writeSyncer(output Output) zapcore.WriteSyncer {
 	hook := &lumberjack.Logger{
-		Filename:   output.filename,
+		Filename:   path.Join(output.path, fmt.Sprintf("%s-%s.log", c.serviceName, output.level)),
 		MaxSize:    c.maxSize,
 		MaxBackups: c.maxBackups,
 		MaxAge:     c.maxAge,

@@ -47,10 +47,10 @@ func WithOutputs(outputs ...Output) Option {
 	}
 }
 
-func WithFilename(filename string) OutputOption {
+func WithPath(path string) OutputOption {
 	return func(output *Output) {
-		if filename != "" {
-			output.filename = filename
+		if path != "" {
+			output.path = path
 		}
 	}
 }

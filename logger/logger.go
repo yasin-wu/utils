@@ -1,27 +1,24 @@
 package logger
 
 import (
+	"errors"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-type Logger struct {
-	logger *zap.Logger
-}
-
-func New(options ...Option) *Logger {
-	core := newCore(options...)
-	log, err := zap.NewProduction(zap.AddCaller(),
+func New(serviceName string, options ...Option) (*zap.SugaredLogger, error) {
+	if serviceName == "" {
+		return nil, errors.New("service name must not be empty")
+	}
+	core := newCore(serviceName, options...)
+	logger, err := zap.NewProduction(zap.AddCaller(),
 		zap.AddStacktrace(zap.ErrorLevel),
 		zap.WrapCore(func(zapcore.Core) zapcore.Core {
 			return core.newTee()
 		}))
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &Logger{logger: log}
-}
-
-func (l Logger) SugaredLogger(service string) *zap.SugaredLogger {
-	return l.logger.With(zap.String("service", service)).Sugar()
+	return logger.With(zap.String("service", serviceName)).Sugar(), nil
 }

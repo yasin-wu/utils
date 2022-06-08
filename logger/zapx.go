@@ -1,19 +1,17 @@
 package logger
 
 import (
-	path2 "path"
-
 	"go.uber.org/zap/zapcore"
 
 	"go.uber.org/zap"
 )
 
-func WrapCore(path, name, level string, stdout bool) zap.Option {
+func WrapCore(serviceName, path, level string, stdout bool) zap.Option {
 	output := NewOutput(WithLevel(level), WithStdout(stdout),
-		WithFilename(path2.Join(path, name+".log")))
+		WithPath(path))
 	errOutput := NewOutput(WithLevel("error"), WithStdout(false),
-		WithFilename(path2.Join(path, name+"-error.log")))
-	core := newCore(WithOutputs(output, errOutput))
+		WithPath(path))
+	core := newCore(serviceName, WithOutputs(output, errOutput))
 	return zap.WrapCore(func(zapcore.Core) zapcore.Core {
 		return core.newTee()
 	})

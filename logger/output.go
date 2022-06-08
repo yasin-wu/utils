@@ -5,14 +5,14 @@ import (
 )
 
 var defaultOutput = Output{
-	filename:    "./log/main.log",
+	path:        "./log",
 	level:       "info",
 	stdout:      true,
 	jsonEncoder: true,
 }
 
 type Output struct {
-	filename    string
+	path        string
 	level       string
 	stdout      bool
 	jsonEncoder bool

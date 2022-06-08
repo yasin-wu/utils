@@ -16,12 +16,11 @@ func TestLogger(t *testing.T) {
 		Password:  "yasinwu",
 	}
 	esWriter, _ := writer.NewESWriter("yasin_logs", esConf)
-	errOutput := logger.NewOutput(logger.WithFilename("./log/error.log"),
+	errOutput := logger.NewOutput(logger.WithPath("./log"),
 		logger.WithLevel("error"), logger.WithWriter(esWriter))
 	defaultOutput := logger.NewOutput()
-	log := logger.New(false, logger.WithOutputs(defaultOutput, errOutput))
-	log1 := log.SugaredLogger("test1")
-	log2 := log.SugaredLogger("test2")
+	log1, _ := logger.New("yasin", logger.WithOutputs(defaultOutput, errOutput))
+	log2, _ := logger.New("yasin", logger.WithOutputs(defaultOutput, errOutput))
 	log1.Info("info test1")
 	log1.Error("error test1")
 	log2.Info("info test2")
