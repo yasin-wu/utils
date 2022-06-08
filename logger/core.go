@@ -24,7 +24,7 @@ var defaultCore = Core{
 	compress:   true,
 }
 
-func NewCore(options ...Option) Core {
+func newCore(options ...Option) Core {
 	core := defaultCore
 	for _, f := range options {
 		f(&core)
@@ -33,10 +33,6 @@ func NewCore(options ...Option) Core {
 		core.outputs = append(core.outputs, defaultOutput)
 	}
 	return core
-}
-
-func (c Core) NewTee(zapcore.Core) zapcore.Core {
-	return c.newTee()
 }
 
 func (c Core) newTee() zapcore.Core {
