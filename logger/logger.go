@@ -2,19 +2,24 @@ package logger
 
 import (
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Logger struct {
 	logger *zap.Logger
 }
 
-func New(dev bool, options ...Option) Logger {
+func New(options ...Option) *Logger {
 	core := newCore(options...)
-	zapOptions := []zap.Option{zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel)}
-	if dev {
-		zapOptions = append(zapOptions, zap.Development())
+	log, err := zap.NewProduction(zap.AddCaller(),
+		zap.AddStacktrace(zap.ErrorLevel),
+		zap.WrapCore(func(zapcore.Core) zapcore.Core {
+			return core.newTee()
+		}))
+	if err != nil {
+		return nil
 	}
-	return Logger{logger: zap.New(core.newTee(), zapOptions...)}
+	return &Logger{logger: log}
 }
 
 func (l Logger) SugaredLogger(service string) *zap.SugaredLogger {
