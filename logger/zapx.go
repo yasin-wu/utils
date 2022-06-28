@@ -1,18 +1,30 @@
 package logger
 
 import (
+	"errors"
+
 	"go.uber.org/zap/zapcore"
 
 	"go.uber.org/zap"
 )
 
-func WrapCore(serviceName, path, level string, stdout bool) zap.Option {
-	output := NewOutput(WithLevel(level), WithStdout(stdout),
-		WithPath(path))
+type WrapCore struct {
+	ServiceName string
+	Path        string
+	Level       string
+	Stdout      bool
+}
+
+func (w *WrapCore) New(options ...Option) (zap.Option, error) {
+	if w == nil {
+		return nil, errors.New("wrap core is nil")
+	}
+	output := NewOutput(WithLevel(w.Level), WithStdout(w.Stdout),
+		WithPath(w.Path))
 	errOutput := NewOutput(WithLevel("error"), WithStdout(false),
-		WithPath(path))
-	core := newCore(serviceName, WithOutputs(output, errOutput))
+		WithPath(w.Path))
+	core := newCore(w.ServiceName, append(options, WithOutputs(output, errOutput))...)
 	return zap.WrapCore(func(zapcore.Core) zapcore.Core {
 		return core.newTee()
-	})
+	}), nil
 }
