@@ -45,24 +45,24 @@ func makeTree(node *Tree, groups []Tree) {
 	}
 }
 
-func findChild(node Tree, groups []Tree) []Tree {
+func findChild(parent Tree, groups []Tree) []Tree {
 	var result []Tree
 	for _, v := range groups {
-		if node.Id == v.ParentId {
-			v.ParentList = append(v.ParentList, node.ParentList...)
-			v.ParentList = append(v.ParentList, node.Id)
-			v.Level = node.Level + 1
-			v.ParentName = node.Name
+		if parent.Id == v.ParentId {
+			v.ParentList = append(v.ParentList, parent.ParentList...)
+			v.ParentList = append(v.ParentList, parent.Id)
+			v.Level = parent.Level + 1
+			v.ParentName = parent.Name
 			result = append(result, v)
 		}
 	}
 	return result
 }
 
-func has(node Tree, groups []Tree) bool {
+func has(parent Tree, groups []Tree) bool {
 	has := false
 	for _, v := range groups {
-		if node.Id == v.ParentId {
+		if parent.Id == v.ParentId {
 			has = true
 			break
 		}
