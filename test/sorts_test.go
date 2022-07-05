@@ -32,6 +32,10 @@ func TestSort(t *testing.T) {
 	j3 := js.New()
 	j3.Set("index", 2)
 	data = append(data, j3)
+	//升序
 	sorts.ByInt64(ByIndex(data))
+	tool.Println(data)
+	//降序
+	sorts.Flip(ByIndex(data))
 	tool.Println(data)
 }
