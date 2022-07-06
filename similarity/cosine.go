@@ -8,14 +8,14 @@ func CosineSimilar(srcWords, dstWords []string) float64 {
 		if _, found := allWordsMap[word]; !found {
 			allWordsMap[word] = 1
 		} else {
-			allWordsMap[word] += 1
+			allWordsMap[word]++
 		}
 	}
 	for _, word := range dstWords {
 		if _, found := allWordsMap[word]; !found {
 			allWordsMap[word] = 1
 		} else {
-			allWordsMap[word] += 1
+			allWordsMap[word]++
 		}
 	}
 
@@ -28,12 +28,12 @@ func CosineSimilar(srcWords, dstWords []string) float64 {
 	dstVector := make([]int, len(allWordsSlice))
 	for _, word := range srcWords {
 		if index := indexOfSlice(allWordsSlice, word); index != -1 {
-			srcVector[index] += 1
+			srcVector[index]++
 		}
 	}
 	for _, word := range dstWords {
 		if index := indexOfSlice(allWordsSlice, word); index != -1 {
-			dstVector[index] += 1
+			dstVector[index]++
 		}
 	}
 

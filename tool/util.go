@@ -10,7 +10,6 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io/ioutil"
-	"log"
 	"math"
 	"math/rand"
 	"os"
@@ -26,6 +25,8 @@ import (
 	js "github.com/bitly/go-simplejson"
 )
 
+const _png = "png"
+
 /**
  * @author: yasinWu
  * @date: 2022/1/13 14:31
@@ -33,20 +34,20 @@ import (
  * @return: string
  * @description: 删除字符串中的HTML标签
  */
-func RemoveHtml(src string) string {
-	re, _ := regexp.Compile(`\\<[\\S\\s]+?\\>`)
+func RemoveHTML(src string) string {
+	re := regexp.MustCompile(`\\<[\\S\\s]+?\\>`)
 	src = re.ReplaceAllStringFunc(src, strings.ToLower)
 
-	re, _ = regexp.Compile(`\\<style[\\S\\s]+?\\</style\\>`)
+	re = regexp.MustCompile(`\\<style[\\S\\s]+?\\</style\\>`)
 	src = re.ReplaceAllString(src, "")
 
-	re, _ = regexp.Compile(`\\<script[\\S\\s]+?\\</script\\>`)
+	re = regexp.MustCompile(`\\<script[\\S\\s]+?\\</script\\>`)
 	src = re.ReplaceAllString(src, "")
 
-	re, _ = regexp.Compile(`\\<[\\S\\s]+?\\>`)
+	re = regexp.MustCompile(`\\<[\\S\\s]+?\\>`)
 	src = re.ReplaceAllString(src, "\n")
 
-	re, _ = regexp.Compile(`\\s{2,}`)
+	re = regexp.MustCompile(`\\s{2,}`)
 	src = re.ReplaceAllString(src, "\n")
 
 	return src
@@ -94,7 +95,7 @@ func sq(in <-chan int) <-chan int {
 	return out
 }
 func stringToIntArray(input string) []int {
-	var output []int
+	var output []int //nolint:prealloc
 	for _, v := range input {
 		output = append(output, int(v))
 	}
@@ -115,7 +116,7 @@ func RandInt64(min, max int64) int64 {
 	if min >= max || min == 0 || max == 0 {
 		return max
 	}
-	return rand.Int63n(max-min) + min
+	return rand.Int63n(max-min) + min //nolint:gosec
 }
 
 /**
@@ -133,7 +134,7 @@ func CalendarDays(startTime, endTime time.Time, timeFormatTpl string) ([]*js.Jso
 		timeFormatTpl = "2006-01-02"
 	}
 	days := GetBetweenDates(startTime, endTime, timeFormatTpl)
-	var data []*js.Json
+	var data []*js.Json //nolint:prealloc
 	for i, v := range days {
 		vt, _ := time.ParseInLocation("2006-01-02", v, time.Now().Location())
 		var fromTime time.Time
@@ -246,10 +247,10 @@ func ImageFileToBase64(file string) (string, error) {
 		return "", err
 	}
 	defer imgFile.Close()
-	fileType := strings.Replace(path.Ext(path.Base(imgFile.Name())), ".", "", -1)
+	fileType := strings.ReplaceAll(path.Ext(path.Base(imgFile.Name())), ".", "")
 	var staticImg image.Image
 	switch fileType {
-	case "png":
+	case _png:
 		staticImg, err = png.Decode(imgFile)
 	default:
 		staticImg, err = jpeg.Decode(imgFile)
@@ -259,10 +260,10 @@ func ImageFileToBase64(file string) (string, error) {
 	}
 	emptyBuff := bytes.NewBuffer(nil)
 	switch fileType {
-	case "png":
-		err = png.Encode(emptyBuff, staticImg)
+	case _png:
+		_ = png.Encode(emptyBuff, staticImg)
 	default:
-		err = jpeg.Encode(emptyBuff, staticImg, nil)
+		_ = jpeg.Encode(emptyBuff, staticImg, nil)
 	}
 	dist := make([]byte, 20*MB)
 	base64.StdEncoding.Encode(dist, emptyBuff.Bytes())
@@ -283,7 +284,7 @@ func RandFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var fileNames []string
+	var fileNames []string //nolint:prealloc
 	for _, v := range files {
 		if strings.HasPrefix(v.Name(), ".") {
 			continue
@@ -294,7 +295,7 @@ func RandFile(path string) (string, error) {
 		return "", errors.New("dir is nil")
 	}
 	rand.Seed(time.Now().UnixNano())
-	index := rand.Intn(len(fileNames))
+	index := rand.Intn(len(fileNames)) //nolint:gosec
 	if index >= len(fileNames) {
 		index = len(fileNames) - 1
 	}
@@ -312,7 +313,7 @@ func ImageToBase64(img image.Image, fileType string) (string, error) {
 	var err error
 	emptyBuff := bytes.NewBuffer(nil)
 	switch fileType {
-	case "png":
+	case _png:
 		err = png.Encode(emptyBuff, img)
 	default:
 		err = jpeg.Encode(emptyBuff, img, nil)
@@ -343,9 +344,8 @@ func ToMap(data interface{}, result *map[string]interface{}) error {
 			if v.Field(i).Type().Kind() == reflect.Struct {
 				err := ToMap(v.Field(i).Interface(), result)
 				if err != nil {
-					log.Printf(err.Error())
+					continue
 				}
-				continue
 			}
 			(*result)[t.Field(i).Tag.Get("json")] = v.Field(i).Interface()
 		}
@@ -377,7 +377,7 @@ func ByteWithUnit(value int64) string {
 
 	data := float64(value)
 	for i := 0; i < len(unit); i++ {
-		data = data / float64(1024)
+		data /= float64(1024)
 		if data < 1024 {
 			return strconv.FormatFloat(data, 'f', 2, 64) + unit[i]
 		}

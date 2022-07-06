@@ -13,7 +13,7 @@ func GetFinger(fingerArr []string) int64 {
 }
 
 func GetWords(wordsWeights []WordWeight) []string {
-	var words []string
+	var words []string //nolint:prealloc
 	for _, w := range wordsWeights {
 		words = append(words, w.Word)
 	}

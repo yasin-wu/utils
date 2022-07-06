@@ -10,25 +10,25 @@ import (
 
 type AliSms struct {
 	scheme          string
-	regionId        string
-	accessKeyId     string
+	regionID        string
+	accessKeyID     string
 	accessKeySecret string
 }
 
-func New(scheme, regionId, accessKeyId, accessKeySecret string) (*AliSms, error) {
+func New(scheme, regionID, accessKeyID, accessKeySecret string) (*AliSms, error) {
 	if scheme == "" {
 		scheme = "https"
 	}
-	if regionId == "" {
-		regionId = "cn-hangzhou"
+	if regionID == "" {
+		regionID = "cn-hangzhou"
 	}
-	if accessKeyId == "" {
+	if accessKeyID == "" {
 		return nil, errors.New("AccessKeyId is nil")
 	}
 	if accessKeySecret == "" {
 		return nil, errors.New("AccessKeySecret is nil")
 	}
-	return &AliSms{scheme: scheme, regionId: regionId, accessKeyId: accessKeyId, accessKeySecret: accessKeySecret}, nil
+	return &AliSms{scheme: scheme, regionID: regionID, accessKeyID: accessKeyID, accessKeySecret: accessKeySecret}, nil
 }
 
 func (a *AliSms) Send(signName, templateCode string, phones []string, param map[string]string) error {
@@ -45,7 +45,7 @@ func (a *AliSms) Send(signName, templateCode string, phones []string, param map[
 	if err != nil {
 		return err
 	}
-	client, err := dysmsapi.NewClientWithAccessKey(a.regionId, a.accessKeyId, a.accessKeySecret)
+	client, err := dysmsapi.NewClientWithAccessKey(a.regionID, a.accessKeyID, a.accessKeySecret)
 	if err != nil {
 		return err
 	}
@@ -77,8 +77,8 @@ func (a *AliSms) Send(signName, templateCode string, phones []string, param map[
 	return nil
 }
 
-func (this *AliSms) verifyPhones(phones []string) (string, error) {
-	if phones == nil || len(phones) == 0 {
+func (a *AliSms) verifyPhones(phones []string) (string, error) {
+	if len(phones) == 0 {
 		return "", errors.New("phones is nil")
 	}
 	phoneStr := ""

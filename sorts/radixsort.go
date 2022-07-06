@@ -210,6 +210,7 @@ for laying out American flag sort
 // and equal ranges, and the int sorts try to skip bits that are identical
 // across the whole range being sorted.
 
+//nolint:funlen
 func radixSortUint64(dataI sort.Interface, t task, sortRange func(task)) {
 	data := dataI.(Uint64Interface)
 	shift, a, b := uint(t.offs), t.pos, t.end
@@ -300,6 +301,7 @@ func radixSortUint64(dataI sort.Interface, t task, sortRange func(task)) {
 	}
 }
 
+//nolint:funlen
 func radixSortInt64(dataI sort.Interface, t task, sortRange func(task)) {
 	data := dataI.(Int64Interface)
 	shift, a, b := uint(t.offs), t.pos, t.end

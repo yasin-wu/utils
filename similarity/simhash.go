@@ -29,7 +29,7 @@ func ExtractWithWeight(input string, topKey int, addWords []string) ([]WordWeigh
 		g.AddWord(addWord)
 	}
 	defer g.Free()
-	input = tool.RemoveHtml(input)
+	input = tool.RemoveHTML(input)
 	wordWeights := g.ExtractWithWeight(input, topKey)
 	binaryWeights := make([]float64, 32)
 	wordWeightList := make([]WordWeight, 0)
@@ -93,7 +93,7 @@ func calcWithWeight(bitHash string, weight float64) []float64 {
 		if bit == "0" {
 			binarys = append(binarys, float64(-1)*weight)
 		} else {
-			binarys = append(binarys, float64(weight))
+			binarys = append(binarys, weight)
 		}
 	}
 
@@ -101,7 +101,7 @@ func calcWithWeight(bitHash string, weight float64) []float64 {
 }
 
 func sliceInnerPlus(arr1, arr2 []float64) (dstArr []float64, err error) {
-	dstArr = make([]float64, len(arr1), len(arr1))
+	dstArr = make([]float64, len(arr1))
 
 	if arr1 == nil || arr2 == nil {
 		err = fmt.Errorf("sliceInnerPlus array nil")

@@ -40,7 +40,7 @@ func newCore(serviceName string, options ...Option) Core {
 }
 
 func (c Core) newTee() zapcore.Core {
-	var cores []zapcore.Core
+	var cores []zapcore.Core //nolint:prealloc
 	for _, output := range c.outputs {
 		cores = append(cores, zapcore.NewCore(c.encoder(output), c.writeSyncer(output), c.atomicLevel(output)))
 	}
@@ -78,7 +78,7 @@ func (c Core) writeSyncer(output Output) zapcore.WriteSyncer {
 		MaxAge:     c.maxAge,
 		Compress:   c.compress,
 	}
-	var sync []zapcore.WriteSyncer
+	var sync []zapcore.WriteSyncer //nolint:prealloc
 	sync = append(sync, zapcore.AddSync(hook))
 	if output.stdout {
 		sync = append(sync, zapcore.AddSync(os.Stdout))

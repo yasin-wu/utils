@@ -8,6 +8,7 @@ import (
 	"image/gif"
 	"image/jpeg"
 	"image/png"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -20,15 +21,15 @@ type WaterMark struct {
 }
 
 type FontInfo struct {
-	Size     float64 //文字大小
-	Message  string  //文字内容
-	Position int     //文字存放位置
-	Dx       int     //文字x轴留白距离
-	Dy       int     //文字y轴留白距离
-	R        uint8   //文字颜色值RGBA中的R值
-	G        uint8   //文字颜色值RGBA中的G值
-	B        uint8   //文字颜色值RGBA中的B值
-	A        uint8   //文字颜色值RGBA中的A值
+	Size     float64 // 文字大小
+	Message  string  // 文字内容
+	Position int     // 文字存放位置
+	Dx       int     // 文字x轴留白距离
+	Dy       int     // 文字y轴留白距离
+	R        uint8   // 文字颜色值RGBA中的R值
+	G        uint8   // 文字颜色值RGBA中的G值
+	B        uint8   // 文字颜色值RGBA中的B值
+	A        uint8   // 文字颜色值RGBA中的A值
 }
 
 func (w *WaterMark) New(srcFile, dstFile, fontFile string, fontInfo []FontInfo) error {
@@ -37,17 +38,17 @@ func (w *WaterMark) New(srcFile, dstFile, fontFile string, fontInfo []FontInfo) 
 		return err
 	}
 	defer imgFile.Close()
-	fileType := strings.Replace(path.Ext(path.Base(imgFile.Name())), ".", "", -1)
+	fileType := strings.ReplaceAll(path.Ext(path.Base(imgFile.Name())), ".", "")
 	switch fileType {
 	case "gif":
 		err = w.gifWaterMark(imgFile, dstFile, fontFile, fontInfo)
 	default:
 		err = w.staticWaterMark(imgFile, dstFile, fontFile, fileType, fontInfo)
 	}
-	return nil
+	return err
 }
 
-func (this *WaterMark) staticWaterMark(srcFile *os.File, dstFile, fontFile, fileType string, fontInfo []FontInfo) error {
+func (w *WaterMark) staticWaterMark(srcFile io.Reader, dstFile, fontFile, fileType string, fontInfo []FontInfo) error {
 	var staticImg image.Image
 	var err error
 	switch fileType {
@@ -65,7 +66,7 @@ func (this *WaterMark) staticWaterMark(srcFile *os.File, dstFile, fontFile, file
 			img.Set(x, y, staticImg.At(x, y))
 		}
 	}
-	err = this.do(img, fontFile, fontInfo)
+	err = w.do(img, fontFile, fontInfo)
 	if err != nil {
 		return err
 	}
@@ -83,7 +84,7 @@ func (this *WaterMark) staticWaterMark(srcFile *os.File, dstFile, fontFile, file
 	return err
 }
 
-func (this *WaterMark) gifWaterMark(srcFile *os.File, dstFile, fontFile string, fontInfo []FontInfo) error {
+func (w *WaterMark) gifWaterMark(srcFile io.Reader, dstFile, fontFile string, fontInfo []FontInfo) error {
 	var err error
 	gifImg, err := gif.DecodeAll(srcFile)
 	if err != nil {
@@ -109,12 +110,12 @@ func (this *WaterMark) gifWaterMark(srcFile *os.File, dstFile, fontFile string, 
 					img.Set(x, y, v.At(x, y))
 				}
 			}
-			err = this.do(img, fontFile, fontInfo)
+			err = w.do(img, fontFile, fontInfo)
 			if err != nil {
 				break
 			}
 			p1 := image.NewPaletted(v.Bounds(), v.Palette)
-			draw.Draw(p1, v.Bounds(), img, image.ZP, draw.Src)
+			draw.Draw(p1, v.Bounds(), img, image.Point{}, draw.Src)
 			gifs = append(gifs, p1)
 		} else {
 			gifs = append(gifs, v)
@@ -122,26 +123,25 @@ func (this *WaterMark) gifWaterMark(srcFile *os.File, dstFile, fontFile string, 
 	}
 	if yuan == 1 {
 		return errors.New("gif: image block is out of bounds")
-	} else {
-		if err != nil {
-			return err
-		}
-		newFile, err := os.Create(dstFile)
-		if err != nil {
-			return err
-		}
-		defer newFile.Close()
-		g1 := &gif.GIF{
-			Image:     gifs,
-			Delay:     gifImg.Delay,
-			LoopCount: gifImg.LoopCount,
-		}
-		err = gif.EncodeAll(newFile, g1)
+	}
+	if err != nil {
 		return err
 	}
+	newFile, err := os.Create(dstFile)
+	if err != nil {
+		return err
+	}
+	defer newFile.Close()
+	g1 := &gif.GIF{
+		Image:     gifs,
+		Delay:     gifImg.Delay,
+		LoopCount: gifImg.LoopCount,
+	}
+	err = gif.EncodeAll(newFile, g1)
+	return err
 }
 
-func (this *WaterMark) do(img *image.NRGBA, fontFile string, fontInfo []FontInfo) error {
+func (w *WaterMark) do(img draw.Image, fontFile string, fontInfo []FontInfo) error {
 	var err error
 	if fontFile == "" {
 		fontFile = "./conf/captcha.ttf"
