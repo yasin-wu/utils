@@ -6,12 +6,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/xuri/excelize/v2"
+
 	"github.com/yasin-wu/utils/tool"
 
 	"github.com/yasin-wu/utils/execl"
 
 	js "github.com/bitly/go-simplejson"
 )
+
+func TestFunctions(t *testing.T) {
+	fmt.Println(excelize.ColumnNumberToName(1))
+	fmt.Println(excelize.ColumnNumberToName(3))
+}
 
 func TestWrite(t *testing.T) {
 	execl := execl.New("./log/book.xlsx")

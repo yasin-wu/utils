@@ -12,16 +12,19 @@ import (
 )
 
 type Excel struct {
+	mx sync.Mutex
+
 	fileName  string
 	sheetName string
-	mx        sync.Mutex
+	colWidth  float64
 	xlsx      *excelize.File
 }
 
 func New(fileName string) *Excel {
 	return &Excel{
-		xlsx:     excelize.NewFile(),
 		fileName: fileName,
+		colWidth: 20,
+		xlsx:     excelize.NewFile(),
 	}
 }
 
@@ -36,8 +39,14 @@ func New(fileName string) *Excel {
 func (e *Excel) Write(sheetName string, headers [][]string, data []*js.Json) error {
 	e.mx.Lock()
 	defer e.mx.Unlock()
-	index := e.xlsx.NewSheet(sheetName)
 	e.sheetName = sheetName
+	index := e.xlsx.NewSheet(sheetName)
+	startCol, _ := excelize.ColumnNumberToName(1)
+	endCol, _ := excelize.ColumnNumberToName(len(headers[0]))
+	err := e.xlsx.SetColWidth(sheetName, startCol, endCol, e.colWidth)
+	if err != nil {
+		return err
+	}
 	e.writeHeader(headers)
 	e.write(headers, data)
 	e.xlsx.SetActiveSheet(index)
@@ -56,14 +65,12 @@ func (e *Excel) Read(sheetName string) ([]*js.Json, error) {
 	if err != nil {
 		return nil, err
 	}
-	if rows == nil || len(rows) == 0 {
+	if len(rows) == 0 {
 		return nil, errors.New("not found rows")
 	}
-	var keys []string
+	var keys []string //nolint:prealloc
 	var data []*js.Json
-	for _, row := range rows[0] {
-		keys = append(keys, row)
-	}
+	keys = append(keys, rows[0]...)
 	for i := 1; i < len(rows); i++ {
 		j := js.New()
 		for k, v := range rows[i] {
@@ -78,8 +85,13 @@ func (e *Excel) Close() {
 	e.xlsx.Close()
 }
 
-func (e *Excel) writeHeader(headers [][]string) {
+func (e *Excel) SetColWidth(width float64) {
+	if width != 0 {
+		e.colWidth = width
+	}
+}
 
+func (e *Excel) writeHeader(headers [][]string) {
 	headerDesc := headers[0]
 	for i := 0; i < len(headerDesc); i++ {
 		col, err := excelize.ColumnNumberToName(i + 1)
