@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 func New(serviceName string, options ...Option) (*zap.SugaredLogger, error) {
@@ -12,11 +11,11 @@ func New(serviceName string, options ...Option) (*zap.SugaredLogger, error) {
 		return nil, errors.New("service name must not be empty")
 	}
 	core := newCore(serviceName, options...)
-	logger, err := zap.NewProduction(zap.AddCaller(),
-		zap.AddStacktrace(zap.ErrorLevel),
-		zap.WrapCore(func(zapcore.Core) zapcore.Core {
-			return core.newTee()
-		}))
+	opts := []zap.Option{zap.AddCaller(), wrapCore(core)}
+	if core.stacktrace {
+		opts = append(opts, zap.AddStacktrace(zap.ErrorLevel))
+	}
+	logger, err := zap.NewProduction(opts...)
 	if err != nil {
 		return nil, err
 	}

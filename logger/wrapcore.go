@@ -24,7 +24,11 @@ func (w *WrapCore) New(options ...Option) (zap.Option, error) {
 	errOutput := NewOutput(WithLevel("error"), WithStdout(false),
 		WithPath(w.Path))
 	core := newCore(w.ServiceName, append(options, WithOutputs(output, errOutput))...)
+	return wrapCore(core), nil
+}
+
+func wrapCore(core Core) zap.Option {
 	return zap.WrapCore(func(zapcore.Core) zapcore.Core {
 		return core.newTee()
-	}), nil
+	})
 }

@@ -47,6 +47,12 @@ func WithOutputs(outputs ...Output) Option {
 	}
 }
 
+func WithStacktrace(stacktrace bool) Option {
+	return func(core *Core) {
+		core.stacktrace = stacktrace
+	}
+}
+
 func WithPath(path string) OutputOption {
 	return func(output *Output) {
 		if path != "" {

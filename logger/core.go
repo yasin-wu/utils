@@ -17,6 +17,7 @@ type Core struct {
 	maxBackups  int  //default:30
 	maxAge      int  //default:7,day
 	compress    bool //default:true
+	stacktrace  bool //default:false
 	outputs     []Output
 }
 
@@ -25,6 +26,7 @@ var defaultCore = Core{
 	maxBackups: 30,
 	maxAge:     7,
 	compress:   true,
+	stacktrace: false,
 }
 
 func newCore(serviceName string, options ...Option) Core {
@@ -54,13 +56,15 @@ func (c Core) encoder(output Output) zapcore.Encoder {
 		NameKey:        "logger",
 		CallerKey:      "line",
 		MessageKey:     "message",
-		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    zapcore.LowercaseColorLevelEncoder,
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.FullCallerEncoder,
 		EncodeName:     zapcore.FullNameEncoder,
+	}
+	if c.stacktrace {
+		encoderConfig.StacktraceKey = "stacktrace"
 	}
 	encoder := zapcore.NewConsoleEncoder(encoderConfig)
 	if output.jsonEncoder {
