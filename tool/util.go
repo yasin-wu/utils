@@ -331,11 +331,11 @@ func ImageToBase64(img image.Image, fileType string) (string, error) {
 /**
  * @author: yasinWu
  * @date: 2022/1/13 14:36
- * @params: data interface{}, result *map[string]interface{}
+ * @params: data any, result *map[string]any
  * @return: error
- * @description: interface{}转map,只支持struct{}和*simplejson.Json
+ * @description: any转map,只支持struct{}和*simplejson.Json
  */
-func ToMap(data interface{}, result *map[string]interface{}) error {
+func ToMap(data any, result *map[string]any) error {
 	t := reflect.TypeOf(data)
 	switch {
 	case t.Kind() == reflect.Struct:
@@ -386,7 +386,7 @@ func ByteWithUnit(value int64) string {
 	return strconv.FormatFloat(data, 'f', 2, 64) + unit[5]
 }
 
-func Println(data interface{}) {
+func Println(data any) {
 	buffer, _ := json.MarshalIndent(data, "", "   ")
 	fmt.Println(string(buffer))
 }

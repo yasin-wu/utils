@@ -97,7 +97,7 @@ func (e *Email) sendMail(to []string, subject, content string) error {
 }
 
 func (e *Email) sendTLSMail(to []string, subject, content string) error {
-	header := make(map[string]interface{})
+	header := make(map[string]any)
 	header["From"] = e.from
 	header["Subject"] = subject
 	header["Content-Type"] = "text/html; charset=UTF-8"
