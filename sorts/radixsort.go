@@ -393,11 +393,11 @@ func radixSortInt64(dataI sort.Interface, t task, sortRange func(task)) {
 	}
 }
 
+//nolint:funlen
 func radixSortString(dataI sort.Interface, t task, sortRange func(task)) {
 	data := dataI.(StringInterface)
 	offset, a, b := t.offs, t.pos, t.end
 	if offset < 0 {
-		// in a parallel quicksort of items w/long tool key prefix
 		quickSortWorker(data, t, sortRange)
 		return
 	}
@@ -410,13 +410,11 @@ func radixSortString(dataI sort.Interface, t task, sortRange func(task)) {
 		return
 	}
 
-	// swap too-short strings to start and count bucket sizes
 	bucketStarts, bucketEnds := [256]int{}, [256]int{}
 	aInitial := a
 	for i := a; i < b; i++ {
 		k := data.Key(i)
 		if len(k) <= offset {
-			// swap too-short strings to start
 			data.Swap(a, i)
 			a++
 			continue
@@ -433,7 +431,6 @@ func radixSortString(dataI sort.Interface, t task, sortRange func(task)) {
 		pos += c
 		bucketEnds[i] = pos
 		if bucketStarts[i] == a && bucketEnds[i] == b {
-			// everything was in the same bucket
 			sortRange(task{offset + 1, a, b})
 			return
 		}
@@ -459,11 +456,11 @@ func radixSortString(dataI sort.Interface, t task, sortRange func(task)) {
 	}
 }
 
+//nolint:funlen
 func radixSortBytes(dataI sort.Interface, t task, sortRange func(task)) {
 	data := dataI.(BytesInterface)
 	offset, a, b := t.offs, t.pos, t.end
 	if offset < 0 {
-		// in a parallel quicksort of items w/long tool key prefix
 		quickSortWorker(data, t, sortRange)
 		return
 	}
@@ -475,14 +472,11 @@ func radixSortBytes(dataI sort.Interface, t task, sortRange func(task)) {
 		qSortPar(data, t, sortRange)
 		return
 	}
-
-	// swap too-short strings to start and count bucket sizes
 	bucketStarts, bucketEnds := [256]int{}, [256]int{}
 	aInitial := a
 	for i := a; i < b; i++ {
 		k := data.Key(i)
 		if len(k) <= offset {
-			// swap too-short strings to start
 			data.Swap(a, i)
 			a++
 			continue
@@ -499,7 +493,6 @@ func radixSortBytes(dataI sort.Interface, t task, sortRange func(task)) {
 		pos += c
 		bucketEnds[i] = pos
 		if bucketStarts[i] == a && bucketEnds[i] == b {
-			// everything was in the same bucket
 			sortRange(task{offset + 1, a, b})
 			return
 		}
@@ -533,5 +526,4 @@ func qSortEqualKeyRange(data sort.Interface, a, b int) {
 			return
 		}
 	}
-	return
 }

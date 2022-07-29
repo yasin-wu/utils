@@ -57,7 +57,9 @@ func (e *Excel) Read(sheetName string) ([]*js.Json, error) {
 	e.mx.Lock()
 	defer e.mx.Unlock()
 	excelFile, err := excelize.OpenFile(e.fileName)
-	defer excelFile.Close()
+	defer func(excelFile *excelize.File) {
+		_ = excelFile.Close()
+	}(excelFile)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +84,7 @@ func (e *Excel) Read(sheetName string) ([]*js.Json, error) {
 }
 
 func (e *Excel) Close() {
-	e.xlsx.Close()
+	_ = e.xlsx.Close()
 }
 
 func (e *Excel) SetColWidth(width float64) {

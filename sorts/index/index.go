@@ -216,6 +216,7 @@ func (idx *Index) FindBytesRange(key []byte) (int, int) {
 	}
 }
 
+//nolint:funlen
 func (idx *Index) findUint64Summary(key uint64) int {
 	summary := idx.Summary
 	keys := idx.Keys

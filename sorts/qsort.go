@@ -78,10 +78,10 @@ func medianOfThree(data sort.Interface, m1, m0, m2 int) {
 	// now data[m0] <= data[m1] <= data[m2]
 }
 
+//nolint:funlen
 func doPivot(data sort.Interface, lo, hi int) (midlo, midhi int) {
 	m := lo + (hi-lo)/2 // Written like this to avoid integer overflow.
 	if hi-lo > 40 {
-		// Tukey's ``Ninther,'' median of three medians of three.
 		s := (hi - lo) / 8
 		medianOfThree(data, lo, lo+s, lo+2*s)
 		medianOfThree(data, m, m-s, m+s)
@@ -89,13 +89,6 @@ func doPivot(data sort.Interface, lo, hi int) (midlo, midhi int) {
 	}
 	medianOfThree(data, lo, m, hi-1)
 
-	// Invariants are:
-	//	data[lo] = pivot (set up by ChoosePivot)
-	//	data[lo < i < a] < pivot
-	//	data[a <= i < b] <= pivot
-	//	data[b <= i < c] unexamined
-	//	data[c <= i < hi-1] > pivot
-	//	data[hi-1] >= pivot
 	pivot := lo
 	a, c := lo+1, hi-1
 
@@ -110,16 +103,12 @@ func doPivot(data sort.Interface, lo, hi int) (midlo, midhi int) {
 		if b == c {
 			break
 		}
-		// data[b] > pivot; data[c-1] <= pivot
 		data.Swap(b, c-1)
 		b++
 		c--
 	}
-	// If hi-c<3 then there are duplicates (by property of median of nine).
-	// Let be a bit more conservative, and set border to 5.
 	protect := hi-c < 5
 	if !protect && hi-c < (hi-lo)/4 {
-		// Lets test some points for equality to pivot
 		dups := 0
 		if !data.Less(pivot, hi-1) { // data[hi-1] = pivot
 			data.Swap(c, hi-1)
@@ -130,22 +119,14 @@ func doPivot(data sort.Interface, lo, hi int) (midlo, midhi int) {
 			b--
 			dups++
 		}
-		// m-lo = (hi-lo)/2 > 6
-		// b-lo > (hi-lo)*3/4-1 > 8
-		// ==> m < b ==> data[m] <= pivot
 		if !data.Less(m, pivot) { // data[m] = pivot
 			data.Swap(m, b-1)
 			b--
 			dups++
 		}
-		// if at least 2 points are equal to pivot, assume skewed distribution
 		protect = dups > 1
 	}
 	if protect {
-		// Protect against a lot of duplicates
-		// Add invariant:
-		//	data[a <= i < b] unexamined
-		//	data[b <= i < c] = pivot
 		for {
 			for ; a != b && !data.Less(b-1, pivot); b-- { // data[b] == pivot
 			}
@@ -154,13 +135,11 @@ func doPivot(data sort.Interface, lo, hi int) (midlo, midhi int) {
 			if a == b {
 				break
 			}
-			// data[a] == pivot; data[b-1] < pivot
 			data.Swap(a, b-1)
 			a++
 			b--
 		}
 	}
-	// Swap pivot into middle
 	data.Swap(pivot, b-1)
 	return b - 1, c
 }
@@ -232,7 +211,6 @@ func qSortPar(data sort.Interface, t task, sortRange func(task)) {
 	quickSortWorker(data, task{-maxDepth - 1, a, b}, sortRange)
 }
 
-// quickSortWorker is a parallel analogue of quickSort: it performs a pivot
 // and might asynchronously sort one of the halves if it's large enough.
 func quickSortWorker(data sort.Interface, t task, sortRange func(task)) {
 	maxDepth, a, b := 1-t.offs, t.pos, t.end

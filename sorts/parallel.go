@@ -33,8 +33,7 @@ func parallelSort(data sort.Interface, sorter sortFunc, initialTask task) {
 	if MaxProcs > 0 && MaxProcs < max {
 		max = MaxProcs
 	}
-	l := data.Len()
-	if l < minParallel {
+	if data.Len() < minParallel {
 		max = 1
 	}
 

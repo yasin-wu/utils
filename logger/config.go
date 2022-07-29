@@ -75,7 +75,7 @@ func WithStdout(stdout bool) OutputOption {
 	}
 }
 
-func WithJsonEncoder(jsonEncoder bool) OutputOption {
+func WithJSONEncoder(jsonEncoder bool) OutputOption {
 	return func(output *Output) {
 		output.jsonEncoder = jsonEncoder
 	}
