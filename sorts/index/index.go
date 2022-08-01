@@ -142,7 +142,6 @@ func (idx *Index) FindBytes(key []byte) int {
 
 // FindUint64Range looks for a range of keys such that all items in idx.Keys[a:b]
 // equal key.
-// It can return an empty range if the item isn't found; in that case, a and b are both where the item would be inserted (and can be one past the end).
 // To find a single key, use FindUint64.
 func (idx *Index) FindUint64Range(key uint64) (a, b int) {
 	a = idx.FindUint64(key)
@@ -159,7 +158,6 @@ func (idx *Index) FindUint64Range(key uint64) (a, b int) {
 }
 
 // FindStringRange(key) finds the range (a,b] such that Key() returns key for all items in idx.Data[a:b].
-// It can return an empty range if the item isn't found; in that case, a and b are both where the item would be inserted (and can be one past the end).
 // Data must implement Key(i) returning string or []byte.
 // To find a single item, use FindString.
 func (idx *Index) FindStringRange(key string) (int, int) {
@@ -188,7 +186,6 @@ func (idx *Index) FindStringRange(key string) (int, int) {
 }
 
 // FindBytesRange(key) finds the range (a,b] such that Key() returns key for all items in idx.Data[a:b].
-// It can return an empty range if the item isn't found; in that case, a is where the item would be inserted (and can be one past the end).
 // Data must implement Key(i) returning string or []byte.
 // To find a single item, use FindBytes.
 func (idx *Index) FindBytesRange(key []byte) (int, int) {
