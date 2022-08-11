@@ -10,7 +10,7 @@ import (
 
 	"github.com/yasin-wu/utils/tool"
 
-	"github.com/yasin-wu/utils/execl"
+	"github.com/yasin-wu/utils/excel"
 
 	js "github.com/bitly/go-simplejson"
 )
@@ -21,13 +21,13 @@ func TestFunctions(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	execl := execl.New("./log/book.xlsx")
+	execl := excel.New("./log/book.xlsx")
 	defer execl.Close()
-	headerDesc := []string{"书名", "作者", "时间"}
-	headerKey := []string{"name", "author", "time"}
-	headers := make([][]string, 2)
-	headers[0] = headerDesc
-	headers[1] = headerKey
+	headers := []excel.Header{
+		{"name", "书名"},
+		{"author", "作者"},
+		{"time", "时间"},
+	}
 	var data []*js.Json
 	for i := 0; i < 10; i++ {
 		j := js.New()
@@ -47,7 +47,7 @@ func TestWrite(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	execl := execl.New("./log/book.xlsx")
+	execl := excel.New("./log/book.xlsx")
 	defer execl.Close()
 	data, err := execl.Read("Sheet1")
 	if err != nil {

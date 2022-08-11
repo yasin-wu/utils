@@ -1,4 +1,4 @@
-package execl
+package excel
 
 import (
 	"errors"
@@ -10,6 +10,11 @@ import (
 
 	js "github.com/bitly/go-simplejson"
 )
+
+type Header struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
 
 type Excel struct {
 	mx sync.Mutex
@@ -28,23 +33,14 @@ func New(fileName string) *Excel {
 	}
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/3/17 14:06
- * @params: sheetName string, headers [][]string, data []*js.Json
- * headers[0]为需要显示的列名，headers[1]对应列名在data中JSON的key
- * @return: error
- * @description: write excel
- */
-func (e *Excel) Write(sheetName string, headers [][]string, data []*js.Json) error {
+func (e *Excel) Write(sheetName string, headers []Header, data []*js.Json) error {
 	e.mx.Lock()
 	defer e.mx.Unlock()
 	e.sheetName = sheetName
 	index := e.xlsx.NewSheet(sheetName)
 	startCol, _ := excelize.ColumnNumberToName(1)
-	endCol, _ := excelize.ColumnNumberToName(len(headers[0]))
-	err := e.xlsx.SetColWidth(sheetName, startCol, endCol, e.colWidth)
-	if err != nil {
+	endCol, _ := excelize.ColumnNumberToName(len(headers))
+	if err := e.xlsx.SetColWidth(sheetName, startCol, endCol, e.colWidth); err != nil {
 		return err
 	}
 	e.writeHeader(headers)
@@ -93,33 +89,29 @@ func (e *Excel) SetColWidth(width float64) {
 	}
 }
 
-func (e *Excel) writeHeader(headers [][]string) {
-	headerDesc := headers[0]
-	for i := 0; i < len(headerDesc); i++ {
-		col, err := excelize.ColumnNumberToName(i + 1)
+func (e *Excel) writeHeader(headers []Header) {
+	for k, v := range headers {
+		col, err := excelize.ColumnNumberToName(k + 1)
 		if err != nil {
 			log.Println(err.Error())
 			continue
 		}
-		err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s1", col), headerDesc[i])
-		if err != nil {
+		if err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s1", col), v.Value); err != nil {
 			log.Println(err.Error())
 			continue
 		}
 	}
 }
 
-func (e *Excel) write(headers [][]string, data []*js.Json) {
-	headerKey := headers[1]
+func (e *Excel) write(headers []Header, data []*js.Json) {
 	for k, v := range data {
-		for i := 0; i < len(headerKey); i++ {
+		for i, header := range headers {
 			col, err := excelize.ColumnNumberToName(i + 1)
 			if err != nil {
 				log.Println(err.Error())
 				continue
 			}
-			err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s%d", col, k+2), v.Get(headerKey[i]).Interface())
-			if err != nil {
+			if err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s%d", col, k+2), v.Get(header.Key).Interface()); err != nil {
 				log.Println(err.Error())
 				continue
 			}
