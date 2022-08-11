@@ -53,12 +53,12 @@ func (e *Excel) Read(sheetName string) ([]*js.Json, error) {
 	e.mx.Lock()
 	defer e.mx.Unlock()
 	excelFile, err := excelize.OpenFile(e.fileName)
-	defer func(excelFile *excelize.File) {
-		_ = excelFile.Close()
-	}(excelFile)
 	if err != nil {
 		return nil, err
 	}
+	defer func(excelFile *excelize.File) {
+		_ = excelFile.Close()
+	}(excelFile)
 	rows, err := excelFile.GetRows(sheetName)
 	if err != nil {
 		return nil, err
