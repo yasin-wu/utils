@@ -394,8 +394,5 @@ func Println(data any) {
 func StringIn(target string, src []string) bool {
 	sort.Strings(src)
 	index := sort.SearchStrings(src, target)
-	if index < len(src) && src[index] == target {
-		return true
-	}
-	return false
+	return index < len(src) && src[index] == target
 }

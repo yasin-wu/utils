@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/yasin-wu/utils/tool"
@@ -38,4 +39,10 @@ func TestSort(t *testing.T) {
 	//降序
 	sorts.Flip(ByIndex(data))
 	tool.Println(data)
+}
+
+func TestStringIndex(t *testing.T) {
+	src := []string{"1", "2", "3"}
+	fmt.Println(tool.StringIn("1", src))
+	fmt.Println(tool.StringIn("4", src))
 }
