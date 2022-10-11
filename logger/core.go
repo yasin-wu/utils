@@ -81,6 +81,7 @@ func (c Core) writeSyncer(output Output) zapcore.WriteSyncer {
 		MaxBackups: c.maxBackups,
 		MaxAge:     c.maxAge,
 		Compress:   c.compress,
+		LocalTime:  true,
 	}
 	var sync []zapcore.WriteSyncer //nolint:prealloc
 	sync = append(sync, zapcore.AddSync(hook))
