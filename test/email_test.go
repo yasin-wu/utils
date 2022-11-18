@@ -10,13 +10,8 @@ import (
 )
 
 func TestEmail(t *testing.T) {
-	host := ""
-	port := ""
-	user := ""
-	password := ""
-	from := ""
 	to := ""
-	email, err := email2.New(host, port, user, password, from)
+	email, err := email2.New(&email2.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
