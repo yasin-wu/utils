@@ -1,15 +1,13 @@
 package excel
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"sync"
 
 	"github.com/xuri/excelize/v2"
 )
-
-type Data map[string]interface{}
 
 type Header struct {
 	Key   string `json:"key"`
@@ -33,7 +31,7 @@ func New(fileName string) *Excel {
 	}
 }
 
-func (e *Excel) Write(sheetName string, headers []Header, data []Data) error {
+func (e *Excel) Write(sheetName string, headers []Header, data []byte) error {
 	e.mx.Lock()
 	defer e.mx.Unlock()
 	e.sheetName = sheetName
@@ -43,13 +41,17 @@ func (e *Excel) Write(sheetName string, headers []Header, data []Data) error {
 	if err := e.xlsx.SetColWidth(sheetName, startCol, endCol, e.colWidth); err != nil {
 		return err
 	}
-	e.writeHeader(headers)
-	e.write(headers, data)
+	if err := e.writeHeader(headers); err != nil {
+		return err
+	}
+	if err := e.write(headers, data); err != nil {
+		return err
+	}
 	e.xlsx.SetActiveSheet(index)
 	return e.xlsx.SaveAs(e.fileName)
 }
 
-func (e *Excel) Read(sheetName string) ([]Data, error) {
+func (e *Excel) Read(sheetName string) ([]byte, error) {
 	e.mx.Lock()
 	defer e.mx.Unlock()
 	excelFile, err := excelize.OpenFile(e.fileName)
@@ -67,16 +69,16 @@ func (e *Excel) Read(sheetName string) ([]Data, error) {
 		return nil, errors.New("not found rows")
 	}
 	var keys []string
-	var data []Data
+	var data []map[string]interface{}
 	keys = append(keys, rows[0]...)
 	for i := 1; i < len(rows); i++ {
-		j := make(Data)
+		j := make(map[string]interface{})
 		for k, v := range rows[i] {
 			j[keys[k]] = v
 		}
 		data = append(data, j)
 	}
-	return data, nil
+	return json.Marshal(data)
 }
 
 func (e *Excel) Close() {
@@ -89,32 +91,34 @@ func (e *Excel) SetColWidth(width float64) {
 	}
 }
 
-func (e *Excel) writeHeader(headers []Header) {
+func (e *Excel) writeHeader(headers []Header) error {
 	for k, v := range headers {
 		col, err := excelize.ColumnNumberToName(k + 1)
 		if err != nil {
-			log.Println(err.Error())
-			continue
+			return err
 		}
 		if err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s1", col), v.Value); err != nil {
-			log.Println(err.Error())
-			continue
+			return err
 		}
 	}
+	return nil
 }
 
-func (e *Excel) write(headers []Header, data []Data) {
-	for k, v := range data {
+func (e *Excel) write(headers []Header, data []byte) error {
+	var buffer []map[string]interface{}
+	if err := json.Unmarshal(data, &buffer); err != nil {
+		return err
+	}
+	for k, v := range buffer {
 		for i, header := range headers {
 			col, err := excelize.ColumnNumberToName(i + 1)
 			if err != nil {
-				log.Println(err.Error())
-				continue
+				return err
 			}
 			if err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s%d", col, k+2), v[header.Key]); err != nil {
-				log.Println(err.Error())
-				continue
+				return err
 			}
 		}
 	}
+	return nil
 }

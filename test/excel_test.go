@@ -1,14 +1,13 @@
 package test
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"testing"
 	"time"
 
 	"github.com/xuri/excelize/v2"
-
-	"github.com/yasin-wu/utils/tool"
 
 	"github.com/yasin-wu/utils/excel"
 )
@@ -26,20 +25,22 @@ func TestWrite(t *testing.T) {
 		{"author", "作者"},
 		{"time", "时间"},
 	}
-	var data []excel.Data
+	var data []map[string]interface{}
 	for i := 0; i < 10; i++ {
-		j := make(excel.Data)
+		j := make(map[string]interface{})
 		j["name"] = fmt.Sprintf("书名%d", i)
 		j["author"] = fmt.Sprintf("作者%d", i)
 		j["time"] = time.Now().String()
 		data = append(data, j)
 	}
-	err := execl.Write("Sheet1", headers, data)
+	buffer, err := json.Marshal(data)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = execl.Write("Sheet2", headers, data)
-	if err != nil {
+	if err = execl.Write("Sheet1", headers, buffer); err != nil {
+		log.Fatal(err)
+	}
+	if err = execl.Write("Sheet2", headers, buffer); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -47,14 +48,14 @@ func TestWrite(t *testing.T) {
 func TestRead(t *testing.T) {
 	execl := excel.New("./log/book.xlsx")
 	defer execl.Close()
-	data, err := execl.Read("Sheet1")
+	buffer, err := execl.Read("Sheet1")
 	if err != nil {
 		log.Fatal(err)
 	}
-	tool.Println(data)
-	data, err = execl.Read("Sheet2")
+	fmt.Println(string(buffer))
+	buffer, err = execl.Read("Sheet2")
 	if err != nil {
 		log.Fatal(err)
 	}
-	tool.Println(data)
+	fmt.Println(string(buffer))
 }
