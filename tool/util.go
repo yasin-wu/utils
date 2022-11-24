@@ -14,15 +14,12 @@ import (
 	"math/rand"
 	"os"
 	"path"
-	"reflect"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 	"unsafe"
-
-	js "github.com/bitly/go-simplejson"
 )
 
 const _png = "png"
@@ -117,48 +114,6 @@ func RandInt64(min, max int64) int64 {
 		return max
 	}
 	return rand.Int63n(max-min) + min //nolint:gosec
-}
-
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:32
- * @params: startTime, endTime time.Time, timeFormatTpl string
- * @return: []*js.Json, error
- * @description: 切割时间区间为天
- */
-func CalendarDays(startTime, endTime time.Time, timeFormatTpl string) ([]*js.Json, error) {
-	if endTime.Before(startTime) || endTime.Equal(startTime) {
-		return nil, errors.New("startTime <= endTime")
-	}
-	if timeFormatTpl == "" {
-		timeFormatTpl = "2006-01-02"
-	}
-	days := GetBetweenDates(startTime, endTime, timeFormatTpl)
-	var data []*js.Json //nolint:prealloc
-	for i, v := range days {
-		vt, _ := time.ParseInLocation("2006-01-02", v, time.Now().Location())
-		var fromTime time.Time
-		var toTime time.Time
-		switch i {
-		case 0:
-			fromTime = startTime
-			toTime = time.Date(vt.Year(), vt.Month(), vt.Day(), 23, 59, 59, 0, time.Now().Location())
-		case len(days) - 1:
-			fromTime = time.Date(vt.Year(), vt.Month(), vt.Day(), 0, 0, 0, 0, time.Now().Location())
-			toTime = endTime
-		default:
-			fromTime = time.Date(vt.Year(), vt.Month(), vt.Day(), 0, 0, 0, 0, time.Now().Location())
-			toTime = time.Date(vt.Year(), vt.Month(), vt.Day(), 23, 59, 59, 0, time.Now().Location())
-		}
-		jsonObj := js.New()
-		jsonObj.Set("calendar", vt)
-		jsonObj.Set("from_time", fromTime)
-		jsonObj.Set("to_time", toTime)
-		usageTime, _ := strconv.ParseFloat(strconv.FormatFloat(toTime.Sub(fromTime).Hours(), 'f', 1, 64), 64)
-		jsonObj.Set("usage_time", usageTime)
-		data = append(data, jsonObj)
-	}
-	return data, nil
 }
 
 /**
@@ -326,39 +281,6 @@ func ImageToBase64(img image.Image, fileType string) (string, error) {
 	index := bytes.IndexByte(dist, 0)
 	baseImage := dist[0:index]
 	return *(*string)(unsafe.Pointer(&baseImage)), nil
-}
-
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:36
- * @params: data any, result *map[string]any
- * @return: error
- * @description: any转map,只支持struct{}和*simplejson.Json
- */
-func ToMap(data any, result *map[string]any) error {
-	t := reflect.TypeOf(data)
-	switch {
-	case t.Kind() == reflect.Struct:
-		v := reflect.ValueOf(data)
-		for i := 0; i < t.NumField(); i++ {
-			if v.Field(i).Type().Kind() == reflect.Struct {
-				err := ToMap(v.Field(i).Interface(), result)
-				if err != nil {
-					continue
-				}
-			}
-			(*result)[t.Field(i).Tag.Get("json")] = v.Field(i).Interface()
-		}
-	case t.String() == "*simplejson.Json":
-		var err error
-		*result, err = data.(*js.Json).Map()
-		if err != nil {
-			return err
-		}
-	default:
-		return errors.New("data type not supported")
-	}
-	return nil
 }
 
 /**

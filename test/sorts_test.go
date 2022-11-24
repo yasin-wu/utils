@@ -7,31 +7,29 @@ import (
 	"github.com/yasin-wu/utils/tool"
 
 	"github.com/yasin-wu/utils/sorts"
-
-	js "github.com/bitly/go-simplejson"
 )
 
-type ByIndex []*js.Json
+type ByIndex []map[string]interface{}
 
 func (this ByIndex) Len() int      { return len(this) }
 func (this ByIndex) Swap(i, j int) { this[i], this[j] = this[j], this[i] }
 func (this ByIndex) Key(i int) int64 {
-	return this[i].Get("index").MustInt64()
+	return this[i]["index"].(int64)
 }
 func (this ByIndex) Less(i, j int) bool {
-	return this[i].Get("index").MustInt64() < this[j].Get("index").MustInt64()
+	return this[i]["index"].(int64) < this[j]["index"].(int64)
 }
 
 func TestSort(t *testing.T) {
-	var data []*js.Json
-	j1 := js.New()
-	j1.Set("index", 1)
+	var data []map[string]interface{}
+	j1 := make(map[string]interface{})
+	j1["index"] = int64(1)
 	data = append(data, j1)
-	j2 := js.New()
-	j2.Set("index", 3)
+	j2 := make(map[string]interface{})
+	j2["index"] = int64(2)
 	data = append(data, j2)
-	j3 := js.New()
-	j3.Set("index", 2)
+	j3 := make(map[string]interface{})
+	j3["index"] = int64(3)
 	data = append(data, j3)
 	//升序
 	sorts.ByInt64(ByIndex(data))

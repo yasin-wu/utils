@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"
-	js "github.com/bitly/go-simplejson"
 )
 
 type AliSms struct {
@@ -54,15 +53,15 @@ func (a *AliSms) Send(signName, templateCode string, phones []string, param map[
 	request.PhoneNumbers = phoneStr
 	request.SignName = signName
 	request.TemplateCode = templateCode
-	j := js.New()
+	messageMap := make(map[string]string)
 	for k, v := range param {
 		vr := []rune(v)
 		if len(vr) > 20 {
 			vr = vr[0:20]
 		}
-		j.Set(k, string(vr))
+		messageMap[k] = string(vr)
 	}
-	messageByte, err := json.Marshal(j)
+	messageByte, err := json.Marshal(messageMap)
 	if err != nil {
 		return err
 	}

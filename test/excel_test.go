@@ -11,8 +11,6 @@ import (
 	"github.com/yasin-wu/utils/tool"
 
 	"github.com/yasin-wu/utils/excel"
-
-	js "github.com/bitly/go-simplejson"
 )
 
 func TestFunctions(t *testing.T) {
@@ -28,12 +26,12 @@ func TestWrite(t *testing.T) {
 		{"author", "作者"},
 		{"time", "时间"},
 	}
-	var data []*js.Json
+	var data []excel.Data
 	for i := 0; i < 10; i++ {
-		j := js.New()
-		j.Set("name", fmt.Sprintf("书名%d", i))
-		j.Set("author", fmt.Sprintf("作者%d", i))
-		j.Set("time", time.Now())
+		j := make(excel.Data)
+		j["name"] = fmt.Sprintf("书名%d", i)
+		j["author"] = fmt.Sprintf("作者%d", i)
+		j["time"] = time.Now().String()
 		data = append(data, j)
 	}
 	err := execl.Write("Sheet1", headers, data)

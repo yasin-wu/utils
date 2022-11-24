@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.656
-	github.com/bitly/go-simplejson v0.5.0
 	github.com/elastic/go-elasticsearch/v7 v7.17.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/jordan-wright/email v4.0.1-0.20200917010138-e1c00e156980+incompatible
@@ -17,10 +16,8 @@ require (
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
-	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
 	github.com/json-iterator/go v1.1.11 // indirect
-	github.com/kr/pretty v0.3.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect

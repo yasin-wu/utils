@@ -7,9 +7,9 @@ import (
 	"sync"
 
 	"github.com/xuri/excelize/v2"
-
-	js "github.com/bitly/go-simplejson"
 )
+
+type Data map[string]interface{}
 
 type Header struct {
 	Key   string `json:"key"`
@@ -33,7 +33,7 @@ func New(fileName string) *Excel {
 	}
 }
 
-func (e *Excel) Write(sheetName string, headers []Header, data []*js.Json) error {
+func (e *Excel) Write(sheetName string, headers []Header, data []Data) error {
 	e.mx.Lock()
 	defer e.mx.Unlock()
 	e.sheetName = sheetName
@@ -49,7 +49,7 @@ func (e *Excel) Write(sheetName string, headers []Header, data []*js.Json) error
 	return e.xlsx.SaveAs(e.fileName)
 }
 
-func (e *Excel) Read(sheetName string) ([]*js.Json, error) {
+func (e *Excel) Read(sheetName string) ([]Data, error) {
 	e.mx.Lock()
 	defer e.mx.Unlock()
 	excelFile, err := excelize.OpenFile(e.fileName)
@@ -66,13 +66,13 @@ func (e *Excel) Read(sheetName string) ([]*js.Json, error) {
 	if len(rows) == 0 {
 		return nil, errors.New("not found rows")
 	}
-	var keys []string //nolint:prealloc
-	var data []*js.Json
+	var keys []string
+	var data []Data
 	keys = append(keys, rows[0]...)
 	for i := 1; i < len(rows); i++ {
-		j := js.New()
+		j := make(Data)
 		for k, v := range rows[i] {
-			j.Set(keys[k], v)
+			j[keys[k]] = v
 		}
 		data = append(data, j)
 	}
@@ -103,7 +103,7 @@ func (e *Excel) writeHeader(headers []Header) {
 	}
 }
 
-func (e *Excel) write(headers []Header, data []*js.Json) {
+func (e *Excel) write(headers []Header, data []Data) {
 	for k, v := range data {
 		for i, header := range headers {
 			col, err := excelize.ColumnNumberToName(i + 1)
@@ -111,7 +111,7 @@ func (e *Excel) write(headers []Header, data []*js.Json) {
 				log.Println(err.Error())
 				continue
 			}
-			if err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s%d", col, k+2), v.Get(header.Key).Interface()); err != nil {
+			if err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s%d", col, k+2), v[header.Key]); err != nil {
 				log.Println(err.Error())
 				continue
 			}
