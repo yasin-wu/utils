@@ -29,15 +29,22 @@ func readFile(readChannel chan string, file string) {
 		return
 	}
 	reader := bufio.NewReader(f)
+	timeout := time.After(10 * time.Second)
 	for {
-		line, err := reader.ReadBytes('\n')
-		if err == io.EOF {
-			time.Sleep(time.Second)
-			continue
-		} else if err != nil {
-			log.Println(err)
+		select {
+		case <-timeout:
+			readChannel <- "timeout"
+			return
+		default:
+			line, err := reader.ReadBytes('\n')
+			if err == io.EOF {
+				time.Sleep(time.Second)
+				continue
+			} else if err != nil {
+				log.Println(err)
+				continue
+			}
+			readChannel <- strings.TrimSpace(string(line))
 		}
-		lineStr := strings.TrimSpace(string(line))
-		readChannel <- lineStr
 	}
 }
