@@ -24,7 +24,7 @@ func readFile(readChannel chan string, file string) {
 		log.Println(err)
 		return
 	}
-	if _, err = f.Seek(0, os.SEEK_END); err != nil {
+	if _, err = f.Seek(0, io.SeekEnd); err != nil {
 		log.Println(err)
 		return
 	}
