@@ -9,25 +9,25 @@ import (
 )
 
 type Certificate struct {
-	caFile string
+	ca []byte
 }
 
-func New(caFile string) *Certificate {
-	return &Certificate{caFile: caFile}
+func New(caFile string) (*Certificate, error) {
+	ca, err := os.ReadFile(caFile)
+	if err != nil {
+		return nil, err
+	}
+	return &Certificate{ca: ca}, nil
 }
 
 func (c *Certificate) Server(certFile, keyFile string) (credentials.TransportCredentials, error) {
 	certPool := x509.NewCertPool()
-	ca, err := os.ReadFile(c.caFile)
-	if err != nil {
-		return nil, err
-	}
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return nil, err
 	}
 
-	if ok := certPool.AppendCertsFromPEM(ca); !ok {
+	if ok := certPool.AppendCertsFromPEM(c.ca); !ok {
 		return nil, err
 	}
 
@@ -40,16 +40,12 @@ func (c *Certificate) Server(certFile, keyFile string) (credentials.TransportCre
 
 func (c *Certificate) Client(certFile, keyFile string, serverName ...string) (credentials.TransportCredentials, error) {
 	certPool := x509.NewCertPool()
-	ca, err := os.ReadFile(c.caFile)
-	if err != nil {
-		return nil, err
-	}
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return nil, err
 	}
 
-	if ok := certPool.AppendCertsFromPEM(ca); !ok {
+	if ok := certPool.AppendCertsFromPEM(c.ca); !ok {
 		return nil, err
 	}
 
