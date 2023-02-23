@@ -22,6 +22,6 @@ func TestTree(t *testing.T) {
 	root.Level = 0
 	root.MakeTree(nodes)
 	root.FindAll(&all)
-	tool.Println(root)
-	tool.Println(all)
+	tool.PrintlnFmt(root)
+	tool.PrintlnFmt(all)
 }

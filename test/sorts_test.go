@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/yasin-wu/utils/strings"
 	"testing"
 
 	"github.com/yasin-wu/utils/tool"
@@ -33,14 +34,14 @@ func TestSort(t *testing.T) {
 	data = append(data, j3)
 	//升序
 	sorts.ByInt64(ByIndex(data))
-	tool.Println(data)
+	tool.PrintlnFmt(data)
 	//降序
 	sorts.Flip(ByIndex(data))
-	tool.Println(data)
+	tool.PrintlnFmt(data)
 }
 
 func TestStringIn(t *testing.T) {
 	src := []string{"1", "2", "3"}
-	fmt.Println(tool.StringIn("1", src))
-	fmt.Println(tool.StringIn("4", src))
+	fmt.Println(strings.TargetIn("1", src))
+	fmt.Println(strings.TargetIn("4", src))
 }

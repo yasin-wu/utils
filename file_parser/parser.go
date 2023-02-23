@@ -11,7 +11,7 @@ import (
 
 	"github.com/yasin-wu/utils/file_parser/tika"
 
-	"github.com/yasin-wu/utils/tool"
+	strings2 "github.com/yasin-wu/utils/strings"
 )
 
 /**
@@ -146,6 +146,6 @@ func (p *Parser) handleBody(body string) string {
 	body = strings.ReplaceAll(body, " ", "")
 	body = strings.ReplaceAll(body, "\u00a0", "")
 	body = strings.ReplaceAll(body, "\u200b", "")
-	body = tool.RemoveHTML(body)
+	body = strings2.DeleteHTML(body)
 	return body
 }

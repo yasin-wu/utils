@@ -2,11 +2,10 @@ package similarity
 
 import (
 	"fmt"
+	strings2 "github.com/yasin-wu/utils/strings"
 	"hash/fnv"
 	"strconv"
 	"strings"
-
-	"github.com/yasin-wu/utils/tool"
 
 	"github.com/yanyiwu/gojieba"
 )
@@ -29,7 +28,7 @@ func ExtractWithWeight(input string, topKey int, addWords []string) ([]WordWeigh
 		g.AddWord(addWord)
 	}
 	defer g.Free()
-	input = tool.RemoveHTML(input)
+	input = strings2.DeleteHTML(input)
 	wordWeights := g.ExtractWithWeight(input, topKey)
 	binaryWeights := make([]float64, 32)
 	wordWeightList := make([]WordWeight, 0)
@@ -43,7 +42,7 @@ func ExtractWithWeight(input string, topKey int, addWords []string) ([]WordWeigh
 		}
 		w.Word = ww.Word
 		w.Weight = ww.Weight
-		w.Print = tool.ConvertString2To10(bitHash)
+		w.Print = strings2.Base10(bitHash)
 
 		wordWeightList = append(wordWeightList, w)
 	}
