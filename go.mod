@@ -10,7 +10,7 @@ require (
 	github.com/xuri/excelize/v2 v2.5.0
 	github.com/yanyiwu/gojieba v1.1.2
 	go.uber.org/zap v1.21.0
-	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
+	golang.org/x/net v0.7.0
 	google.golang.org/grpc v1.51.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
@@ -31,7 +31,7 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 )
