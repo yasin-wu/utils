@@ -1,23 +1,28 @@
 package output
 
 import (
+	"fmt"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"io"
+	"os"
+	"path"
 	"strings"
 )
 
 var defaultOutput = Output{
-	Path:        "./log",
-	Level:       "info",
-	Stdout:      true,
-	JSONEncoder: true,
+	path:        "./log",
+	level:       "info",
+	stdout:      true,
+	jsonEncoder: true,
 }
 
 type Output struct {
-	Path        string
-	Level       string
-	Stdout      bool
-	JSONEncoder bool
-	Writer      []io.Writer
+	path        string
+	level       string
+	stdout      bool
+	jsonEncoder bool
+	writer      []io.Writer
 }
 
 type Option func(output *Output)
@@ -27,16 +32,74 @@ func New(options ...Option) Output {
 	for _, f := range options {
 		f(&output)
 	}
-	if len(output.Writer) > 0 {
-		output.JSONEncoder = true
-	}
 	return output
+}
+
+func (op Output) Filename(serviceName string) string {
+	return path.Join(op.path, fmt.Sprintf("%s-%s.log", serviceName, op.level))
+}
+
+func (op Output) WriteSyncer() []zapcore.WriteSyncer {
+	var sync []zapcore.WriteSyncer
+	if op.stdout {
+		sync = append(sync, zapcore.AddSync(os.Stdout))
+	}
+	for _, w := range op.writer {
+		sync = append(sync, zapcore.AddSync(w))
+	}
+	return sync
+}
+
+func (op Output) Encoder(stacktrace bool) zapcore.Encoder {
+	encoderConfig := zapcore.EncoderConfig{
+		TimeKey:        "time",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		CallerKey:      "line",
+		MessageKey:     "message",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseColorLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeDuration: zapcore.SecondsDurationEncoder,
+		EncodeCaller:   zapcore.FullCallerEncoder,
+		EncodeName:     zapcore.FullNameEncoder,
+	}
+	if stacktrace {
+		encoderConfig.StacktraceKey = "stacktrace"
+	}
+	encoder := zapcore.NewConsoleEncoder(encoderConfig)
+	if op.jsonEncoder {
+		encoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
+		encoder = zapcore.NewJSONEncoder(encoderConfig)
+	}
+	return encoder
+}
+
+func (op Output) AtomicLevel() zap.AtomicLevel {
+	logLevel := zapcore.InfoLevel
+	switch strings.ToLower(op.level) {
+	case "debug":
+		logLevel = zapcore.DebugLevel
+	case "info":
+		logLevel = zapcore.InfoLevel
+	case "warn":
+		logLevel = zapcore.WarnLevel
+	case "error":
+		logLevel = zapcore.ErrorLevel
+	case "dpanic":
+		logLevel = zapcore.DPanicLevel
+	case "panic":
+		logLevel = zapcore.PanicLevel
+	case "fatal":
+		logLevel = zapcore.FatalLevel
+	}
+	return zap.NewAtomicLevelAt(logLevel)
 }
 
 func WithPath(path string) Option {
 	return func(output *Output) {
 		if path != "" {
-			output.Path = path
+			output.path = path
 		}
 	}
 }
@@ -44,27 +107,27 @@ func WithPath(path string) Option {
 func WithLevel(level string) Option {
 	return func(output *Output) {
 		if level != "" {
-			output.Level = strings.ToLower(level)
+			output.level = strings.ToLower(level)
 		}
 	}
 }
 
 func WithStdout(stdout bool) Option {
 	return func(output *Output) {
-		output.Stdout = stdout
+		output.stdout = stdout
 	}
 }
 
 func WithJSONEncoder(jsonEncoder bool) Option {
 	return func(output *Output) {
-		output.JSONEncoder = jsonEncoder
+		output.jsonEncoder = jsonEncoder
 	}
 }
 
 func WithWriter(writer ...io.Writer) Option {
 	return func(output *Output) {
 		if len(writer) > 0 {
-			output.Writer = append(output.Writer, writer...)
+			output.writer = append(output.writer, writer...)
 		}
 	}
 }
