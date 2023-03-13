@@ -1,13 +1,10 @@
 package logger
 
 import (
-	"io"
-	"strings"
+	"github.com/yasin-wu/utils/logger/output"
 )
 
 type Option func(core *Core)
-
-type OutputOption func(output *Output)
 
 func WithMaxSize(maxSize int) Option {
 	return func(core *Core) {
@@ -39,7 +36,7 @@ func WithCompress(compress bool) Option {
 	}
 }
 
-func WithOutputs(outputs ...Output) Option {
+func WithOutputs(outputs ...output.Output) Option {
 	return func(core *Core) {
 		if len(outputs) > 0 {
 			core.outputs = append(core.outputs, outputs...)
@@ -50,41 +47,5 @@ func WithOutputs(outputs ...Output) Option {
 func WithStacktrace(stacktrace bool) Option {
 	return func(core *Core) {
 		core.stacktrace = stacktrace
-	}
-}
-
-func WithPath(path string) OutputOption {
-	return func(output *Output) {
-		if path != "" {
-			output.path = path
-		}
-	}
-}
-
-func WithLevel(level string) OutputOption {
-	return func(output *Output) {
-		if level != "" {
-			output.level = strings.ToLower(level)
-		}
-	}
-}
-
-func WithStdout(stdout bool) OutputOption {
-	return func(output *Output) {
-		output.stdout = stdout
-	}
-}
-
-func WithJSONEncoder(jsonEncoder bool) OutputOption {
-	return func(output *Output) {
-		output.jsonEncoder = jsonEncoder
-	}
-}
-
-func WithWriter(writer ...io.Writer) OutputOption {
-	return func(output *Output) {
-		if len(writer) > 0 {
-			output.writer = append(output.writer, writer...)
-		}
 	}
 }

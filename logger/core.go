@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"github.com/yasin-wu/utils/logger/output"
 	"os"
 	"path"
 	"strings"
@@ -18,7 +19,7 @@ type Core struct {
 	maxAge      int  //default:7,day
 	compress    bool //default:true
 	stacktrace  bool //default:false
-	outputs     []Output
+	outputs     []output.Output
 }
 
 var defaultCore = Core{
@@ -36,20 +37,20 @@ func newCore(serviceName string, options ...Option) Core {
 		f(&core)
 	}
 	if len(core.outputs) == 0 {
-		core.outputs = append(core.outputs, defaultOutput)
+		core.outputs = append(core.outputs, output.New())
 	}
 	return core
 }
 
 func (c Core) newTee() zapcore.Core {
-	var cores []zapcore.Core //nolint:prealloc
-	for _, output := range c.outputs {
-		cores = append(cores, zapcore.NewCore(c.encoder(output), c.writeSyncer(output), c.atomicLevel(output)))
+	var cores []zapcore.Core
+	for _, op := range c.outputs {
+		cores = append(cores, zapcore.NewCore(c.encoder(op), c.writeSyncer(op), c.atomicLevel(op)))
 	}
 	return zapcore.NewTee(cores...)
 }
 
-func (c Core) encoder(output Output) zapcore.Encoder {
+func (c Core) encoder(op output.Output) zapcore.Encoder {
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "time",
 		LevelKey:       "level",
@@ -67,16 +68,16 @@ func (c Core) encoder(output Output) zapcore.Encoder {
 		encoderConfig.StacktraceKey = "stacktrace"
 	}
 	encoder := zapcore.NewConsoleEncoder(encoderConfig)
-	if output.jsonEncoder {
+	if op.JSONEncoder {
 		encoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	}
 	return encoder
 }
 
-func (c Core) writeSyncer(output Output) zapcore.WriteSyncer {
+func (c Core) writeSyncer(op output.Output) zapcore.WriteSyncer {
 	hook := &lumberjack.Logger{
-		Filename:   path.Join(output.path, fmt.Sprintf("%s-%s.log", c.serviceName, output.level)),
+		Filename:   path.Join(op.Path, fmt.Sprintf("%s-%s.log", c.serviceName, op.Level)),
 		MaxSize:    c.maxSize,
 		MaxBackups: c.maxBackups,
 		MaxAge:     c.maxAge,
@@ -85,18 +86,18 @@ func (c Core) writeSyncer(output Output) zapcore.WriteSyncer {
 	}
 	var sync []zapcore.WriteSyncer //nolint:prealloc
 	sync = append(sync, zapcore.AddSync(hook))
-	if output.stdout {
+	if op.Stdout {
 		sync = append(sync, zapcore.AddSync(os.Stdout))
 	}
-	for _, w := range output.writer {
+	for _, w := range op.Writer {
 		sync = append(sync, zapcore.AddSync(w))
 	}
 	return zapcore.NewMultiWriteSyncer(sync...)
 }
 
-func (c Core) atomicLevel(output Output) zap.AtomicLevel {
+func (c Core) atomicLevel(op output.Output) zap.AtomicLevel {
 	logLevel := zapcore.InfoLevel
-	switch strings.ToLower(output.level) {
+	switch strings.ToLower(op.Level) {
 	case "debug":
 		logLevel = zapcore.DebugLevel
 	case "info":
