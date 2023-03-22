@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 )
 
@@ -50,7 +51,7 @@ func (op Output) WriteSyncer() []zapcore.WriteSyncer {
 	return sync
 }
 
-func (op Output) Encoder(stacktrace bool) zapcore.Encoder {
+func (op Output) Encoder(stacktrace bool, depth int) zapcore.Encoder {
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "time",
 		LevelKey:       "level",
@@ -61,7 +62,7 @@ func (op Output) Encoder(stacktrace bool) zapcore.Encoder {
 		EncodeLevel:    zapcore.LowercaseColorLevelEncoder,
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.FullCallerEncoder,
+		EncodeCaller:   callerEncoder(depth),
 		EncodeName:     zapcore.FullNameEncoder,
 	}
 	if stacktrace {
@@ -129,5 +130,26 @@ func WithWriter(writer ...io.Writer) Option {
 		if len(writer) > 0 {
 			output.writer = append(output.writer, writer...)
 		}
+	}
+}
+
+func callerEncoder(depth int) zapcore.CallerEncoder {
+	if depth == 0 {
+		return zapcore.FullCallerEncoder
+	}
+	if depth == -1 {
+		return zapcore.ShortCallerEncoder
+	}
+	return func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
+		var temp []string
+		files := strings.Split(caller.File, "/")
+		if depth > len(files) {
+			depth = len(files)
+		}
+		for i := depth; i > 0; i-- {
+			temp = append(temp, files[len(files)-i])
+		}
+		line := strings.Join(temp, "/") + ":" + strconv.Itoa(caller.Line)
+		enc.AppendString(line)
 	}
 }

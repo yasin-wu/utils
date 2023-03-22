@@ -13,6 +13,7 @@ type Core struct {
 	maxAge      int  //default:7,day
 	compress    bool //default:true
 	stacktrace  bool //default:false
+	depth       int  //default:full
 	outputs     []output.Output
 }
 
@@ -39,7 +40,7 @@ func newCore(serviceName string, options ...Option) Core {
 func (c Core) newTee() zapcore.Core {
 	var cores []zapcore.Core
 	for _, op := range c.outputs {
-		cores = append(cores, zapcore.NewCore(op.Encoder(c.stacktrace), c.writeSyncer(op), op.AtomicLevel()))
+		cores = append(cores, zapcore.NewCore(op.Encoder(c.stacktrace, c.depth), c.writeSyncer(op), op.AtomicLevel()))
 	}
 	return zapcore.NewTee(cores...)
 }

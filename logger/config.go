@@ -49,3 +49,9 @@ func WithStacktrace(stacktrace bool) Option {
 		core.stacktrace = stacktrace
 	}
 }
+
+func WithDepth(depth int) Option {
+	return func(core *Core) {
+		core.depth = depth
+	}
+}
