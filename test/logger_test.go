@@ -11,7 +11,6 @@ func TestLogger(t *testing.T) {
 	errOutput := output.New(
 		output.WithPath("./log"),
 		output.WithLevel("error"),
-		output.WithJSONEncoder(false),
 	)
 	defaultOutput := output.New()
 	log1, _ := logger.New("yasin", logger.WithOutputs(defaultOutput, errOutput))

@@ -5,25 +5,22 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"io"
-	"os"
 	"path"
 	"strconv"
 	"strings"
 )
 
 var defaultOutput = Output{
-	path:        "./log",
-	level:       "info",
-	stdout:      true,
-	jsonEncoder: true,
+	path:       "./log",
+	level:      "info",
+	timeLayout: "2006-01-02 15:04:05",
 }
 
 type Output struct {
-	path        string
-	level       string
-	stdout      bool
-	jsonEncoder bool
-	writer      []io.Writer
+	path       string
+	level      string
+	timeLayout string
+	writer     []io.Writer
 }
 
 type Option func(output *Output)
@@ -42,38 +39,31 @@ func (op Output) Filename(serviceName string) string {
 
 func (op Output) WriteSyncer() []zapcore.WriteSyncer {
 	var sync []zapcore.WriteSyncer
-	if op.stdout {
-		sync = append(sync, zapcore.AddSync(os.Stdout))
-	}
 	for _, w := range op.writer {
 		sync = append(sync, zapcore.AddSync(w))
 	}
 	return sync
 }
 
-func (op Output) Encoder(stacktrace bool, depth int) zapcore.Encoder {
-	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:        "time",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		CallerKey:      "line",
-		MessageKey:     "message",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.LowercaseColorLevelEncoder,
-		EncodeTime:     zapcore.ISO8601TimeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   callerEncoder(depth),
-		EncodeName:     zapcore.FullNameEncoder,
-	}
+func (op Output) JSONEncoder(stacktrace bool, depth int) zapcore.Encoder {
+	encoderConfig := defaultEncoderConfig
+	encoderConfig.EncodeCaller = callerEncoder(depth)
+	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
 	if stacktrace {
 		encoderConfig.StacktraceKey = "stacktrace"
 	}
-	encoder := zapcore.NewConsoleEncoder(encoderConfig)
-	if op.jsonEncoder {
-		encoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
-		encoder = zapcore.NewJSONEncoder(encoderConfig)
+	return zapcore.NewJSONEncoder(encoderConfig)
+}
+
+func (op Output) ConsoleEncoder(stacktrace bool, depth int) zapcore.Encoder {
+	encoderConfig := defaultEncoderConfig
+	encoderConfig.EncodeCaller = callerEncoder(depth)
+	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
+	if stacktrace {
+		encoderConfig.StacktraceKey = "stacktrace"
 	}
-	return encoder
+	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
 func (op Output) AtomicLevel() zap.AtomicLevel {
@@ -113,15 +103,11 @@ func WithLevel(level string) Option {
 	}
 }
 
-func WithStdout(stdout bool) Option {
+func WithTimeLayout(timeLayout string) Option {
 	return func(output *Output) {
-		output.stdout = stdout
-	}
-}
-
-func WithJSONEncoder(jsonEncoder bool) Option {
-	return func(output *Output) {
-		output.jsonEncoder = jsonEncoder
+		if timeLayout != "" {
+			output.timeLayout = timeLayout
+		}
 	}
 }
 

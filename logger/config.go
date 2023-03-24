@@ -30,17 +30,9 @@ func WithMaxAge(maxAge int) Option {
 	}
 }
 
-func WithCompress(compress bool) Option {
+func WithDepth(depth int) Option {
 	return func(core *Core) {
-		core.compress = compress
-	}
-}
-
-func WithOutputs(outputs ...output.Output) Option {
-	return func(core *Core) {
-		if len(outputs) > 0 {
-			core.outputs = append(core.outputs, outputs...)
-		}
+		core.depth = depth
 	}
 }
 
@@ -50,8 +42,22 @@ func WithStacktrace(stacktrace bool) Option {
 	}
 }
 
-func WithDepth(depth int) Option {
+func WithCompress(compress bool) Option {
 	return func(core *Core) {
-		core.depth = depth
+		core.compress = compress
+	}
+}
+
+func WithStdout(stdout bool) Option {
+	return func(core *Core) {
+		core.stdout = stdout
+	}
+}
+
+func WithOutputs(outputs ...output.Output) Option {
+	return func(core *Core) {
+		if len(outputs) > 0 {
+			core.outputs = append(core.outputs, outputs...)
+		}
 	}
 }
