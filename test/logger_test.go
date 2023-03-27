@@ -1,22 +1,19 @@
 package test
 
 import (
-	"github.com/yasin-wu/utils/logger/output"
+	"github.com/yasin-wu/utils/logger/file"
+	"github.com/yasin-wu/utils/logger/stdout"
 	"testing"
 
 	"github.com/yasin-wu/utils/logger"
 )
 
 func TestLogger(t *testing.T) {
-	errOutput := output.New(
-		output.WithPath("./log"),
-		output.WithLevel("error"),
-	)
-	defaultOutput := output.New()
-	log1, _ := logger.New("yasin", logger.WithOutputs(defaultOutput, errOutput))
-	log2, _ := logger.New("yasin", logger.WithOutputs(defaultOutput, errOutput))
-	log1.Info("info test1")
-	log1.Error("error test1")
-	log2.Info("info test2")
-	log2.Error("error test2")
+	defaultOutput := stdout.New("debug")
+	fileOutput := file.New("info")
+	fileErrOutput := file.New("error")
+	log, _ := logger.New("yasin", defaultOutput, fileOutput, fileErrOutput)
+	log.Debug("this is debug")
+	log.Info("this is info")
+	log.Error("this is error")
 }
