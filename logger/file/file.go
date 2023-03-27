@@ -81,7 +81,7 @@ func WithPath(path string) Option {
 	}
 }
 
-func WithTimelayout(timeLayout string) Option {
+func WithTimeLayout(timeLayout string) Option {
 	return func(f *file) {
 		if timeLayout == "" {
 			f.timeLayout = timeLayout

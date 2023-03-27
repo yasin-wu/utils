@@ -20,3 +20,9 @@ func New(serviceName string, outputs ...core.Corer) (*zap.SugaredLogger, error) 
 	}
 	return logger.With(zap.String("service", serviceName)).Sugar(), nil
 }
+
+// NewZapOption default:stdout info
+func NewZapOption(serviceName string, outputs ...core.Corer) (zap.Option, error) {
+	file.SetServiceName(serviceName)
+	return wrapCore(outputs...), nil
+}
