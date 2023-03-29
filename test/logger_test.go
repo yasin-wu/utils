@@ -9,7 +9,7 @@ import (
 )
 
 func TestLogger(t *testing.T) {
-	defaultOutput := stdout.New("debug")
+	defaultOutput := stdout.New("debug", stdout.WithDepth(5))
 	fileOutput := file.New("info")
 	fileErrOutput := file.New("error")
 	log, _ := logger.New("yasin", defaultOutput, fileOutput, fileErrOutput)

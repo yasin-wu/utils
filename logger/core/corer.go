@@ -25,6 +25,7 @@ var DefaultEncoderConfig = zapcore.EncoderConfig{
 	EncodeName:     zapcore.FullNameEncoder,
 }
 
+// CallerEncoder Delete depth elements
 func CallerEncoder(depth int) zapcore.CallerEncoder {
 	if depth == 0 {
 		return zapcore.FullCallerEncoder
@@ -36,10 +37,10 @@ func CallerEncoder(depth int) zapcore.CallerEncoder {
 		var temp []string
 		files := strings.Split(caller.File, "/")
 		if depth > len(files) {
-			depth = len(files)
+			depth = 0
 		}
-		for i := depth; i > 0; i-- {
-			temp = append(temp, files[len(files)-i])
+		for i := depth; i < len(files); i++ {
+			temp = append(temp, files[i])
 		}
 		line := strings.Join(temp, "/") + ":" + strconv.Itoa(caller.Line)
 		enc.AppendString(line)
