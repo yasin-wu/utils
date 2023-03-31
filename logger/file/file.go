@@ -75,7 +75,7 @@ func (f file) AtomicLevel() zap.AtomicLevel {
 
 func WithPath(path string) Option {
 	return func(f *file) {
-		if path == "" {
+		if path != "" {
 			f.path = path
 		}
 	}
@@ -83,7 +83,7 @@ func WithPath(path string) Option {
 
 func WithTimeLayout(timeLayout string) Option {
 	return func(f *file) {
-		if timeLayout == "" {
+		if timeLayout != "" {
 			f.timeLayout = timeLayout
 		}
 	}

@@ -52,7 +52,7 @@ func (s stdout) AtomicLevel() zap.AtomicLevel {
 
 func WithTimeLayout(timeLayout string) Option {
 	return func(s *stdout) {
-		if timeLayout == "" {
+		if timeLayout != "" {
 			s.timeLayout = timeLayout
 		}
 	}
