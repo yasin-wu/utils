@@ -74,9 +74,14 @@ func DeleteEmpty(arr *[]string) {
 }
 
 func TargetIn(target string, src []string) bool {
-	sort.Strings(src)
-	index := sort.SearchStrings(src, target)
-	return index < len(src) && src[index] == target
+	temp := make([]string, len(src))
+	copy(temp, temp)
+	sort.Strings(temp)
+	index := sort.SearchStrings(temp, target)
+	if index < len(temp) && temp[index] == target {
+		return true
+	}
+	return false
 }
 
 /**
