@@ -149,7 +149,7 @@ func FmtByte(size int64) string {
 	case size < consts.TB:
 		return fmt.Sprintf("%.2fGB", float64(size)/float64(consts.GB))
 	case size < consts.PB:
-		return fmt.Sprintf("%.2fTB", float64(size)/float64(consts.PB))
+		return fmt.Sprintf("%.2fTB", float64(size)/float64(consts.TB))
 	default:
 		return fmt.Sprintf("%.2fEB", float64(size)/float64(consts.EB))
 	}
