@@ -11,7 +11,7 @@ require (
 	github.com/yanyiwu/gojieba v1.1.2
 	go.uber.org/zap v1.21.0
 	golang.org/x/net v0.7.0
-	google.golang.org/grpc v1.51.0
+	google.golang.org/grpc v1.53.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
 
@@ -32,6 +32,6 @@ require (
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/image v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 )
