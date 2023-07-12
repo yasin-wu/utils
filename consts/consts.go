@@ -7,4 +7,5 @@ const (
 	GB
 	TB
 	PB
+	EB
 )

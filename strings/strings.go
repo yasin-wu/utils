@@ -1,6 +1,8 @@
 package strings
 
 import (
+	"fmt"
+	"github.com/yasin-wu/utils/consts"
 	"math"
 	"regexp"
 	"sort"
@@ -126,7 +128,7 @@ func sq(in <-chan int) <-chan int {
 	return out
 }
 func stringToIntArray(input string) []int {
-	var output []int //nolint:prealloc
+	var output []int
 	for _, v := range input {
 		output = append(output, int(v))
 	}
@@ -134,4 +136,21 @@ func stringToIntArray(input string) []int {
 		output[i], output[j] = output[j], output[i]
 	}
 	return output
+}
+
+func FmtByte(size int64) string {
+	switch {
+	case size < consts.KB:
+		return fmt.Sprintf("%.2fB", float64(size)/float64(1))
+	case size < consts.MB:
+		return fmt.Sprintf("%.2fKB", float64(size)/float64(consts.KB))
+	case size < consts.GB:
+		return fmt.Sprintf("%.2fMB", float64(size)/float64(consts.MB))
+	case size < consts.TB:
+		return fmt.Sprintf("%.2fGB", float64(size)/float64(consts.GB))
+	case size < consts.PB:
+		return fmt.Sprintf("%.2fTB", float64(size)/float64(consts.PB))
+	default:
+		return fmt.Sprintf("%.2fEB", float64(size)/float64(consts.EB))
+	}
 }
