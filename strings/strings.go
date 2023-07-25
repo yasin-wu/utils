@@ -154,3 +154,21 @@ func FmtByte(size int64) string {
 		return fmt.Sprintf("%.2fEB", float64(size)/float64(consts.EB))
 	}
 }
+
+func Equal(src, dst []string) bool {
+	if len(src) != len(dst) {
+		return false
+	}
+	if (src == nil) != (dst == nil) {
+		return false
+	}
+	sort.Strings(src)
+	sort.Strings(dst)
+	dst = dst[:len(src)]
+	for i, v := range src {
+		if v != dst[i] {
+			return false
+		}
+	}
+	return true
+}
