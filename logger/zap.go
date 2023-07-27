@@ -16,21 +16,19 @@ const (
 )
 
 type Logger struct {
-	ServiceName         string `mapstructure:"service_name"`          //服务名称
-	Mode                string `mapstructure:"mode"`                  //日志打印方式
-	Encoding            string `mapstructure:"encoding"`              //日志格式
-	TimeFormat          string `mapstructure:"time_format"`           //日期格式
-	Path                string `mapstructure:"path"`                  //日志目录
-	Level               string `mapstructure:"level"`                 //日志等级
-	MaxContentLength    uint32 `mapstructure:"max_content_length"`    //最大内容字节数
-	Stacktrace          bool   `mapstructure:"stacktrace"`            //日志的stacktrace
-	Compress            bool   `mapstructure:"compress"`              //是否压缩
-	Stat                bool   `mapstructure:"stat"`                  //是否统计
-	KeepDays            int    `mapstructure:"keep_days"`             //保留天数
-	StackCooldownMillis int    `mapstructure:"stack_cooldown_millis"` //堆栈冷却时间(ms)
-	MaxBackups          int    `mapstructure:"max_backups"`           //日志最大备份数
-	MaxSize             int    `mapstructure:"max_size"`              //日志切割限制
-	Rotation            string `mapstructure:"rotation"`              //切割方式
+	ServiceName string `mapstructure:"service_name"` //服务名称
+	Mode        string `mapstructure:"mode"`         //日志打印方式,console,file
+	Encoding    string `mapstructure:"encoding"`     //日志格式,json,plain
+	TimeFormat  string `mapstructure:"time_format"`  //日期格式
+	Path        string `mapstructure:"path"`         //日志目录
+	Level       string `mapstructure:"level"`        //日志等级
+	Stacktrace  bool   `mapstructure:"stacktrace"`   //日志的stacktrace
+	Compress    bool   `mapstructure:"compress"`     //是否压缩
+	Stat        bool   `mapstructure:"stat"`         //是否统计
+	KeepDays    int    `mapstructure:"keep_days"`    //保留天数
+	MaxBackups  int    `mapstructure:"max_backups"`  //日志最大备份数
+	MaxSize     int    `mapstructure:"max_size"`     //日志切割限制
+	Rotation    string `mapstructure:"rotation"`     //切割方式
 }
 
 type (
@@ -43,25 +41,31 @@ type (
 )
 
 // NewWriter default:output to error file and stdout,
-func (l *Logger) NewWriter(service string, stacktrace bool, options ...Option) (logx.Writer, error) {
-	opt, err := l.logxOptions(stacktrace, options...)
+func (l *Logger) NewWriter(options ...Option) (logx.Writer, error) {
+	if l.ServiceName == "" {
+		return nil, errors.New("service name is required")
+	}
+	opt, err := l.logxOptions(l.Stacktrace, options...)
 	if err != nil {
 		return nil, err
 	}
-	cores, err := NewZapOption(service, opt.outputs...)
+	cores, err := NewZapOption(l.ServiceName, opt.outputs...)
 	if err != nil {
 		return nil, err
 	}
-	return zapx.NewZapWriter(cores, zap.Fields(zap.String("service", service)))
+	return zapx.NewZapWriter(cores, zap.Fields(zap.String("service", l.ServiceName)))
 }
 
 // NewLogger default:output to error file and stdout,
-func (l *Logger) NewLogger(service string, stacktrace bool, options ...Option) (*zap.SugaredLogger, error) {
-	opt, err := l.logxOptions(stacktrace, options...)
+func (l *Logger) NewLogger(options ...Option) (*zap.SugaredLogger, error) {
+	if l.ServiceName == "" {
+		return nil, errors.New("service name is required")
+	}
+	opt, err := l.logxOptions(l.Stacktrace, options...)
 	if err != nil {
 		return nil, err
 	}
-	return New(service, opt.outputs...)
+	return New(l.ServiceName, opt.outputs...)
 }
 
 func (l *Logger) logxOptions(stacktrace bool, options ...Option) (*logxOptions, error) {
