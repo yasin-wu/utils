@@ -84,16 +84,26 @@ func (e *es) handleIndex() string {
 	year := now.Format("2006")
 	month := now.Format("01")
 	day := now.Format("02")
+	var buf bytes.Buffer
+	buf.WriteString(e.index)
 	switch strings.ToLower(e.indexType) {
 	case "y", "year":
-		return e.index + "_" + year
+		buf.WriteString("_")
+		buf.WriteString(year)
 	case "m", "month":
-		return e.index + "_" + year + "_" + month
+		buf.WriteString("_")
+		buf.WriteString(year)
+		buf.WriteString("_")
+		buf.WriteString(month)
 	case "d", "day":
-		return e.index + "_" + year + "_" + month + "_" + day
-	default:
-		return e.index
+		buf.WriteString("_")
+		buf.WriteString(year)
+		buf.WriteString("_")
+		buf.WriteString(month)
+		buf.WriteString("_")
+		buf.WriteString(day)
 	}
+	return buf.String()
 }
 
 func WithTimeLayout(timeLayout string) Option {

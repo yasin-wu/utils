@@ -3,7 +3,7 @@ package tree
 import (
 	"testing"
 
-	"github.com/yasin-wu/utils/tool"
+	"github.com/yasin-wu/utils/util"
 )
 
 func TestTree(t *testing.T) {
@@ -20,6 +20,6 @@ func TestTree(t *testing.T) {
 	root.Level = 0
 	root.MakeTree(nodes)
 	root.FindAll(&all)
-	tool.PrintlnFmt(root)
-	tool.PrintlnFmt(all)
+	util.PrintlnFmt(root)
+	util.PrintlnFmt(all)
 }

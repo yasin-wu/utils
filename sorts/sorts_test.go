@@ -5,7 +5,7 @@ import (
 	"github.com/yasin-wu/utils/strings"
 	"testing"
 
-	"github.com/yasin-wu/utils/tool"
+	"github.com/yasin-wu/utils/util"
 )
 
 type ByIndex []map[string]interface{}
@@ -32,10 +32,10 @@ func TestSort(t *testing.T) {
 	data = append(data, j3)
 	//升序
 	ByInt64(ByIndex(data))
-	tool.PrintlnFmt(data)
+	util.PrintlnFmt(data)
 	//降序
 	Flip(ByIndex(data))
-	tool.PrintlnFmt(data)
+	util.PrintlnFmt(data)
 }
 
 func TestStringIn(t *testing.T) {

@@ -1,4 +1,4 @@
-package tool
+package util
 
 import (
 	"encoding/json"
@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -53,31 +52,6 @@ func RandFile(path string) (string, error) {
 		index = len(fileNames) - 1
 	}
 	return fileNames[index], err
-}
-
-/**
- * @author: yasinWu
- * @date: 2022/1/14 11:28
- * @params: value int64
- * @return: string
- * @description: 字节数单位换算
- */
-func ByteWithUnit(value int64) string {
-	if value < 1024 {
-		return strconv.FormatInt(value, 10) + "B"
-	}
-
-	unit := [6]string{"KB", "MB", "GB", "TB", "PB", "EB"}
-
-	data := float64(value)
-	for i := 0; i < len(unit); i++ {
-		data /= float64(1024)
-		if data < 1024 {
-			return strconv.FormatFloat(data, 'f', 2, 64) + unit[i]
-		}
-	}
-
-	return strconv.FormatFloat(data, 'f', 2, 64) + unit[5]
 }
 
 func PrintlnFmt(data any) {
