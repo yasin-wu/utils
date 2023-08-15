@@ -10,13 +10,6 @@ import (
 	"time"
 )
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:31
- * @params: min, max int64
- * @return: int64
- * @description: 生成随机数在min和max之间
- */
 func RandInt64(min, max int64) int64 {
 	if min >= max || min == 0 || max == 0 {
 		return max
@@ -24,13 +17,6 @@ func RandInt64(min, max int64) int64 {
 	return rand.Int63n(max-min) + min //nolint:gosec
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:35
- * @params: path string
- * @return: string, error
- * @description: 随机获取目录中的文件
- */
 func RandFile(path string) (string, error) {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {

@@ -9,13 +9,6 @@ import (
 	"strings"
 )
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:31
- * @params: src string
- * @return: string
- * @description: 删除字符串中的HTML标签
- */
 func DeleteHTML(src string) string {
 	re := regexp.MustCompile(`\\<[\\S\\s]+?\\>`)
 	src = re.ReplaceAllStringFunc(src, strings.ToLower)
@@ -35,12 +28,6 @@ func DeleteHTML(src string) string {
 	return src
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:33
- * @params: arr *[]string
- * @description: 删除[]string中的重复元素
- */
 func DeleteRepeated(arr *[]string) {
 	oldArr := *arr
 	*arr = nil
@@ -58,12 +45,6 @@ func DeleteRepeated(arr *[]string) {
 	}
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:33
- * @params: arr *[]string
- * @description: 删除[]string中的空元素
- */
 func DeleteEmpty(arr *[]string) {
 	oldArr := *arr
 	*arr = nil
@@ -86,13 +67,6 @@ func TargetIn(target string, src []string) bool {
 	return false
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:31
- * @params: input string
- * @return: int64
- * @description: 字符串转10进制
- */
 func Base10(input string) int64 {
 	c := getInput(input)
 	out := sq(c)

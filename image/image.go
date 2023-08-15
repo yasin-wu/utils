@@ -15,13 +15,6 @@ import (
 
 const _png = "png"
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:34
- * @params: file string
- * @return: string, error
- * @description: 图片转base64
- */
 func FileToBase64(file string) (string, error) {
 	imgFile, err := os.Open(file)
 	if err != nil {
@@ -53,13 +46,6 @@ func FileToBase64(file string) (string, error) {
 	return *(*string)(unsafe.Pointer(&baseImage)), nil
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:36
- * @params: img image.Image, fileType string
- * @return: string, error
- * @description: image文件转base64
- */
 func ImageToBase64(img image.Image, fileType string) (string, error) {
 	var err error
 	emptyBuff := bytes.NewBuffer(nil)

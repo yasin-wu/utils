@@ -14,11 +14,6 @@ import (
 
 const emailRegexpStr = `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:38
- * @description: Email Client
- */
 type Email struct {
 	config *Config
 }
@@ -31,13 +26,6 @@ type Config struct {
 	From     string
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:39
- * @params: host, port, user, password, from string
- * @return: *Email, error
- * @description: 新建Email Client
- */
 func New(config *Config) (*Email, error) {
 	if config == nil {
 		return nil, errors.New("config is nil")
@@ -57,13 +45,6 @@ func New(config *Config) (*Email, error) {
 	return &Email{config: config}, nil
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:39
- * @params: to []string, subject, content string
- * @return: error
- * @description: 发送普通邮件
- */
 func (e *Email) Send(to []string, subject, content string) error {
 	err := e.check(to, subject, content)
 	if err != nil {
@@ -72,13 +53,6 @@ func (e *Email) Send(to []string, subject, content string) error {
 	return e.sendMail(to, subject, content)
 }
 
-/**
- * @author: yasinWu
- * @date: 2022/1/13 14:39
- * @params: to []string, subject, content string
- * @return: error
- * @description: 发送TLS加密邮件
- */
 func (e *Email) SendTLS(to []string, subject, content string) error {
 	err := e.check(to, subject, content)
 	if err != nil {
