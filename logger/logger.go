@@ -2,17 +2,15 @@ package logger
 
 import (
 	"errors"
-	"github.com/yasin-wu/utils/logger/core"
-	"github.com/yasin-wu/utils/logger/file"
+	"github.com/yasin-wu/utils/logger/internal"
 	"go.uber.org/zap"
 )
 
 // New default:stdout info
-func New(serviceName string, outputs ...core.Corer) (*zap.SugaredLogger, error) {
+func New(serviceName string, outputs ...internal.Corer) (*zap.SugaredLogger, error) {
 	if serviceName == "" {
 		return nil, errors.New("service name must not be empty")
 	}
-	file.SetServiceName(serviceName)
 	opts := []zap.Option{zap.AddCaller(), wrapCore(outputs...)}
 	logger, err := zap.NewProduction(opts...)
 	if err != nil {
@@ -22,7 +20,6 @@ func New(serviceName string, outputs ...core.Corer) (*zap.SugaredLogger, error) 
 }
 
 // NewZapOption default:stdout info
-func NewZapOption(serviceName string, outputs ...core.Corer) (zap.Option, error) {
-	file.SetServiceName(serviceName)
+func NewZapOption(outputs ...internal.Corer) (zap.Option, error) {
 	return wrapCore(outputs...), nil
 }

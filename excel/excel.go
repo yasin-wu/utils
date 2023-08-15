@@ -25,6 +25,7 @@ type Excel struct {
 
 func New(fileName string) *Excel {
 	return &Excel{
+		mx:       sync.Mutex{},
 		fileName: fileName,
 		colWidth: 20,
 		xlsx:     excelize.NewFile(),
@@ -58,9 +59,7 @@ func (e *Excel) Read(sheetName string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func(excelFile *excelize.File) {
-		_ = excelFile.Close()
-	}(excelFile)
+	defer func(excelFile *excelize.File) { _ = excelFile.Close() }(excelFile)
 	rows, err := excelFile.GetRows(sheetName)
 	if err != nil {
 		return nil, err
@@ -69,10 +68,10 @@ func (e *Excel) Read(sheetName string) ([]byte, error) {
 		return nil, errors.New("not found rows")
 	}
 	var keys []string
-	var data []map[string]interface{}
+	var data []map[string]any
 	keys = append(keys, rows[0]...)
 	for i := 1; i < len(rows); i++ {
-		j := make(map[string]interface{})
+		j := make(map[string]any)
 		for k, v := range rows[i] {
 			j[keys[k]] = v
 		}
@@ -105,7 +104,7 @@ func (e *Excel) writeHeader(headers []Header) error {
 }
 
 func (e *Excel) write(headers []Header, data []byte) error {
-	var buffer []map[string]interface{}
+	var buffer []map[string]any
 	if err := json.Unmarshal(data, &buffer); err != nil {
 		return err
 	}

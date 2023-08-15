@@ -1,17 +1,15 @@
-package test
+package email
 
 import (
 	"fmt"
 	"log"
 	"strings"
 	"testing"
-
-	email2 "github.com/yasin-wu/utils/email"
 )
 
 func TestEmail(t *testing.T) {
 	to := ""
-	email, err := email2.New(&email2.Config{})
+	email, err := New(&Config{})
 	if err != nil {
 		log.Fatal(err)
 	}

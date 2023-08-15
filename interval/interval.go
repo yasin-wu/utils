@@ -1,6 +1,9 @@
 package interval
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type EQType string
 
@@ -17,8 +20,15 @@ const (
  * @description: Interval
  */
 type Interval struct {
-	Start int64 `json:"start"`
-	End   int64 `json:"end"`
+	start int64
+	end   int64
+}
+
+func New(start, end int64) (*Interval, error) {
+	if start <= end {
+		return nil, fmt.Errorf("end must be greater than start")
+	}
+	return &Interval{start: start, end: end}, nil
 }
 
 /**
@@ -29,8 +39,8 @@ type Interval struct {
  * @description: 判断interval是否与该区间有交集
  */
 func (i *Interval) IntervalMixed(interval *Interval) bool {
-	startMax := math.Max(float64(i.Start), float64(interval.Start))
-	endMin := math.Min(float64(i.End), float64(interval.End))
+	startMax := math.Max(float64(i.start), float64(interval.start))
+	endMin := math.Min(float64(i.end), float64(interval.end))
 	return startMax <= endMin
 }
 
@@ -44,15 +54,15 @@ func (i *Interval) IntervalMixed(interval *Interval) bool {
 func (i *Interval) Belong(value int64, eq EQType) bool {
 	switch eq {
 	case EQType1:
-		return value >= i.Start && value <= i.End
+		return value >= i.start && value <= i.end
 	case EQType2:
-		return value > i.Start && value <= i.End
+		return value > i.start && value <= i.end
 	case EQType3:
-		return value >= i.Start && value < i.End
+		return value >= i.start && value < i.end
 	case EQType4:
-		return value > i.Start && value < i.End
+		return value > i.start && value < i.end
 	default:
-		return value >= i.Start && value <= i.End
+		return value >= i.start && value <= i.end
 	}
 }
 
@@ -66,14 +76,14 @@ func (i *Interval) Belong(value int64, eq EQType) bool {
 func (i *Interval) Contain(interval *Interval, eq EQType) bool {
 	switch eq {
 	case EQType1:
-		return interval.Start >= i.Start && interval.End <= i.End
+		return interval.start >= i.start && interval.end <= i.end
 	case EQType2:
-		return interval.Start > i.Start && interval.End <= i.End
+		return interval.start > i.start && interval.end <= i.end
 	case EQType3:
-		return interval.Start >= i.Start && interval.End < i.End
+		return interval.start >= i.start && interval.end < i.end
 	case EQType4:
-		return interval.Start > i.Start && interval.End < i.End
+		return interval.start > i.start && interval.end < i.end
 	default:
-		return interval.Start >= i.Start && interval.End <= i.End
+		return interval.start >= i.start && interval.end <= i.end
 	}
 }

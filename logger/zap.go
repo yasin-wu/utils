@@ -2,8 +2,8 @@ package logger
 
 import (
 	"errors"
-	"github.com/yasin-wu/utils/logger/core"
 	"github.com/yasin-wu/utils/logger/file"
+	"github.com/yasin-wu/utils/logger/internal"
 	"github.com/yasin-wu/utils/logger/stdout"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/zero-contrib/logx/zapx"
@@ -36,7 +36,7 @@ type (
 
 	logxOptions struct {
 		depth   int
-		outputs []core.Corer
+		outputs []internal.Corer
 	}
 )
 
@@ -49,7 +49,7 @@ func (l *Logger) NewWriter(options ...Option) (logx.Writer, error) {
 	if err != nil {
 		return nil, err
 	}
-	cores, err := NewZapOption(l.ServiceName, opt.outputs...)
+	cores, err := NewZapOption(opt.outputs...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,14 +87,14 @@ func (l *Logger) logxOptions(stacktrace bool, options ...Option) (*logxOptions, 
 		file.WithMaxAge(l.KeepDays),
 		file.WithCompress(l.Compress),
 	}
-	var outputs []core.Corer
-	errFileOP := file.New(errorLevel, fileOptions...)
+	var outputs []internal.Corer
+	errFileOP := file.New(l.ServiceName, errorLevel, fileOptions...)
 	if l.Mode == consoleStdout {
 		stdoutOP := stdout.New(l.Level, stdout.WithStacktrace(stacktrace), stdout.WithDepth(opt.depth))
 		outputs = append(outputs, stdoutOP)
 	}
 	if l.Level != errorLevel {
-		op := file.New(l.Level, fileOptions...)
+		op := file.New(l.ServiceName, l.Level, fileOptions...)
 		outputs = append(outputs, op)
 	}
 	outputs = append(outputs, errFileOP)

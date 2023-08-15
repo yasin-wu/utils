@@ -1,4 +1,4 @@
-package fileparser
+package file
 
 import "net/http"
 

@@ -2,7 +2,7 @@ package file
 
 import (
 	"fmt"
-	"github.com/yasin-wu/utils/logger/core"
+	"github.com/yasin-wu/utils/logger/internal"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -10,6 +10,7 @@ import (
 )
 
 type file struct {
+	name       string
 	level      string
 	path       string
 	timeLayout string
@@ -21,14 +22,13 @@ type file struct {
 	stacktrace bool
 }
 
-var _ core.Corer = (*file)(nil)
-
-var serviceName string
+var _ internal.Corer = (*file)(nil)
 
 type Option func(f *file)
 
-func New(level string, options ...Option) core.Corer {
+func New(name, level string, options ...Option) internal.Corer {
 	corer := &file{
+		name:       name,
 		level:      level,
 		path:       "./log",
 		stacktrace: false,
@@ -45,9 +45,9 @@ func New(level string, options ...Option) core.Corer {
 	return corer
 }
 
-func (f file) Encoder() zapcore.Encoder {
-	encoderConfig := core.DefaultEncoderConfig
-	encoderConfig.EncodeCaller = core.CallerEncoder(f.depth)
+func (f *file) Encoder() zapcore.Encoder {
+	encoderConfig := internal.DefaultEncoderConfig
+	encoderConfig.EncodeCaller = internal.CallerEncoder(f.depth)
 	encoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
 	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(f.timeLayout)
 	if f.stacktrace {
@@ -56,8 +56,8 @@ func (f file) Encoder() zapcore.Encoder {
 	return zapcore.NewJSONEncoder(encoderConfig)
 }
 
-func (f file) WriteSyncer() zapcore.WriteSyncer {
-	filename := path.Join(f.path, fmt.Sprintf("%s-%s.log", serviceName, f.level))
+func (f *file) WriteSyncer() zapcore.WriteSyncer {
+	filename := path.Join(f.path, fmt.Sprintf("%s-%s.log", f.name, f.level))
 	hook := &lumberjack.Logger{
 		Filename:   filename,
 		MaxSize:    f.maxSize,
@@ -69,8 +69,8 @@ func (f file) WriteSyncer() zapcore.WriteSyncer {
 	return zapcore.NewMultiWriteSyncer(zapcore.AddSync(hook))
 }
 
-func (f file) AtomicLevel() zap.AtomicLevel {
-	return core.AtomicLevel(f.level)
+func (f *file) AtomicLevel() zap.AtomicLevel {
+	return internal.AtomicLevel(f.level)
 }
 
 func WithPath(path string) Option {
@@ -129,8 +129,4 @@ func WithCompress(compress bool) Option {
 	return func(f *file) {
 		f.compress = compress
 	}
-}
-
-func SetServiceName(name string) {
-	serviceName = name
 }

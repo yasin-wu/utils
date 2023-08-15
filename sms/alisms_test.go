@@ -1,12 +1,10 @@
-package test
+package sms
 
 import (
 	"fmt"
 	"log"
 	"strings"
 	"testing"
-
-	sms2 "github.com/yasin-wu/utils/sms"
 )
 
 func TestAliSms(t *testing.T) {
@@ -15,7 +13,7 @@ func TestAliSms(t *testing.T) {
 	accessKeyId := ""
 	accessKeySecret := ""
 	phone := ""
-	sms, err := sms2.New(scheme, regionId, accessKeyId, accessKeySecret)
+	sms, err := New(scheme, regionId, accessKeyId, accessKeySecret)
 	if err != nil {
 		log.Fatal(err)
 	}

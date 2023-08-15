@@ -1,4 +1,4 @@
-package test
+package sorts
 
 import (
 	"fmt"
@@ -6,8 +6,6 @@ import (
 	"testing"
 
 	"github.com/yasin-wu/utils/tool"
-
-	"github.com/yasin-wu/utils/sorts"
 )
 
 type ByIndex []map[string]interface{}
@@ -33,10 +31,10 @@ func TestSort(t *testing.T) {
 	j3["index"] = int64(3)
 	data = append(data, j3)
 	//升序
-	sorts.ByInt64(ByIndex(data))
+	ByInt64(ByIndex(data))
 	tool.PrintlnFmt(data)
 	//降序
-	sorts.Flip(ByIndex(data))
+	Flip(ByIndex(data))
 	tool.PrintlnFmt(data)
 }
 

@@ -1,4 +1,4 @@
-package tika
+package internal
 
 import (
 	"context"

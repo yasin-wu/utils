@@ -1,7 +1,7 @@
 package stdout
 
 import (
-	"github.com/yasin-wu/utils/logger/core"
+	"github.com/yasin-wu/utils/logger/internal"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
@@ -14,11 +14,11 @@ type stdout struct {
 	stacktrace bool
 }
 
-var _ core.Corer = (*stdout)(nil)
+var _ internal.Corer = (*stdout)(nil)
 
 type Option func(s *stdout)
 
-func New(level string, options ...Option) core.Corer {
+func New(level string, options ...Option) internal.Corer {
 	corer := &stdout{
 		level:      level,
 		stacktrace: false,
@@ -31,9 +31,9 @@ func New(level string, options ...Option) core.Corer {
 	return corer
 }
 
-func (s stdout) Encoder() zapcore.Encoder {
-	encoderConfig := core.DefaultEncoderConfig
-	encoderConfig.EncodeCaller = core.CallerEncoder(s.depth)
+func (s *stdout) Encoder() zapcore.Encoder {
+	encoderConfig := internal.DefaultEncoderConfig
+	encoderConfig.EncodeCaller = internal.CallerEncoder(s.depth)
 	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(s.timeLayout)
 	if s.stacktrace {
@@ -42,12 +42,12 @@ func (s stdout) Encoder() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
-func (s stdout) WriteSyncer() zapcore.WriteSyncer {
+func (s *stdout) WriteSyncer() zapcore.WriteSyncer {
 	return zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout))
 }
 
-func (s stdout) AtomicLevel() zap.AtomicLevel {
-	return core.AtomicLevel(s.level)
+func (s *stdout) AtomicLevel() zap.AtomicLevel {
+	return internal.AtomicLevel(s.level)
 }
 
 func WithTimeLayout(timeLayout string) Option {

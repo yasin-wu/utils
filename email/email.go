@@ -9,8 +9,10 @@ import (
 	"regexp"
 	"strings"
 
-	email2 "github.com/jordan-wright/email"
+	"github.com/jordan-wright/email"
 )
+
+const emailRegexpStr = `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`
 
 /**
  * @author: yasinWu
@@ -19,6 +21,14 @@ import (
  */
 type Email struct {
 	config *Config
+}
+
+type Config struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	From     string
 }
 
 /**
@@ -78,12 +88,12 @@ func (e *Email) SendTLS(to []string, subject, content string) error {
 }
 
 func (e *Email) sendMail(to []string, subject, content string) error {
-	email := email2.NewEmail()
-	email.From = e.config.From
-	email.To = to
-	email.Subject = subject
-	email.Text = []byte(content)
-	err := email.Send(e.addr(), e.plainAuth())
+	el := email.NewEmail()
+	el.From = e.config.From
+	el.To = to
+	el.Subject = subject
+	el.Text = []byte(content)
+	err := el.Send(e.addr(), e.plainAuth())
 	if err != nil {
 		return err
 	}

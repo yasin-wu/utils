@@ -1,4 +1,4 @@
-package test
+package excel
 
 import (
 	"encoding/json"
@@ -8,8 +8,6 @@ import (
 	"time"
 
 	"github.com/xuri/excelize/v2"
-
-	"github.com/yasin-wu/utils/excel"
 )
 
 func TestFunctions(t *testing.T) {
@@ -18,9 +16,9 @@ func TestFunctions(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	execl := excel.New("./log/book.xlsx")
+	execl := New("./log/book.xlsx")
 	defer execl.Close()
-	headers := []excel.Header{
+	headers := []Header{
 		{"name", "书名"},
 		{"author", "作者"},
 		{"time", "时间"},
@@ -46,7 +44,7 @@ func TestWrite(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	execl := excel.New("./log/book.xlsx")
+	execl := New("./log/book.xlsx")
 	defer execl.Close()
 	buffer, err := execl.Read("Sheet1")
 	if err != nil {

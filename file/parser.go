@@ -1,15 +1,14 @@
-package fileparser
+package file
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/yasin-wu/utils/file/internal"
 	"net/http"
 	"os"
 	"path"
 	"strings"
-
-	"github.com/yasin-wu/utils/file_parser/tika"
 
 	strings2 "github.com/yasin-wu/utils/strings"
 )
@@ -40,7 +39,7 @@ type Parser struct {
  * @return: *Parser
  * @description: 新建Parser Client
  */
-func New(tika string, options ...Option) *Parser {
+func NewParser(tika string, options ...Option) *Parser {
 	if tika == "" {
 		tika = defaultTika
 	}
@@ -87,7 +86,7 @@ func WithClient(client *http.Client) Option {
  * @return: *FileInfo, error
  * @description: 解析文件
  */
-func (p *Parser) Parse(filePath string, isFormat bool) (*FileInfo, error) {
+func (p *Parser) Parse(filePath string, isFormat bool) (*File, error) {
 	if filePath == "" {
 		return nil, errors.New("filePath is nil")
 	}
@@ -95,13 +94,13 @@ func (p *Parser) Parse(filePath string, isFormat bool) (*FileInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func(file *os.File) { _ = file.Close() }(file)
 	fileInfo := p.parseFileInfo(file)
-	ok := p.checkFileType(fileInfo.FileType)
+	ok := p.checkFileType(fileInfo.fileType)
 	if !ok {
 		return nil, errors.New("unsupported file type")
 	}
-	client := tika.NewClient(p.client, p.tika)
+	client := internal.NewClient(p.client, p.tika)
 	body, err := client.Parse(p.ctx, file, p.header)
 	if err != nil {
 		return nil, fmt.Errorf("client parse err:%w", err)
@@ -109,11 +108,11 @@ func (p *Parser) Parse(filePath string, isFormat bool) (*FileInfo, error) {
 	if isFormat {
 		body = p.handleBody(body)
 	}
-	fileInfo.Content = body
+	fileInfo.content = body
 	return fileInfo, nil
 }
 
-func (p *Parser) parseFileInfo(file *os.File) *FileInfo {
+func (p *Parser) parseFileInfo(file *os.File) *File {
 	fileName := file.Name()
 	f, err := os.Stat(fileName)
 	var size int64
@@ -121,13 +120,13 @@ func (p *Parser) parseFileInfo(file *os.File) *FileInfo {
 		size = f.Size()
 	}
 	fileType := strings.ReplaceAll(path.Ext(path.Base(fileName)), ".", "")
-	fileInfo := &FileInfo{
-		Name:     path.Base(fileName),
-		Path:     fileName,
-		FileType: fileType,
-		Size:     size,
+	info := &File{
+		name:     path.Base(fileName),
+		path:     fileName,
+		fileType: fileType,
+		size:     size,
 	}
-	return fileInfo
+	return info
 }
 
 func (p *Parser) checkFileType(fileType string) bool {
