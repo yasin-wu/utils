@@ -16,7 +16,7 @@ func TestFunctions(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	execl := New("./log/book.xlsx")
+	execl := New("./book.xlsx")
 	defer execl.Close()
 	headers := []Header{
 		{"name", "书名"},
@@ -44,7 +44,7 @@ func TestWrite(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	execl := New("./log/book.xlsx")
+	execl := New("./book.xlsx")
 	defer execl.Close()
 	buffer, err := execl.Read("Sheet1")
 	if err != nil {
