@@ -1,6 +1,7 @@
 package excel
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,6 +21,7 @@ type Excel struct {
 	fileName  string
 	sheetName string
 	colWidth  float64
+	startRow  int
 	xlsx      *excelize.File
 }
 
@@ -52,6 +54,12 @@ func (e *Excel) Write(sheetName string, headers []Header, data []byte) error {
 	return e.xlsx.SaveAs(e.fileName)
 }
 
+func (e *Excel) WriteToBuffer() (*bytes.Buffer, error) {
+	buf := new(bytes.Buffer)
+	_, err := e.xlsx.WriteTo(buf)
+	return buf, err
+}
+
 func (e *Excel) Read(sheetName string) ([]byte, error) {
 	e.mx.Lock()
 	defer e.mx.Unlock()
@@ -80,6 +88,10 @@ func (e *Excel) Read(sheetName string) ([]byte, error) {
 	return json.Marshal(data)
 }
 
+func (e *Excel) DeleteSheet(name string) {
+	e.xlsx.DeleteSheet(name)
+}
+
 func (e *Excel) Close() {
 	_ = e.xlsx.Close()
 }
@@ -90,13 +102,17 @@ func (e *Excel) SetColWidth(width float64) {
 	}
 }
 
+func (e *Excel) SetStartRow(startRow int) {
+	e.startRow = startRow
+}
+
 func (e *Excel) writeHeader(headers []Header) error {
 	for k, v := range headers {
 		col, err := excelize.ColumnNumberToName(k + 1)
 		if err != nil {
 			return err
 		}
-		if err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s1", col), v.Value); err != nil {
+		if err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s%d", col, 1+e.startRow), v.Value); err != nil {
 			return err
 		}
 	}
@@ -114,7 +130,7 @@ func (e *Excel) write(headers []Header, data []byte) error {
 			if err != nil {
 				return err
 			}
-			if err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s%d", col, k+2), v[header.Key]); err != nil {
+			if err = e.xlsx.SetCellValue(e.sheetName, fmt.Sprintf("%s%d", col, k+2+e.startRow), v[header.Key]); err != nil {
 				return err
 			}
 		}
