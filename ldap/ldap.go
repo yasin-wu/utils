@@ -1,100 +1,107 @@
 package ldap
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/go-ldap/ldap/v3"
 	"strings"
 )
 
-type Ldap struct {
+type LDAP struct {
 	addr     string
+	network  string
 	username string
 	password string
-	basedn   string
+	baseDN   string
+	dc       string
+	pageSize uint32
 }
 
 const (
-	PersonFilter    = "(|(objectClass=organizationalPerson))"
-	UnitFilter      = "(|(objectClass=organizationalUnit))"
-	PersonClass     = "organizationalPerson"
-	UnitClass       = "organizationalUnit"
-	administratorCN = "CN=Administrator,CN=Users,"
+	UnitClass   = "organizationalUnit"
+	PersonClass = "organizationalPerson"
 )
 
-func New(addr string, username string, password string, basedn string) *Ldap {
+func New(addr, username, password, baseDN string) *LDAP {
+	baseDN = toUpper(baseDN)
+	dc := dc(baseDN)
 	if strings.ToLower(username) == "administrator" {
-		username = administratorCN + basedn
+		username = "CN=Administrator,CN=Users," + dc
 	}
-	return &Ldap{
-		addr:     "ldap://" + addr,
+	return &LDAP{
+		addr:     addr,
+		network:  "tcp",
 		username: username,
 		password: password,
-		basedn:   basedn,
+		baseDN:   baseDN,
+		dc:       dc,
+		pageSize: 5000,
 	}
 }
 
-func (l *Ldap) Search(filter string, pageSize int) ([]*ldap.Entry, error) {
+func (l *LDAP) SearchGroup() ([]*GroupResult, error) {
+	entries, err := l.search(UnitClass)
+	if err != nil {
+		return nil, err
+	}
+	var result []*GroupResult
+	for _, v := range entries {
+		if !strings.HasPrefix(v.DN, "OU=") {
+			continue
+		}
+		name, parentDN := l.handleOU(v.DN)
+		if l.isRoot(v.DN) {
+			parentDN = ""
+			name = l.rootName(v.DN)
+		}
+		result = append(result, &GroupResult{
+			Name:     name,
+			DN:       v.DN,
+			ParentDN: parentDN,
+		})
+	}
+	return result, nil
+}
+
+func (l *LDAP) SearchPerson() ([]*PersonResult, error) {
+	entries, err := l.search(PersonClass)
+	if err != nil {
+		return nil, err
+	}
+	var result []*PersonResult
+	for _, v := range entries {
+		if !strings.HasPrefix(v.DN, "CN=") {
+			continue
+		}
+		name, ou, ouLink := l.handleCN(v.DN)
+		result = append(result, &PersonResult{
+			Name:   name,
+			DN:     v.DN,
+			OU:     ou,
+			OULink: ouLink,
+		})
+	}
+	return result, nil
+}
+
+func (l *LDAP) search(objectClass string) ([]*ldap.Entry, error) {
 	conn, err := l.conn()
 	if err != nil {
 		return nil, err
 	}
 	defer l.close(conn)
-	req := ldap.NewSearchRequest(l.basedn,
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases,
-		0, 0, false,
-		filter, []string{"dn", "cn"}, nil,
-	)
-	if pageSize == 0 {
-		pageSize = 1000
-	}
-	req.Controls = []ldap.Control{
-		ldap.NewControlPaging(uint32(pageSize)),
-	}
-	var entries []*ldap.Entry
-	for {
-		resp, err := conn.Search(req)
-		if err != nil {
-			fmt.Println(err)
-			break
-		}
-		entries = append(entries, resp.Entries...)
-		if len(resp.Controls) > 0 {
-			if c, ok := resp.Controls[0].(*ldap.ControlPaging); ok {
-				if len(c.Cookie) == 0 {
-					break
-				}
-				req.Controls[0].(*ldap.ControlPaging).Cookie = c.Cookie
-			}
-		}
-	}
-	return entries, nil
-}
-
-func (l *Ldap) Add(objectClass string, name ...string) error {
-	conn, err := l.conn()
+	attributes := []string{"DN", "CN"}
+	filter := fmt.Sprintf("(&(objectClass=%s))", objectClass)
+	req := ldap.NewSearchRequest(l.baseDN, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases,
+		0, 0, false, filter, attributes, nil)
+	resp, err := conn.SearchWithPaging(req, l.pageSize)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer l.close(conn)
-	for _, v := range name {
-		var buf bytes.Buffer
-		buf.WriteString("CN=")
-		buf.WriteString(v)
-		buf.WriteString(",CN=Users,")
-		buf.WriteString(l.basedn)
-		dn := ldap.NewAddRequest(buf.String(), nil)
-		dn.Attribute("objectClass", []string{objectClass})
-		err := conn.Add(dn)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return resp.Entries, nil
 }
 
-func (l *Ldap) conn() (*ldap.Conn, error) {
-	conn, err := ldap.DialURL(l.addr)
+func (l *LDAP) conn() (*ldap.Conn, error) {
+	conn, err := ldap.Dial(l.network, l.addr)
 	if err != nil {
 		return nil, err
 	}
@@ -105,6 +112,74 @@ func (l *Ldap) conn() (*ldap.Conn, error) {
 	return conn, nil
 }
 
-func (l *Ldap) close(conn *ldap.Conn) {
+func (l *LDAP) close(conn *ldap.Conn) {
 	_ = conn.Close()
+}
+
+func (l *LDAP) isRoot(dn string) bool {
+	dns := strings.Split(strings.ReplaceAll(dn, ","+l.dc, ""), ",")
+	return len(dns) == 1
+}
+
+func (l *LDAP) rootName(dn string) string {
+	var tmp []string
+	for _, v := range strings.Split(dn, ",") {
+		if arr := strings.Split(v, "="); len(arr) == 2 {
+			tmp = append(tmp, arr[1])
+		}
+	}
+	return strings.Join(tmp, ",")
+}
+
+func (l *LDAP) handleOU(dn string) (string, string) {
+	ou := ""
+	var parentOU []string
+	for i, v := range strings.Split(dn, ",") {
+		if i == 0 {
+			if ous := strings.Split(v, "="); len(ous) == 2 {
+				ou = ous[1]
+			}
+		} else {
+			parentOU = append(parentOU, v)
+		}
+
+	}
+	return ou, strings.Join(parentOU, ",")
+}
+
+func (l *LDAP) handleCN(dn string) (string, string, string) {
+	cn := ""
+	ou := ""
+	var ouLinks []string
+	for i, v := range strings.Split(dn, ",") {
+		if i == 0 {
+			if cns := strings.Split(v, "="); len(cns) == 2 {
+				cn = cns[1]
+			}
+		} else if i == 1 {
+			if ous := strings.Split(v, "="); len(ous) == 2 {
+				ou = ous[1]
+			}
+			ouLinks = append(ouLinks, v)
+		} else {
+			ouLinks = append(ouLinks, v)
+		}
+	}
+	return cn, ou, strings.Join(ouLinks, ",")
+}
+
+func toUpper(baseDN string) string {
+	baseDN = strings.ReplaceAll(baseDN, "ou=", "OU=")
+	baseDN = strings.ReplaceAll(baseDN, "dc=", "DC=")
+	return baseDN
+}
+
+func dc(baseDN string) string {
+	var dcs []string
+	for _, v := range strings.Split(baseDN, ",") {
+		if strings.Contains(v, "DC") {
+			dcs = append(dcs, v)
+		}
+	}
+	return strings.Join(dcs, ",")
 }
