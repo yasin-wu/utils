@@ -2,8 +2,9 @@ package ldap
 
 import (
 	"fmt"
-	"github.com/go-ldap/ldap/v3"
 	"strings"
+
+	"github.com/go-ldap/ldap/v3"
 )
 
 type LDAP struct {
@@ -12,7 +13,6 @@ type LDAP struct {
 	username string
 	password string
 	baseDN   string
-	dc       string
 	pageSize uint32
 }
 
@@ -23,9 +23,8 @@ const (
 
 func New(addr, username, password, baseDN string) *LDAP {
 	baseDN = toUpper(baseDN)
-	dc := dc(baseDN)
 	if strings.ToLower(username) == "administrator" {
-		username = "CN=Administrator,CN=Users," + dc
+		username = "CN=Administrator,CN=Users," + dc(baseDN)
 	}
 	return &LDAP{
 		addr:     addr,
@@ -33,7 +32,6 @@ func New(addr, username, password, baseDN string) *LDAP {
 		username: username,
 		password: password,
 		baseDN:   baseDN,
-		dc:       dc,
 		pageSize: 5000,
 	}
 }
@@ -44,15 +42,17 @@ func (l *LDAP) SearchGroup() ([]*GroupResult, error) {
 		return nil, err
 	}
 	var result []*GroupResult
+	//basedn is root
+	result = append(result, &GroupResult{
+		Name:     l.baseDNName(),
+		DN:       l.baseDN,
+		ParentDN: "",
+	})
 	for _, v := range entries {
-		if !strings.HasPrefix(v.DN, "OU=") {
+		if !strings.HasPrefix(v.DN, "OU=") || v.DN == l.baseDN {
 			continue
 		}
 		name, parentDN := l.handleOU(v.DN)
-		if l.isRoot(v.DN) {
-			parentDN = ""
-			name = l.rootName(v.DN)
-		}
 		result = append(result, &GroupResult{
 			Name:     name,
 			DN:       v.DN,
@@ -116,21 +116,6 @@ func (l *LDAP) close(conn *ldap.Conn) {
 	_ = conn.Close()
 }
 
-func (l *LDAP) isRoot(dn string) bool {
-	dns := strings.Split(strings.ReplaceAll(dn, ","+l.dc, ""), ",")
-	return len(dns) == 1
-}
-
-func (l *LDAP) rootName(dn string) string {
-	var tmp []string
-	for _, v := range strings.Split(dn, ",") {
-		if arr := strings.Split(v, "="); len(arr) == 2 {
-			tmp = append(tmp, arr[1])
-		}
-	}
-	return strings.Join(tmp, ",")
-}
-
 func (l *LDAP) handleOU(dn string) (string, string) {
 	ou := ""
 	var parentOU []string
@@ -166,6 +151,16 @@ func (l *LDAP) handleCN(dn string) (string, string, string) {
 		}
 	}
 	return cn, ou, strings.Join(ouLinks, ",")
+}
+
+func (l *LDAP) baseDNName() string {
+	var tmp []string
+	for _, v := range strings.Split(l.baseDN, ",") {
+		if s := strings.Split(v, "="); len(s) == 2 {
+			tmp = append(tmp, s[1])
+		}
+	}
+	return strings.Join(tmp, ",")
 }
 
 func toUpper(baseDN string) string {

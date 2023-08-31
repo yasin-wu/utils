@@ -3,8 +3,9 @@ package ldap
 import (
 	"encoding/json"
 	"fmt"
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestLdap(t *testing.T) {
@@ -14,6 +15,7 @@ func TestLdap(t *testing.T) {
 		So(err, ShouldBeNil)
 		fmtPrint(result[0])
 		fmtPrint(result[1])
+		fmtPrint(result[2])
 		presult, err := l.SearchPerson()
 		So(err, ShouldBeNil)
 		fmtPrint(presult[0])
