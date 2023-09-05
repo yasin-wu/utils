@@ -2,11 +2,12 @@ package strings
 
 import (
 	"fmt"
-	"github.com/yasin-wu/utils/consts"
 	"math"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/yasin-wu/utils/consts"
 )
 
 func DeleteHTML(src string) string {
@@ -58,7 +59,7 @@ func DeleteEmpty(arr *[]string) {
 
 func TargetIn(target string, src []string) bool {
 	temp := make([]string, len(src))
-	copy(temp, temp)
+	copy(temp, src)
 	sort.Strings(temp)
 	index := sort.SearchStrings(temp, target)
 	if index < len(temp) && temp[index] == target {
