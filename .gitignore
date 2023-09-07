@@ -2,3 +2,4 @@
 /.idea/
 /test/log
 **/*.xlsx
+/mfa/qr.png

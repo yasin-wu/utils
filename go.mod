@@ -7,9 +7,11 @@ require (
 	github.com/elastic/go-elasticsearch/v7 v7.17.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-ldap/ldap/v3 v3.4.5
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hyperjumptech/grule-rule-engine v1.14.1
 	github.com/jordan-wright/email v4.0.1-0.20200917010138-e1c00e156980+incompatible
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a
 	github.com/spf13/viper v1.16.0
 	github.com/xuri/excelize/v2 v2.5.0
@@ -26,6 +28,8 @@ require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v1.4.10 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.4 // indirect
