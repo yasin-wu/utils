@@ -2,7 +2,6 @@ package frp
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"regexp"
@@ -71,25 +70,23 @@ func (l *Listener) CloseProxy(handlers ...CloseProxyHandle) {
 	}
 }
 
-func (l *Listener) GetID() CloseProxyHandle {
-	return func(line []byte) {
-		resp := closeProxyIDSignal.FindAllStringSubmatch(strings.TrimSpace(string(line)), 1)
-		if len(resp) > 0 && len(resp[0]) > 0 {
-			id := strings.ReplaceAll(resp[0][0], "] listener is closed: accept tcp", "")
-			id = strings.ReplaceAll(id, "[FRP", "")
-			fmt.Println(id)
-		}
+func (l *Listener) GetID(line []byte) string {
+	resp := closeProxyIDSignal.FindAllStringSubmatch(strings.TrimSpace(string(line)), 1)
+	if len(resp) > 0 && len(resp[0]) > 0 {
+		id := strings.ReplaceAll(resp[0][0], "] listener is closed: accept tcp", "")
+		id = strings.ReplaceAll(id, "[FRP", "")
+		return id
 	}
+	return ""
 }
 
-func (l *Listener) GetPort() CloseProxyHandle {
-	return func(line []byte) {
-		resp := closeProxyPortSignal.FindAllStringSubmatch(strings.TrimSpace(string(line)), 1)
-		if len(resp) > 0 && len(resp[0]) > 1 {
-			port := resp[0][1]
-			fmt.Println(port)
-		}
+func (l *Listener) GetPort(line []byte) string {
+	resp := closeProxyPortSignal.FindAllStringSubmatch(strings.TrimSpace(string(line)), 1)
+	if len(resp) > 0 && len(resp[0]) > 1 {
+		port := resp[0][1]
+		return port
 	}
+	return ""
 }
 
 func (l *Listener) newProxy(readChannel chan string) {
