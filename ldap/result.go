@@ -1,12 +1,12 @@
 package ldap
 
-type GroupResult struct {
+type Unit struct {
 	Name     string `json:"name"`
 	DN       string `json:"dn"`
 	ParentDN string `json:"parent_dn"`
 }
 
-type PersonResult struct {
+type Person struct {
 	Name   string `json:"name"`
 	DN     string `json:"dn"`
 	OU     string `json:"ou"`

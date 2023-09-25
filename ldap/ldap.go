@@ -36,14 +36,14 @@ func New(addr, username, password, baseDN string) *LDAP {
 	}
 }
 
-func (l *LDAP) SearchGroup() ([]*GroupResult, error) {
+func (l *LDAP) SearchUnit() ([]*Unit, error) {
 	entries, err := l.search(UnitClass)
 	if err != nil {
 		return nil, err
 	}
-	var result []*GroupResult
+	var result []*Unit
 	//basedn is root
-	result = append(result, &GroupResult{
+	result = append(result, &Unit{
 		Name:     l.baseDNName(),
 		DN:       l.baseDN,
 		ParentDN: "",
@@ -53,7 +53,7 @@ func (l *LDAP) SearchGroup() ([]*GroupResult, error) {
 			continue
 		}
 		name, parentDN := l.handleOU(v.DN)
-		result = append(result, &GroupResult{
+		result = append(result, &Unit{
 			Name:     name,
 			DN:       v.DN,
 			ParentDN: parentDN,
@@ -62,18 +62,18 @@ func (l *LDAP) SearchGroup() ([]*GroupResult, error) {
 	return result, nil
 }
 
-func (l *LDAP) SearchPerson() ([]*PersonResult, error) {
+func (l *LDAP) SearchPerson() ([]*Person, error) {
 	entries, err := l.search(PersonClass)
 	if err != nil {
 		return nil, err
 	}
-	var result []*PersonResult
+	var result []*Person
 	for _, v := range entries {
 		if !strings.HasPrefix(v.DN, "CN=") {
 			continue
 		}
 		name, ou, ouLink := l.handleCN(v.DN)
-		result = append(result, &PersonResult{
+		result = append(result, &Person{
 			Name:   name,
 			DN:     v.DN,
 			OU:     ou,

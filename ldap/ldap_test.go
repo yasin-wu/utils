@@ -11,7 +11,7 @@ import (
 func TestLdap(t *testing.T) {
 	Convey("ldap", t, func() {
 		l := New("127.0.0.1:389", "administrator", "yasin123", "dc=y,dc=w,dc=u,dc=com")
-		result, err := l.SearchGroup()
+		result, err := l.SearchUnit()
 		So(err, ShouldBeNil)
 		fmtPrint(result[0])
 		fmtPrint(result[1])
