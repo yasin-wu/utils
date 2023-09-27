@@ -44,3 +44,8 @@ func PrintlnFmt(data any) {
 	buffer, _ := json.MarshalIndent(data, "", "   ")
 	fmt.Println(string(buffer))
 }
+
+func NtToUnix(nt int64) time.Time {
+	nt = (nt - 1.1644473600125e+17) / 1e+7
+	return time.Unix(nt, 0)
+}
