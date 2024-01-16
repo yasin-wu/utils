@@ -20,7 +20,7 @@ require (
 	github.com/zeromicro/zero-contrib/logx/zapx v0.0.0-20230723160843-46458a31fae9
 	go.uber.org/zap v1.25.0
 	golang.org/x/net v0.17.0
-	google.golang.org/grpc v1.56.2
+	google.golang.org/grpc v1.56.3
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
 
