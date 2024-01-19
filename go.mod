@@ -11,6 +11,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hyperjumptech/grule-rule-engine v1.14.1
 	github.com/jordan-wright/email v4.0.1-0.20200917010138-e1c00e156980+incompatible
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a
 	github.com/spf13/viper v1.16.0
