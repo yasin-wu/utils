@@ -3,9 +3,9 @@ package certificate
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"google.golang.org/grpc/credentials"
 	"os"
-	"strings"
+
+	"google.golang.org/grpc/credentials"
 )
 
 type Certificate struct {
@@ -38,7 +38,7 @@ func (c *Certificate) Server(certFile, keyFile string) (credentials.TransportCre
 	}), nil
 }
 
-func (c *Certificate) Client(certFile, keyFile string, serverName ...string) (credentials.TransportCredentials, error) {
+func (c *Certificate) Client(serverName, certFile, keyFile string) (credentials.TransportCredentials, error) {
 	certPool := x509.NewCertPool()
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
@@ -49,13 +49,9 @@ func (c *Certificate) Client(certFile, keyFile string, serverName ...string) (cr
 		return nil, err
 	}
 
-	name := "localhost"
-	if len(serverName) > 0 {
-		name = strings.Join(serverName, ",")
-	}
 	return credentials.NewTLS(&tls.Config{
-		Certificates: []tls.Certificate{cert},
-		ServerName:   name,
+		ServerName:   serverName, //校验证书中的DNS,为空校验IP
 		ClientCAs:    certPool,
+		Certificates: []tls.Certificate{cert},
 	}), nil
 }
