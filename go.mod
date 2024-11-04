@@ -3,6 +3,7 @@ module github.com/yasin-wu/utils
 go 1.18
 
 require (
+	github.com/alexmullins/zip v0.0.0-20180717182244-4affb64b04d0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.656
 	github.com/elastic/go-elasticsearch/v7 v7.17.0
 	github.com/fsnotify/fsnotify v1.6.0
