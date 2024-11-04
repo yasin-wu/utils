@@ -11,6 +11,9 @@ import (
 )
 
 func Compresses(source, destination string, password ...string) error {
+	if err := os.MkdirAll(filepath.Dir(destination), os.ModePerm); err != nil {
+		return err
+	}
 	zipFile, err := os.Create(destination)
 	if err != nil {
 		return err

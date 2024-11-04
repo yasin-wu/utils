@@ -3,3 +3,4 @@
 /test/log
 **/*.xlsx
 /mfa/qr.png
+***/tmp
