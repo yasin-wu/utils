@@ -21,7 +21,6 @@ func Compresses(source, destination string, password ...string) error {
 	defer zipFile.Close()
 	zipWriter := zip.NewWriter(zipFile)
 	defer zipWriter.Close()
-	defer zipWriter.Flush()
 	return filepath.Walk(source, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
