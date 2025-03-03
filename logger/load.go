@@ -1,11 +1,12 @@
 package logger
 
 import (
+	"os"
+	"strings"
+
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"github.com/zeromicro/go-zero/core/logx"
-	"os"
-	"strings"
 )
 
 type Config struct {

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strings"
@@ -73,7 +72,7 @@ func (c *Client) call(ctx context.Context, input io.Reader, method, path string,
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("response code %v", resp.StatusCode)
 	}
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }
 
 func (c *Client) callString(ctx context.Context, input io.Reader, method, path string, header http.Header) (string, error) {

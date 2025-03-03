@@ -3,13 +3,14 @@ package elasticsearch
 import (
 	"bytes"
 	"errors"
+	"io"
+	"strings"
+	"time"
+
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/yasin-wu/utils/logger/internal"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"io"
-	"strings"
-	"time"
 )
 
 type es struct {

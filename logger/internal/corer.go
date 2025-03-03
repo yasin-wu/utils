@@ -1,10 +1,11 @@
 package internal
 
 import (
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"strconv"
 	"strings"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Corer interface {

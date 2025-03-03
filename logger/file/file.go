@@ -2,11 +2,12 @@ package file
 
 import (
 	"fmt"
+	"path"
+
 	"github.com/yasin-wu/utils/logger/internal"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"path"
 )
 
 type file struct {

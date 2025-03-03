@@ -1,6 +1,8 @@
 module github.com/yasin-wu/utils
 
-go 1.18
+go 1.21
+
+toolchain go1.21.12
 
 require (
 	github.com/alexmullins/zip v0.0.0-20180717182244-4affb64b04d0

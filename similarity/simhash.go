@@ -2,10 +2,11 @@ package similarity
 
 import (
 	"fmt"
-	strings2 "github.com/yasin-wu/utils/strings"
 	"hash/fnv"
 	"strconv"
 	"strings"
+
+	strings2 "github.com/yasin-wu/utils/strings"
 
 	"github.com/yanyiwu/gojieba"
 )

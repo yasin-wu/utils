@@ -3,7 +3,6 @@ package image
 import (
 	"bytes"
 	"encoding/base64"
-	"github.com/yasin-wu/utils/consts"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -11,6 +10,8 @@ import (
 	"path"
 	"strings"
 	"unsafe"
+
+	"github.com/yasin-wu/utils/consts"
 )
 
 const _png = "png"

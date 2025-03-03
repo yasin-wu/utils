@@ -2,6 +2,7 @@ package logger
 
 import (
 	"errors"
+
 	"github.com/yasin-wu/utils/logger/internal"
 	"go.uber.org/zap"
 )
