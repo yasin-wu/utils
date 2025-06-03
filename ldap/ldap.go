@@ -2,6 +2,7 @@ package ldap
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/go-ldap/ldap/v3"
@@ -17,8 +18,8 @@ type LDAP struct {
 }
 
 const (
-	UnitClass   = "organizationalUnit"
-	PersonClass = "organizationalPerson"
+	unitClass   = "organizationalUnit"
+	personClass = "organizationalPerson"
 )
 
 func New(addr, username, password, baseDN string) *LDAP {
@@ -37,7 +38,8 @@ func New(addr, username, password, baseDN string) *LDAP {
 }
 
 func (l *LDAP) SearchUnit() ([]*Unit, error) {
-	entries, err := l.search(UnitClass)
+	filter := fmt.Sprintf("(&(objectClass=%s))", unitClass)
+	entries, err := l.search(filter)
 	if err != nil {
 		return nil, err
 	}
@@ -59,11 +61,15 @@ func (l *LDAP) SearchUnit() ([]*Unit, error) {
 			ParentDN: parentDN,
 		})
 	}
+	sort.Slice(result, func(i, j int) bool {
+		return len(strings.Split(result[i].DN, ",")) < len(strings.Split(result[j].DN, ","))
+	})
 	return result, nil
 }
 
 func (l *LDAP) SearchPerson() ([]*Person, error) {
-	entries, err := l.search(PersonClass)
+	filter := fmt.Sprintf("(&(objectClass=%s))", personClass)
+	entries, err := l.search(filter)
 	if err != nil {
 		return nil, err
 	}
@@ -83,14 +89,13 @@ func (l *LDAP) SearchPerson() ([]*Person, error) {
 	return result, nil
 }
 
-func (l *LDAP) search(objectClass string) ([]*ldap.Entry, error) {
+func (l *LDAP) search(filter string) ([]*ldap.Entry, error) {
 	conn, err := l.conn()
 	if err != nil {
 		return nil, err
 	}
 	defer l.close(conn)
 	attributes := []string{"DN", "CN"}
-	filter := fmt.Sprintf("(&(objectClass=%s))", objectClass)
 	req := ldap.NewSearchRequest(l.baseDN, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases,
 		0, 0, false, filter, attributes, nil)
 	resp, err := conn.SearchWithPaging(req, l.pageSize)

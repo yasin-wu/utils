@@ -77,7 +77,7 @@ func (idx *Index) FindUint64(key uint64) int {
 	return sort.Search(idx.Len(), func(i int) bool { return idx.Keys[i] >= key })
 }
 
-// Compares string a to []byte b, returning -1 if a<b, 0 if a==b, and 1 if a>b.
+// CompareStringToBytes Compares string a to []byte b, returning -1 if a<b, 0 if a==b, and 1 if a>b.
 func CompareStringToBytes(a string, b []byte) int {
 	for i := range b {
 		if i > len(a) {
