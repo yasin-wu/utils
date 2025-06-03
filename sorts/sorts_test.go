@@ -2,21 +2,22 @@ package sorts
 
 import (
 	"fmt"
-	"github.com/yasin-wu/utils/strings"
 	"testing"
+
+	"github.com/yasin-wu/utils/strings"
 
 	"github.com/yasin-wu/utils/util"
 )
 
 type ByIndex []map[string]interface{}
 
-func (this ByIndex) Len() int      { return len(this) }
-func (this ByIndex) Swap(i, j int) { this[i], this[j] = this[j], this[i] }
-func (this ByIndex) Key(i int) int64 {
-	return this[i]["index"].(int64)
+func (b ByIndex) Len() int      { return len(b) }
+func (b ByIndex) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
+func (b ByIndex) Key(i int) int64 {
+	return b[i]["index"].(int64)
 }
-func (this ByIndex) Less(i, j int) bool {
-	return this[i]["index"].(int64) < this[j]["index"].(int64)
+func (b ByIndex) Less(i, j int) bool {
+	return b[i]["index"].(int64) < b[j]["index"].(int64)
 }
 
 func TestSort(t *testing.T) {
