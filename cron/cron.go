@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"sync"
 
 	"github.com/robfig/cron/v3"
 )
@@ -14,6 +15,7 @@ import (
 type Cron struct {
 	data map[string][]cron.EntryID
 	c    *cron.Cron
+	mu   sync.Mutex
 }
 
 func New() *Cron {
@@ -24,6 +26,7 @@ func New() *Cron {
 	return &Cron{
 		data: make(map[string][]cron.EntryID),
 		c:    c,
+		mu:   sync.Mutex{},
 	}
 }
 
@@ -65,6 +68,8 @@ func (c *Cron) AddMany(id string, crons []string, job cron.Job) ([]cron.EntryID,
 }
 
 func (c *Cron) Delete(id string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	for _, v := range c.data[id] {
 		c.c.Remove(v)
 	}
@@ -73,6 +78,8 @@ func (c *Cron) Delete(id string) error {
 }
 
 func (c *Cron) DeleteAll() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	for _, entry := range c.c.Entries() {
 		c.c.Remove(entry.ID)
 	}
@@ -80,14 +87,20 @@ func (c *Cron) DeleteAll() {
 }
 
 func (c *Cron) All() []cron.Entry {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	return c.c.Entries()
 }
 
 func (c *Cron) Data() map[string][]cron.EntryID {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	return c.data
 }
 
 func (c *Cron) updateData(id string, entryID ...cron.EntryID) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.data[id] = append(c.data[id], entryID...)
 }
 
