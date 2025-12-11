@@ -72,7 +72,7 @@ func (dq *DQueue) StartBackground(interval time.Duration) {
 		for {
 			select {
 			case <-dq.ctx.Done():
-				dq.logger.Infof("DQueue goroutine shutting down")
+				dq.logger.Infof("dqueue goroutine shutting down")
 				return
 			case <-ticker.C:
 				for k := range dq.executors {
@@ -90,7 +90,7 @@ func (dq *DQueue) Stop() {
 	defer dq.mu.Unlock()
 	dq.cancel()
 	dq.wg.Wait()
-	dq.logger.Infof("Delay queue stopped")
+	dq.logger.Infof("dqueue stopped")
 }
 
 func (dq *DQueue) Add(ctx context.Context, msg *Message) error {
@@ -143,6 +143,13 @@ func (dq *DQueue) executeBatch(id string) {
 		}
 		if err := executor.Execute(msg.Body); err != nil {
 			dq.logger.Errorf("job action execute failed, error:%v", err)
+			if msg.FaultTime <= 0 {
+				continue
+			}
+			msg.ExecuteAt += msg.FaultTime
+			if err := dq.Add(dq.ctx, &msg); err != nil {
+				dq.logger.Errorf("add message error: %v", err)
+			}
 			continue
 		}
 		if err := dq.Remove(dq.ctx, &msg); err != nil {

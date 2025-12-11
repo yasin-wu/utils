@@ -16,6 +16,7 @@ type Message struct {
 	ID        string         `json:"id"`         //任务ID, JobAction的ID
 	Topic     string         `json:"topic"`      //主题
 	Body      map[string]any `json:"body"`       //消息体, 存放任务执行参数
+	FaultTime int64          `json:"fault_time"` //故障重试时间,秒级, 0表示不重试
 	Timestamp int64          `json:"timestamp"`  //创建时间戳,秒级
 	ExecuteAt int64          `json:"execute_at"` //执行时间戳,秒级
 }
