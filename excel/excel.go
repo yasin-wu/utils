@@ -11,28 +11,31 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
+const defaultBatchSize = 10000
+
 type Header struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
+	Key   string `json:"key"`   //表头名称对应数据key,英文
+	Value string `json:"value"` //表头名称,中文
 }
 
 type Excel struct {
-	mx sync.Mutex
-
-	fileName string
-	colWidth float64
-	startRow int
-	password string
-	xlsx     *excelize.File
+	mx        sync.Mutex
+	fileName  string
+	colWidth  float64
+	startRow  int
+	password  string
+	batchSize int64
+	xlsx      *excelize.File
 }
 
 type Option func(e *Excel)
 
 func New(fileName string, opts ...Option) *Excel {
 	e := &Excel{
-		fileName: fileName,
-		colWidth: 20,
-		xlsx:     excelize.NewFile(),
+		fileName:  fileName,
+		colWidth:  20,
+		batchSize: defaultBatchSize,
+		xlsx:      excelize.NewFile(),
 	}
 	for _, f := range opts {
 		f(e)
@@ -43,6 +46,12 @@ func New(fileName string, opts ...Option) *Excel {
 func WithPassword(password string) Option {
 	return func(e *Excel) {
 		e.password = password
+	}
+}
+
+func WithBatchSize(batchSize int64) Option {
+	return func(e *Excel) {
+		e.batchSize = batchSize
 	}
 }
 
@@ -140,8 +149,102 @@ func (e *Excel) SetStartRow(startRow int) {
 }
 
 func (e *Excel) GetRow(sheetName string) (int, error) {
-	data, err := e.xlsx.GetRows(sheetName)
-	return len(data), err
+	rows, err := e.xlsx.Rows(sheetName)
+	if err != nil {
+		return 0, err
+	}
+	defer func(rows *excelize.Rows) {
+		_ = rows.Close()
+	}(rows)
+	var rowCount int
+	for rows.Next() {
+		rowCount++
+	}
+	if err := rows.Error(); err != nil {
+		return 0, err
+	}
+	return rowCount, err
+}
+
+func (e *Excel) NewStyle(style *excelize.Style) (int, error) {
+	id, err := e.xlsx.NewStyle(style)
+	return id, err
+}
+
+func (e *Excel) SetStyle(sheet string, hCell string, vCell string, styleID int) error {
+	return e.xlsx.SetCellStyle(sheet, hCell, vCell, styleID)
+}
+
+// StreamWrite 流式写入excel
+// nolint:funlen
+func (e *Excel) StreamWrite(sheetName string, skip, limit int64, searcher Searcher) error {
+	index, err := e.xlsx.NewSheet(sheetName)
+	if err != nil {
+		return err
+	}
+	e.xlsx.SetActiveSheet(index)
+	streamWriter, err := e.xlsx.NewStreamWriter(sheetName)
+	if err != nil {
+		return fmt.Errorf("create stream writer failed: %v", err)
+	}
+	var keys []string
+	var headers []any
+	for _, header := range searcher.Headers() {
+		keys = append(keys, header.Key)
+		headers = append(headers, header.Value)
+	}
+	if err = streamWriter.SetColWidth(1, len(headers), e.colWidth); err != nil {
+		return fmt.Errorf("set col width failed: %v", err)
+	}
+	cell, err := excelize.CoordinatesToCellName(1, 1)
+	if err != nil {
+		return fmt.Errorf("create coordinates failed: %v", err)
+	}
+	if err := streamWriter.SetRow(cell, headers); err != nil {
+		return fmt.Errorf("set row failed: %v", err)
+	}
+	remainder := limit % e.batchSize
+	batch := limit/e.batchSize + 1
+	rowID := 2
+	if remainder == 0 {
+		batch--
+	}
+	for i := 0; i < int(batch); i++ {
+		reqSkip := int64(i)*e.batchSize + skip
+		reqLimit := e.batchSize
+		if i == int(batch)-1 && remainder != 0 {
+			reqLimit = remainder
+		}
+		buf, err := searcher.Search(reqSkip, reqLimit)
+		if err != nil {
+			return fmt.Errorf("search data failed: %v", err)
+		}
+		if len(buf) == 0 {
+			break
+		}
+		var data []map[string]any
+		if err := json.Unmarshal(buf, &data); err != nil {
+			return fmt.Errorf("unmarshal data failed: %v", err)
+		}
+		for _, v := range data {
+			var row []any
+			for _, key := range keys {
+				row = append(row, v[key])
+			}
+			cell, err := excelize.CoordinatesToCellName(1, rowID)
+			if err != nil {
+				return fmt.Errorf("create coordinates failed: %v", err)
+			}
+			if err := streamWriter.SetRow(cell, row); err != nil {
+				return fmt.Errorf("set row failed: %v", err)
+			}
+			rowID++
+		}
+	}
+	if err := streamWriter.Flush(); err != nil {
+		return fmt.Errorf("flush excel failed: %v", err)
+	}
+	return e.xlsx.SaveAs(e.fileName)
 }
 
 func (e *Excel) writeHeader(sheetName string, headers []Header) error {
