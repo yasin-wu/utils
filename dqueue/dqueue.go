@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/yasin-wu/utils/util"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -18,7 +19,7 @@ type DQueue struct {
 	batchLimit int64
 	redisCli   *redis.Client
 	executors  map[string]JobAction
-	logger     Logger
+	logger     util.Logger
 	ctx        context.Context
 	cancel     context.CancelFunc
 	wg         sync.WaitGroup
@@ -36,7 +37,7 @@ func New(keyPrefix string, batchLimit int64, redisCli *redis.Client) (*DQueue, e
 		batchLimit: batchLimit,
 		redisCli:   redisCli,
 		executors:  make(map[string]JobAction),
-		logger:     DefaultLogger,
+		logger:     util.NewDefaultLogger(),
 		ctx:        ctx,
 		cancel:     cancel,
 		wg:         sync.WaitGroup{},
@@ -44,7 +45,7 @@ func New(keyPrefix string, batchLimit int64, redisCli *redis.Client) (*DQueue, e
 	}, nil
 }
 
-func (dq *DQueue) SetLogger(logger Logger) {
+func (dq *DQueue) SetLogger(logger util.Logger) {
 	if logger != nil {
 		dq.logger = logger
 	}

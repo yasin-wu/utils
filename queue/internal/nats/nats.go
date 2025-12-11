@@ -6,7 +6,7 @@ import (
 
 	"github.com/yasin-wu/utils/queue/pkg/config"
 	"github.com/yasin-wu/utils/queue/pkg/factory"
-	"github.com/yasin-wu/utils/queue/pkg/logger"
+	"github.com/yasin-wu/utils/util"
 
 	natsmodel "github.com/nats-io/nats.go"
 )
@@ -16,7 +16,7 @@ type nats struct {
 	stream        string
 	streamEnabled bool
 	forever       chan bool
-	logger        logger.Logger
+	logger        util.Logger
 	conn          *natsmodel.Conn
 	jetStream     natsmodel.JetStreamContext
 }
@@ -41,7 +41,7 @@ func New(brokers []string, username, password string, conf *config.NatsConfig) (
 		stream:        defaultStream,
 		streamEnabled: conf.StreamEnabled,
 		forever:       make(chan bool),
-		logger:        logger.NewDefaultLogger(),
+		logger:        util.NewDefaultLogger(),
 	}
 	if conf.Stream != "" {
 		nats.stream = conf.Stream

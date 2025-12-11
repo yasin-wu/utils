@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
+	"github.com/yasin-wu/utils/util"
 )
 
 // DistributedCron 分布式定时任务管理器
@@ -19,7 +20,7 @@ type DistributedCron struct {
 	mutex        sync.RWMutex
 	config       *Config
 	runningTasks sync.Map
-	logger       Logger
+	logger       util.Logger
 }
 
 // Config 配置
@@ -31,7 +32,7 @@ type Config struct {
 }
 
 // NewDistributedCron 创建分布式定时任务管理器
-func NewDistributedCron(config *Config, locker DistributedLocker, logger Logger) *DistributedCron {
+func NewDistributedCron(config *Config, locker DistributedLocker, logger util.Logger) *DistributedCron {
 	if config == nil {
 		config = &Config{
 			InstanceID:          fmt.Sprintf("instance-%d", time.Now().UnixNano()),
@@ -41,7 +42,7 @@ func NewDistributedCron(config *Config, locker DistributedLocker, logger Logger)
 		}
 	}
 	if logger == nil {
-		logger = NewDefaultLogger()
+		logger = util.NewDefaultLogger()
 	}
 	secondParser := cron.NewParser(cron.Second | cron.Minute |
 		cron.Hour | cron.Dom | cron.Month | cron.DowOptional | cron.Descriptor)

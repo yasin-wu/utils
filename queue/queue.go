@@ -9,7 +9,7 @@ import (
 	"github.com/yasin-wu/utils/queue/internal/rabbitmq"
 	"github.com/yasin-wu/utils/queue/pkg/config"
 	"github.com/yasin-wu/utils/queue/pkg/factory"
-	"github.com/yasin-wu/utils/queue/pkg/logger"
+	"github.com/yasin-wu/utils/util"
 )
 
 type Config struct {
@@ -17,7 +17,7 @@ type Config struct {
 	Driver         string
 	Username       string
 	Password       string
-	Logger         logger.Logger
+	Logger         util.Logger
 	KafkaConfig    *config.KafkaConfig
 	RabbitMQConfig *config.MQConfig
 	NatsConfig     *config.NatsConfig

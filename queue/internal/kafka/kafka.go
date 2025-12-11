@@ -2,11 +2,12 @@ package kafka
 
 import (
 	"context"
+	"os"
 
 	"github.com/Shopify/sarama"
 	"github.com/yasin-wu/utils/queue/pkg/config"
 	"github.com/yasin-wu/utils/queue/pkg/factory"
-	"github.com/yasin-wu/utils/queue/pkg/logger"
+	"github.com/yasin-wu/utils/util"
 )
 
 type kafka struct {
@@ -14,7 +15,7 @@ type kafka struct {
 	strategy          string
 	forever           chan bool
 	ctx               context.Context
-	logger            logger.Logger
+	logger            util.Logger
 	config            *sarama.Config
 	consumer          sarama.Consumer
 	partitionConsumer sarama.PartitionConsumer
@@ -33,18 +34,30 @@ func New(brokers []string, _, _ string, config *config.KafkaConfig) (factory.Que
 		brokers: brokers,
 		forever: make(chan bool),
 		config:  (*sarama.Config)(config)}
-	kafka.logger = logger.NewDefaultLogger()
+	kafka.logger = util.NewDefaultLogger()
+	if os.Getenv("KAFKA_DEBUG") == "true" {
+		sarama.Logger = &kafkaLogger{Logger: kafka.logger}
+	}
 	kafka.config.Consumer.Return.Errors = true
 	kafka.config.Producer.Return.Successes = true
-	switch kafka.strategy {
-	case "sticky":
-		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategySticky
-	case "roundrobin":
-		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
-	case "range":
-		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange
-	default:
-		kafka.config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRange
+	if len(kafka.config.Consumer.Group.Rebalance.GroupStrategies) == 0 {
+		kafka.config.Consumer.Group.Rebalance.GroupStrategies = []sarama.BalanceStrategy{sarama.BalanceStrategyRange}
 	}
 	return kafka, nil
+}
+
+type kafkaLogger struct {
+	util.Logger
+}
+
+var _ sarama.StdLogger = (*kafkaLogger)(nil)
+
+func (l *kafkaLogger) Print(v ...interface{}) {
+	l.Logger.Infof("kafka log:%v", v...)
+}
+func (l *kafkaLogger) Printf(format string, v ...interface{}) {
+	l.Logger.Infof(format, v...)
+}
+func (l *kafkaLogger) Println(v ...interface{}) {
+	l.Logger.Infof("kafka log:%v", v...)
 }

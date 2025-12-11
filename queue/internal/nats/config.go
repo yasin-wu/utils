@@ -4,14 +4,14 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/yasin-wu/utils/queue/pkg/logger"
+	"github.com/yasin-wu/utils/util"
 
 	natsmodel "github.com/nats-io/nats.go"
 )
 
 var defaultStream = "queue"
 
-func (n *nats) SetLogger(logger logger.Logger) {
+func (n *nats) SetLogger(logger util.Logger) {
 	if logger != nil {
 		n.logger = logger
 	}

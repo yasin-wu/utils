@@ -2,7 +2,7 @@ package rabbitmq
 
 import (
 	"github.com/yasin-wu/utils/queue/pkg/config"
-	"github.com/yasin-wu/utils/queue/pkg/logger"
+	"github.com/yasin-wu/utils/util"
 )
 
 var (
@@ -18,7 +18,7 @@ var (
 	}
 )
 
-func (r *rabbitMQ) SetLogger(logger logger.Logger) {
+func (r *rabbitMQ) SetLogger(logger util.Logger) {
 	if logger != nil {
 		r.logger = logger
 	}

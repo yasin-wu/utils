@@ -3,7 +3,7 @@ package kafka
 import (
 	"github.com/Shopify/sarama"
 	"github.com/yasin-wu/utils/queue/pkg/config"
-	"github.com/yasin-wu/utils/queue/pkg/logger"
+	"github.com/yasin-wu/utils/util"
 )
 
 var defaultBrokers = []string{"localhost:9092"}
@@ -16,7 +16,7 @@ func NewConfig() *config.KafkaConfig {
 	return conf
 }
 
-func (k *kafka) SetLogger(logger logger.Logger) {
+func (k *kafka) SetLogger(logger util.Logger) {
 	if logger != nil {
 		k.logger = logger
 	}

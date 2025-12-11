@@ -6,13 +6,13 @@ import (
 	"github.com/streadway/amqp"
 	"github.com/yasin-wu/utils/queue/pkg/config"
 	"github.com/yasin-wu/utils/queue/pkg/factory"
-	"github.com/yasin-wu/utils/queue/pkg/logger"
+	"github.com/yasin-wu/utils/util"
 )
 
 type rabbitMQ struct {
 	conn        *amqp.Connection
 	channel     *amqp.Channel
-	logger      logger.Logger
+	logger      util.Logger
 	contentType string
 	exchange    string
 	direct      string
@@ -44,7 +44,7 @@ func New(brokers []string, username, password string, config *config.MQConfig) (
 		forever:     make(chan bool),
 		mandatory:   config.Mandatory,
 		immediate:   config.Immediate,
-		logger:      logger.NewDefaultLogger(),
+		logger:      util.NewDefaultLogger(),
 	}
 	conn, err := amqp.Dial(uri)
 	if err != nil {
