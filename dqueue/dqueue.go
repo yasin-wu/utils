@@ -53,11 +53,11 @@ func (dq *DQueue) SetLogger(logger Logger) {
 func (dq *DQueue) Register(action JobAction) error {
 	dq.mu.Lock()
 	defer dq.mu.Unlock()
-	id := action.ID()
-	if _, ok := dq.executors[id]; ok {
-		return ErrJobIDDuplicate
+	topic := action.Topic()
+	if _, ok := dq.executors[topic]; ok {
+		return ErrJobTopicDuplicate
 	}
-	dq.executors[id] = action
+	dq.executors[topic] = action
 	return nil
 }
 
@@ -76,8 +76,8 @@ func (dq *DQueue) StartBackground(interval time.Duration) {
 				return
 			case <-ticker.C:
 				for k := range dq.executors {
-					go func(id string) {
-						dq.executeBatch(id)
+					go func(topic string) {
+						dq.executeBatch(topic)
 					}(k)
 				}
 			}
@@ -99,7 +99,8 @@ func (dq *DQueue) Add(ctx context.Context, msg *Message) error {
 	if err := msg.Check(); err != nil {
 		return err
 	}
-	key := dq.formatKey(msg.ID)
+	zsetKey := dq.formatZsetKey(msg.Topic)
+	hashKey := dq.formatHashKey(msg.Topic)
 	member, err := json.Marshal(msg)
 	if err != nil {
 		return err
@@ -107,10 +108,19 @@ func (dq *DQueue) Add(ctx context.Context, msg *Message) error {
 	if len(member) == 0 {
 		return errors.New("job is empty")
 	}
-	var z redis.Z
-	z.Member = member
-	z.Score = float64(msg.ExecuteAt)
-	return dq.redisCli.ZAdd(ctx, key, &z).Err()
+	pipe := dq.redisCli.TxPipeline()
+	oldMember, err := dq.redisCli.HGet(ctx, hashKey, msg.ID).Result()
+	if err == nil && oldMember != "" {
+		pipe.ZRem(ctx, zsetKey, oldMember)
+	}
+	z := &redis.Z{
+		Score:  float64(msg.ExecuteAt),
+		Member: member,
+	}
+	pipe.ZAdd(ctx, zsetKey, z)
+	pipe.HSet(ctx, hashKey, msg.ID, string(member))
+	_, err = pipe.Exec(ctx)
+	return err
 }
 
 func (dq *DQueue) Remove(ctx context.Context, msg *Message) error {
@@ -119,7 +129,9 @@ func (dq *DQueue) Remove(ctx context.Context, msg *Message) error {
 	if msg.ID == "" {
 		return errors.New("message id is empty")
 	}
-	key := dq.formatKey(msg.ID)
+	if msg.Topic == "" {
+		return errors.New("message topic is empty")
+	}
 	member, err := json.Marshal(msg)
 	if err != nil {
 		return err
@@ -127,21 +139,31 @@ func (dq *DQueue) Remove(ctx context.Context, msg *Message) error {
 	if len(member) == 0 {
 		return errors.New("job is empty")
 	}
-	return dq.redisCli.ZRem(ctx, key, member).Err()
+	zsetKey := dq.formatZsetKey(msg.Topic)
+	hashKey := dq.formatHashKey(msg.Topic)
+	pipe := dq.redisCli.TxPipeline()
+	oldMember, err := dq.redisCli.HGet(ctx, hashKey, msg.ID).Result()
+	if err == nil && oldMember != "" {
+		pipe.ZRem(ctx, zsetKey, oldMember)
+	}
+	pipe.HDel(ctx, hashKey, msg.ID)
+	pipe.ZRem(ctx, zsetKey, member)
+	_, err = pipe.Exec(ctx)
+	return err
 }
 
-func (dq *DQueue) executeBatch(id string) {
-	messages, err := dq.getReadyMessages(dq.ctx, id)
+func (dq *DQueue) executeBatch(topic string) {
+	messages, err := dq.getReadyMessages(dq.ctx, topic)
 	if err != nil {
 		dq.logger.Errorf("get ready messages error: %v", err)
 		return
 	}
 	for _, msg := range messages {
-		executor, ok := dq.executors[msg.ID]
+		executor, ok := dq.executors[msg.Topic]
 		if !ok {
 			continue
 		}
-		if err := executor.Execute(msg.Body); err != nil {
+		if err := executor.Execute(msg); err != nil {
 			dq.logger.Errorf("job action execute failed, error:%v", err)
 			if msg.FaultTime <= 0 {
 				continue
@@ -159,7 +181,7 @@ func (dq *DQueue) executeBatch(id string) {
 	}
 }
 
-func (dq *DQueue) getReadyMessages(ctx context.Context, id string) ([]Message, error) {
+func (dq *DQueue) getReadyMessages(ctx context.Context, topic string) ([]Message, error) {
 	now := time.Now().Unix()
 	opt := &redis.ZRangeBy{
 		Min:    "0",
@@ -167,7 +189,7 @@ func (dq *DQueue) getReadyMessages(ctx context.Context, id string) ([]Message, e
 		Offset: 0,
 		Count:  dq.batchLimit,
 	}
-	key := dq.formatKey(id)
+	key := dq.formatZsetKey(topic)
 	members, err := dq.redisCli.ZRangeByScore(ctx, key, opt).Result()
 	if err != nil {
 		return nil, fmt.Errorf("get ready messages error: %v", err)
@@ -184,6 +206,10 @@ func (dq *DQueue) getReadyMessages(ctx context.Context, id string) ([]Message, e
 	return messages, nil
 }
 
-func (dq *DQueue) formatKey(name string) string {
-	return fmt.Sprintf("%s:%s", dq.keyPrefix, name)
+func (dq *DQueue) formatZsetKey(topic string) string {
+	return fmt.Sprintf("%s:%s", dq.keyPrefix, topic)
+}
+
+func (dq *DQueue) formatHashKey(topic string) string {
+	return fmt.Sprintf("%s:%s:id_index", dq.keyPrefix, topic)
 }

@@ -16,7 +16,7 @@ import (
 )
 
 var queueConfig = &Config{
-	Brokers:     []string{"10.34.101.32:30992"},
+	Brokers:     []string{"127.0.0.1:9092"},
 	Driver:      "kafka",
 	Username:    "guest",
 	Password:    "guest",
