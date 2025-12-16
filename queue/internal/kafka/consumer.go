@@ -15,11 +15,20 @@ func (k *kafka) Stop() {
 	close(k.forever)
 }
 
+func (k *kafka) Topics() ([]string, error) {
+	csm, err := sarama.NewConsumer(k.brokers, k.config)
+	if err != nil {
+		return nil, err
+	}
+	defer csm.Close()
+	return csm.Topics()
+}
+
 func (k *kafka) Subscribe(group string, consumers ...*consumer.Consumer) {
 	go func() {
 		if group != "" {
 			for _, csm := range consumers {
-				go k.receiveGroup(csm)
+				go k.receiveGroup(group, csm)
 			}
 		} else {
 			go k.receive(consumers...)
@@ -43,13 +52,13 @@ func (k *kafka) receive(consumers ...*consumer.Consumer) {
 	select {}
 }
 
-func (k *kafka) receiveGroup(consumer *consumer.Consumer) {
+func (k *kafka) receiveGroup(group string, consumer *consumer.Consumer) {
 	keepRunning := true
 	consumer.Verify()
 	k.config.Consumer.Offsets.Initial = int64(consumer.Offset)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	consumerGroup, err := sarama.NewConsumerGroup(k.brokers, consumer.Name, k.config)
+	consumerGroup, err := sarama.NewConsumerGroup(k.brokers, group, k.config)
 	if err != nil {
 		k.logger.Errorf("new consumer group failed: %v", err)
 		return

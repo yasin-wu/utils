@@ -11,6 +11,10 @@ func (r *rabbitMQ) Stop() {
 	close(r.forever)
 }
 
+func (r *rabbitMQ) Topics() ([]string, error) {
+	return nil, nil
+}
+
 func (r *rabbitMQ) Subscribe(_ string, consumers ...*consumer.Consumer) {
 	for _, csm := range consumers {
 		csm.Verify()

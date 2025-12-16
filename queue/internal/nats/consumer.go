@@ -11,6 +11,10 @@ func (n *nats) Stop() {
 	close(n.forever)
 }
 
+func (n *nats) Topics() ([]string, error) {
+	return nil, nil
+}
+
 func (n *nats) Subscribe(group string, consumers ...*consumer.Consumer) {
 	go func() {
 		for _, v := range consumers {

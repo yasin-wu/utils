@@ -7,7 +7,7 @@ import (
 )
 
 type Queue interface {
-	//Topics() ([]string, error)
+	Topics() ([]string, error)
 	Publish(messages ...*message.Message) error
 	Subscribe(group string, consumers ...*consumer.Consumer)
 	SetLogger(logger util.Logger)
