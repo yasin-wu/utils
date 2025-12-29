@@ -8,6 +8,7 @@ require (
 	github.com/Shopify/sarama v1.37.2
 	github.com/alexmullins/zip v0.0.0-20180717182244-4affb64b04d0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.656
+	github.com/deatil/go-cryptobin v1.1.1013
 	github.com/elastic/go-elasticsearch/v7 v7.17.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-ldap/ldap/v3 v3.4.5
