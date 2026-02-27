@@ -47,7 +47,7 @@ func FileToBase64(file string) (string, error) {
 	return *(*string)(unsafe.Pointer(&baseImage)), nil
 }
 
-func ImageToBase64(img image.Image, fileType string) (string, error) {
+func ToBase64(img image.Image, fileType string) (string, error) {
 	var err error
 	emptyBuff := bytes.NewBuffer(nil)
 	switch fileType {

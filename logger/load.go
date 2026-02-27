@@ -29,7 +29,7 @@ func MustLoad(serverName, configFile string) *Logger {
 	}
 	unmarshal(&conf)
 	v.WatchConfig()
-	v.OnConfigChange(func(e fsnotify.Event) {
+	v.OnConfigChange(func(_ fsnotify.Event) {
 		unmarshal(&conf)
 	})
 	return &conf.Logger

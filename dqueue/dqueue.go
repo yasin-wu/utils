@@ -64,7 +64,7 @@ func (dq *DQueue) Register(action JobAction) error {
 
 func (dq *DQueue) StartBackground(interval time.Duration) {
 	dq.mu.Lock()
-	dq.mu.Unlock()
+	defer dq.mu.Unlock()
 	dq.wg.Add(1)
 	go func() {
 		defer dq.wg.Done()

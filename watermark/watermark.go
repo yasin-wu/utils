@@ -9,7 +9,6 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -146,7 +145,7 @@ func (w *WaterMark) do(img draw.Image, fontFile string, fontInfo []FontInfo) err
 	if fontFile == "" {
 		fontFile = "./conf/captcha.ttf"
 	}
-	fontBytes, err := ioutil.ReadFile(fontFile)
+	fontBytes, err := os.ReadFile(fontFile)
 	if err != nil {
 		return err
 	}

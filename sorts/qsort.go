@@ -92,14 +92,14 @@ func doPivot(data sort.Interface, lo, hi int) (midlo, midhi int) {
 	pivot := lo
 	a, c := lo+1, hi-1
 
-	for ; a != c && data.Less(a, pivot); a++ {
-	}
+	//for ; a != c && data.Less(a, pivot); a++ {
+	//}
 	b := a
 	for {
-		for ; b != c && !data.Less(pivot, b); b++ { // data[b] <= pivot
-		}
-		for ; b != c && data.Less(pivot, c-1); c-- { // data[c-1] > pivot
-		}
+		//for ; b != c && !data.Less(pivot, b); b++ { // data[b] <= pivot
+		//}
+		//for ; b != c && data.Less(pivot, c-1); c-- { // data[c-1] > pivot
+		//}
 		if b == c {
 			break
 		}
@@ -128,10 +128,10 @@ func doPivot(data sort.Interface, lo, hi int) (midlo, midhi int) {
 	}
 	if protect {
 		for {
-			for ; a != b && !data.Less(b-1, pivot); b-- { // data[b] == pivot
-			}
-			for ; a != b && data.Less(a, pivot); a++ { // data[a] < pivot
-			}
+			//for ; a != b && !data.Less(b-1, pivot); b-- { // data[b] == pivot
+			//}
+			//for ; a != b && data.Less(a, pivot); a++ { // data[a] < pivot
+			//}
 			if a == b {
 				break
 			}

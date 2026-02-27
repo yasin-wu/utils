@@ -11,8 +11,8 @@ import (
 )
 
 type kafka struct {
-	brokers           []string
-	strategy          string
+	brokers []string
+	//strategy          string
 	forever           chan bool
 	ctx               context.Context
 	logger            util.Logger
@@ -53,11 +53,11 @@ type kafkaLogger struct {
 var _ sarama.StdLogger = (*kafkaLogger)(nil)
 
 func (l *kafkaLogger) Print(v ...interface{}) {
-	l.Logger.Infof("kafka log:%v", v...)
+	l.Infof("kafka log:%v", v...)
 }
 func (l *kafkaLogger) Printf(format string, v ...interface{}) {
-	l.Logger.Infof(format, v...)
+	l.Infof(format, v...)
 }
 func (l *kafkaLogger) Println(v ...interface{}) {
-	l.Logger.Infof("kafka log:%v", v...)
+	l.Infof("kafka log:%v", v...)
 }

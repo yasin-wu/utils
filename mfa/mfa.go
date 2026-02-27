@@ -161,7 +161,7 @@ func (m *MFA) randomString(length int) string {
 func (m *MFA) totp(key []byte, t time.Time) string {
 	counter := uint64(t.UnixNano()) / 30e9
 	h := hmac.New(sha1.New, key)
-	binary.Write(h, binary.BigEndian, counter)
+	_ = binary.Write(h, binary.BigEndian, counter)
 	sum := h.Sum(nil)
 	v := binary.BigEndian.Uint32(sum[sum[len(sum)-1]&0x0F:]) & 0x7FFFFFFF
 	d := uint32(1)

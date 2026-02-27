@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
+	"os"
 	"strings"
 	"time"
 )
@@ -18,7 +18,7 @@ func RandInt64(min, max int64) int64 {
 }
 
 func RandFile(path string) (string, error) {
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +32,7 @@ func RandFile(path string) (string, error) {
 	if len(fileNames) == 0 {
 		return "", errors.New("dir is nil")
 	}
-	rand.Seed(time.Now().UnixNano())
+	rand.NewSource(time.Now().UnixNano())
 	index := rand.Intn(len(fileNames)) //nolint:gosec
 	if index >= len(fileNames) {
 		index = len(fileNames) - 1
